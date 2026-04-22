@@ -1,0 +1,5 @@
+config/database.php
+storage/logs/*.log
+storage/sessions/sess_*
+public/uploads/*
+!public/uploads/.gitkeep
