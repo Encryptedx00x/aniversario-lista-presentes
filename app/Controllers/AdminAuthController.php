@@ -7,11 +7,11 @@ use App\Models\UserModel;
 use App\Helpers\{View, Flash};
 
 class AdminAuthController {
-    public function loginForm(): void {
+    public function loginForm(array $params = []): void {
         View::render('admin/login', ['title' => 'Admin Login', 'layout' => 'admin_bare']);
     }
 
-    public function loginPost(): void {
+    public function loginPost(array $params = []): void {
         $email    = trim($_POST['email']    ?? '');
         $password =      $_POST['password'] ?? '';
 
@@ -40,7 +40,7 @@ class AdminAuthController {
         exit;
     }
 
-    public function dashboard(): void {
+    public function dashboard(array $params = []): void {
         // AuthMiddleware already verified $_SESSION['role'] === 'admin'
         View::render('admin/dashboard', [
             'title'  => 'Dashboard',
@@ -48,7 +48,7 @@ class AdminAuthController {
         ]);
     }
 
-    public function giftsStub(): void {
+    public function giftsStub(array $params = []): void {
         // D-05: stub route — renders admin/stub view (Plan 04) with section title
         View::render('admin/stub', [
             'title'   => 'Presentes',
@@ -57,7 +57,7 @@ class AdminAuthController {
         ]);
     }
 
-    public function logout(): void {
+    public function logout(array $params = []): void {
         $_SESSION = [];
         session_unset();
         session_destroy();
