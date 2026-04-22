@@ -59,7 +59,22 @@ class AdminGiftController {
             $data['image_path'] = $imagePath;
         }
 
-        (new GiftModel)->insert($data);
+        try {
+            (new GiftModel)->insert($data);
+        } catch (\PDOException $ex) {
+            if (str_starts_with((string)$ex->getCode(), '23')) {
+                $errors['slug'] = 'Este slug já está em uso. Escolha outro.';
+                View::render('admin/gifts/form', [
+                    'title'  => 'Novo Presente',
+                    'layout' => 'admin',
+                    'gift'   => null,
+                    'errors' => $errors,
+                ]);
+                return;
+            }
+            throw $ex;
+        }
+
         Flash::set('success', 'Presente criado com sucesso.');
         header('Location: /admin/gifts');
         exit;
@@ -119,7 +134,22 @@ class AdminGiftController {
             return;
         }
 
-        $giftModel->update($id, $data);
+        try {
+            $giftModel->update($id, $data);
+        } catch (\PDOException $ex) {
+            if (str_starts_with((string)$ex->getCode(), '23')) {
+                $errors['slug'] = 'Este slug já está em uso. Escolha outro.';
+                View::render('admin/gifts/form', [
+                    'title'  => 'Editar Presente',
+                    'layout' => 'admin',
+                    'gift'   => array_merge($gift, $data),
+                    'errors' => $errors,
+                ]);
+                return;
+            }
+            throw $ex;
+        }
+
         Flash::set('success', 'Presente atualizado com sucesso.');
         header('Location: /admin/gifts');
         exit;
