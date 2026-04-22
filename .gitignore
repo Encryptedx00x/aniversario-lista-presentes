@@ -1,5 +1,7 @@
 config/database.php
 storage/logs/*.log
 storage/sessions/sess_*
-public/uploads/*
-!public/uploads/.gitkeep
+public/uploads/**
+!public/uploads/.htaccess
+!public/uploads/gifts/
+!public/uploads/gifts/.gitkeep
