@@ -1,1 +1,47 @@
 /* Custom styles — Phase 1 stub */
+
+/* ── Phase 2: Gift card states ────────────────────────────────────────────── */
+.gift-card--esgotado {
+  opacity: 0.55;
+  filter: grayscale(30%);
+}
+
+.gift-card__featured-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+}
+
+.gift-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+@media (max-width: 767.98px) {
+  .gift-card .card-img-top {
+    height: 160px;
+  }
+}
+
+.gift-card__placeholder {
+  height: 200px;
+  background: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #adb5bd;
+}
+
+@media (max-width: 767.98px) {
+  .gift-card__placeholder {
+    height: 160px;
+  }
+}
+
+/* Touch targets: minimum 44px height on mobile */
+@media (max-width: 767.98px) {
+  .btn {
+    min-height: 44px;
+  }
+}
