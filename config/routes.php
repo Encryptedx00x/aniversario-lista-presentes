@@ -4,7 +4,8 @@
 // Dynamic segments use {param} syntax — Router extracts and passes $params array to the action.
 return [
     'GET' => [
-        '/'                               => ['HomeController',      'index'],
+        '/'                               => ['GiftController',      'index'],
+        '/gifts/filter'                   => ['GiftController',      'filter'],
         '/admin/login'                    => ['AdminAuthController', 'loginForm'],
         '/admin/dashboard'                => ['AdminAuthController', 'dashboard',   'auth'],
         '/admin/gifts'                    => ['AdminGiftController', 'index',       'auth'],
