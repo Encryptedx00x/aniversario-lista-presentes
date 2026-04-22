@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 2 (in progress — plan 03 complete)
+current_phase: Phase 2 (complete — all 4 plans done)
 status: in_progress
-last_updated: "2026-04-22T21:10:00.000Z"
+last_updated: "2026-04-22T22:00:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 8
-  completed_plans: 5
-  percent: 63
+  completed_plans: 6
+  percent: 75
 ---
 
 # Project State — Sistema de Aniversário
@@ -18,15 +18,15 @@ progress:
 ## Current Position
 
 **Milestone:** v1.0
-**Current Phase:** Phase 2 — plan 03 complete, plan 04 next
-**Last Action:** 02-03 complete — GiftController (index + filter), public gifts page with filter bar + auth modal, _cards.php partial, public routes registered
+**Current Phase:** Phase 2 — complete (all 4 plans done), Phase 3 next
+**Last Action:** 02-04 complete — GuestAuthController JSON endpoints, UserModel::create(), app.js GiftPage (filter debounce, auth modal, slug generation, image preview)
 
 ## Progress
 
 | Phase | Status | Completed |
 |-------|--------|-----------|
 | 1 — Base & Infraestrutura | ✅ Complete | 2026-04-22 |
-| 2 — Presentes Públicos & CRUD Admin | 🔄 In Progress (1/4 plans) | — |
+| 2 — Presentes Públicos & CRUD Admin | ✅ Complete | 2026-04-22 |
 | 3 — Reserva Atômica & Meus Presentes | ⬜ Not Started | — |
 | 4 — Fluxo Pix | ⬜ Not Started | — |
 | 5 — Painel Admin Completo | ⬜ Not Started | — |
@@ -54,6 +54,6 @@ progress:
 
 ## Session Continuity
 
-Last session: 2026-04-22T21:10:00Z
-Stopped at: Completed 02-03-PLAN.md
-Next step: Execute 02-04-PLAN.md (GuestAuthController JSON endpoints, UserModel::create(), app.js filter/modal/slug/preview)
+Last session: 2026-04-22T22:00:00Z
+Stopped at: Completed 02-04-PLAN.md
+Next step: Execute Phase 3 — Reserva Atômica & Meus Presentes
