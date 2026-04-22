@@ -19,5 +19,8 @@ return [
         '/admin/gifts/{id}/update'        => ['AdminGiftController', 'update',      'auth'],
         '/admin/gifts/{id}/delete'        => ['AdminGiftController', 'delete',      'auth'],
         '/admin/gifts/{id}/toggle-active' => ['AdminGiftController', 'toggleActive','auth'],
+        '/auth/guest-signup'              => ['GuestAuthController', 'signupPost'],
+        '/auth/guest-login'               => ['GuestAuthController', 'loginPost'],
+        '/auth/guest-logout'              => ['GuestAuthController', 'logout'],
     ],
 ];

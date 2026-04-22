@@ -17,4 +17,19 @@ class UserModel extends BaseModel {
             [':id' => $id]
         )->fetch();
     }
+
+    public function create(array $data): int {
+        $this->query(
+            'INSERT INTO users (name, email, phone, password_hash, role)
+             VALUES (:name, :email, :phone, :password_hash, :role)',
+            [
+                ':name'          => $data['name'],
+                ':email'         => $data['email'],
+                ':phone'         => $data['phone'] ?? null,
+                ':password_hash' => $data['password_hash'],
+                ':role'          => $data['role'] ?? 'guest',
+            ]
+        );
+        return (int)$this->db->lastInsertId();
+    }
 }
