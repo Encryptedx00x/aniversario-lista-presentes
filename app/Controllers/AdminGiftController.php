@@ -129,19 +129,34 @@ class AdminGiftController {
         $id        = (int)($params['id'] ?? 0);
         $giftModel = new GiftModel;
 
-        // D-19: block deletion if reservations exist
-        $count = $giftModel->reservationCount($id);
-        if ($count > 0) {
-            Flash::set('error', 'Este presente possui reservas associadas e não pode ser excluído.');
+        $gift = $giftModel->findById($id);
+        if (!$gift) {
+            Flash::set('error', 'Presente não encontrado.');
             header('Location: /admin/gifts');
             exit;
         }
 
-        $gift = $giftModel->findById($id);
-        $giftModel->delete($id);
+        // D-19: block deletion if reservations exist — check and delete inside a
+        // transaction so no concurrent reservation can slip between the count and delete.
+        $db = $giftModel->getDb();
+        $db->beginTransaction();
+        try {
+            $count = $giftModel->reservationCount($id);
+            if ($count > 0) {
+                $db->rollBack();
+                Flash::set('error', 'Este presente possui reservas associadas e não pode ser excluído.');
+                header('Location: /admin/gifts');
+                exit;
+            }
+            $giftModel->delete($id);
+            $db->commit();
+        } catch (\Throwable $e) {
+            $db->rollBack();
+            throw $e;
+        }
 
         // Clean up image file on successful delete
-        if ($gift && !empty($gift['image_path'])) {
+        if (!empty($gift['image_path'])) {
             $filePath = ROOT_PATH . '/public' . $gift['image_path'];
             if (file_exists($filePath)) {
                 @unlink($filePath);
