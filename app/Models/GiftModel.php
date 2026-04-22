@@ -123,12 +123,25 @@ class GiftModel extends BaseModel {
             return;
         }
 
+        $allowed = [
+            'name', 'slug', 'description', 'category', 'type', 'price',
+            'image_path', 'quantity', 'available_qty', 'featured',
+            'is_active', 'sort_order',
+        ];
+
         $setClauses = [];
         $params     = [':id' => $id];
 
         foreach ($data as $key => $value) {
-            $setClauses[]       = "`{$key}` = :{$key}";
-            $params[":{$key}"]  = $value;
+            if (!in_array($key, $allowed, true)) {
+                continue; // silently skip unknown columns
+            }
+            $setClauses[]      = "`{$key}` = :{$key}";
+            $params[":{$key}"] = $value;
+        }
+
+        if (empty($setClauses)) {
+            return;
         }
 
         $setClauses[] = 'updated_at = NOW()';
