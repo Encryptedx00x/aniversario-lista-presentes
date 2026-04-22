@@ -66,7 +66,7 @@ config.example.php
 **Plans:** 4 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Schema migration, Router dynamic segments, Bootstrap Icons, upload directory security, gift card CSS
+- [x] 02-01-PLAN.md — Schema migration, Router dynamic segments, Bootstrap Icons, upload directory security, gift card CSS
 - [ ] 02-02-PLAN.md — GiftModel data access, AdminGiftController CRUD, admin gift views, admin routes
 - [ ] 02-03-PLAN.md — GiftController (index + filter), public gifts page, _cards.php partial, public routes
 - [ ] 02-04-PLAN.md — GuestAuthController JSON endpoints, UserModel::create(), app.js filter/modal/slug/preview
