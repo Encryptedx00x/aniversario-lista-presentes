@@ -18,5 +18,6 @@ class CsrfMiddleware {
             (new \App\Controllers\ErrorController)->forbidden();
             exit;
         }
+        unset($_SESSION['csrf_token']); // force fresh token for next form render
     }
 }
