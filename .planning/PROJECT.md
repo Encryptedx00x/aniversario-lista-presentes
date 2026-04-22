@@ -28,7 +28,16 @@ O aniversariante quer uma forma organizada, bonita e digital de gerenciar lista 
 
 ### Validated
 
-(Nenhum ainda — greenfield)
+**Infra & Segurança (Phase 1 — 2026-04-22):**
+- [x] SEC-01: PDO prepared statements com ATTR_EMULATE_PREPARES=false em todas as queries
+- [x] SEC-02: CSRF token gerado com random_bytes(32) e validado com hash_equals()
+- [x] SEC-03: htmlspecialchars(ENT_QUOTES) em toda saída — $e() closure via View::render
+- [x] SEC-04: password_verify + session_regenerate_id(true) no login
+- [x] SEC-05: finfo_open(FILEINFO_MIME_TYPE) para validação de MIME (Upload scaffold)
+- [x] SEC-06: $_SESSION['role'] === 'admin' verificado no AuthMiddleware
+- [x] SEC-07: display_errors=0 em produção; erros logados em storage/logs/
+- [x] DEPLOY-03: config.example.php com placeholders de credenciais
+- [x] DEPLOY-04: .htaccess com mod_rewrite roteando para public/index.php
 
 ### Active
 
