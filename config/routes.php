@@ -10,6 +10,6 @@ return [
     ],
     'POST' => [
         '/admin/login'     => ['AdminAuthController', 'loginPost'],
-        '/admin/logout'    => ['AdminAuthController', 'logout'],
+        '/admin/logout'    => ['AdminAuthController', 'logout', 'auth'],
     ],
 ];
