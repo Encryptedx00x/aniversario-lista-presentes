@@ -58,6 +58,8 @@ class AdminAuthController {
     }
 
     public function logout(): void {
+        $_SESSION = [];
+        session_unset();
         session_destroy();
         header('Location: /admin/login');
         exit;
