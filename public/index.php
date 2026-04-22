@@ -9,7 +9,10 @@ use App\Helpers\Session;
 
 Session::start();
 
-$uri    = strtok($_SERVER['REQUEST_URI'], '?');
+// REDIRECT_URL contém a URI original antes do rewrite do Apache (ex: root .htaccess → public/index.php).
+// REQUEST_URI após rewrite interno vira "/public/index.php" — não serve para roteamento.
+$rawUri = $_SERVER['REDIRECT_URL'] ?? $_SERVER['REQUEST_URI'];
+$uri    = strtok($rawUri, '?');
 $uri    = '/' . trim($uri, '/');
 $method = $_SERVER['REQUEST_METHOD'];
 

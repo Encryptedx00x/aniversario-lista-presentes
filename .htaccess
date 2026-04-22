@@ -6,9 +6,9 @@ Options -Indexes
     RewriteEngine On
     RewriteBase /
 
-    # Servir arquivos e diretórios que existam de fato (ex: .well-known/)
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
+    # Servir apenas arquivos estáticos que existam de fato (ex: robots.txt)
+    # NÃO incluir -d: o diretório raiz (public_html/) não deve ser servido diretamente
+    RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^ - [L]
 
     # assets/ e uploads/ apontam para public/assets/ e public/uploads/
