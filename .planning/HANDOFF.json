@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "paused_at": "2026-04-22T12:55:00Z",
+  "milestone": "v1.0",
+  "current_phase": "01-base-infraestrutura",
+  "phase_status": "complete",
+  "next_phase": "02-presentes-publicos-crud-admin",
+  "blocking_issues": [],
+  "pending_human": [
+    "Local render test (php -S localhost:8000 -t public)",
+    "Admin login flow end-to-end",
+    "Hostinger .htaccess compat (two-file fix deployed)"
+  ],
+  "last_commits": [
+    "Phase 1 executed (4 plans)",
+    "Code review fixes applied (6/6)",
+    "Hostinger deploy fix: .htaccess -d removal + REDIRECT_URL"
+  ],
+  "resume_command": "/gsd-plan-phase 2",
+  "handoff_file": ".planning/phases/01-base-infraestrutura/.continue-here.md"
+}
