@@ -17,10 +17,13 @@ class Upload {
      * @param string[] $allowedMimes e.g. ['image/jpeg', 'image/png', 'image/webp']
      */
     public static function validateMime(string $tmpPath, array $allowedMimes): bool {
-        $finfo    = finfo_open(FILEINFO_MIME_TYPE);
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo === false) {
+            return false; // fail closed — deny upload if finfo unavailable
+        }
         $mimeType = finfo_file($finfo, $tmpPath);
         finfo_close($finfo);
-        return in_array($mimeType, $allowedMimes, strict: true);
+        return is_string($mimeType) && in_array($mimeType, $allowedMimes, strict: true);
     }
 
     /**
