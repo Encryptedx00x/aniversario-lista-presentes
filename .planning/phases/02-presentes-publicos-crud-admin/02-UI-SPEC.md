@@ -60,7 +60,7 @@ Bootstrap 5 base font size is 16px (1rem). All sizes below map to Bootstrap util
 | Heading / page title | 28px (1.75rem) | 600 (semibold) | 1.2 | `.fs-3 .fw-semibold` |
 
 Rules:
-- Only two weights used: 400 (regular) and 600 (semibold). Bold (700) is reserved for destructive/alert copy only.
+- Only two weights used: 400 (regular) and 600 (semibold). Semibold (600) is used for all emphasis including destructive/alert copy — no 700 bold.
 - No italic anywhere in this phase.
 - Card gift name: 20px / 600 / lh 1.3
 - Card price: 16px / 600 / lh 1.5 — rendered in accent color
