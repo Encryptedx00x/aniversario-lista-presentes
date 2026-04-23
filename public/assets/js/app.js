@@ -4,11 +4,15 @@ const GiftPage = {
     _debounceTimer: null,
 
     init() {
-        this.initFilter();
-        this.initChooseGift();
-        this.initAuthModal();
-        this.initSlugGeneration();
-        this.initImagePreview();
+        [
+            'initFilter',
+            'initChooseGift',
+            'initAuthModal',
+            'initSlugGeneration',
+            'initImagePreview',
+        ].forEach(fn => {
+            try { this[fn](); } catch (err) { console.error('[GiftPage] ' + fn + ' failed:', err); }
+        });
     },
 
     // --- Filter bar: search debounce + category/sort AJAX swap ---
@@ -31,13 +35,17 @@ const GiftPage = {
             container.style.pointerEvents = 'none';
 
             fetch('/gifts/filter?' + params.toString())
-                .then(r => r.text())
+                .then(r => {
+                    if (!r.ok) { console.error('[filter] HTTP ' + r.status); }
+                    return r.text();
+                })
                 .then(html => {
-                    container.innerHTML        = html;
+                    container.innerHTML           = html;
                     container.style.opacity       = '1';
                     container.style.pointerEvents = '';
                 })
-                .catch(() => {
+                .catch(err => {
+                    console.error('[filter] fetch failed:', err);
                     container.style.opacity       = '1';
                     container.style.pointerEvents = '';
                 });
@@ -66,7 +74,7 @@ const GiftPage = {
             if (loggedIn !== '1') {
                 const modalEl = document.getElementById('authModal');
                 if (!modalEl) return;
-                new bootstrap.Modal(modalEl).show();
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
             } else {
                 // Phase 3 hook — reservation will be wired here
                 console.log('Gift selected:', giftId);
@@ -178,8 +186,7 @@ const GiftPage = {
         }
 
         setTimeout(() => {
-            const instance = bootstrap.Modal.getInstance(modalEl);
-            if (instance) instance.hide();
+            bootstrap.Modal.getOrCreateInstance(modalEl).hide();
         }, 1200);
     },
 
