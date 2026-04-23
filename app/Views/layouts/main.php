@@ -42,9 +42,7 @@
 <footer class="py-3 border-top text-center text-muted small">
     <div class="container"><?= htmlspecialchars(APP_NAME, ENT_QUOTES, 'UTF-8') ?></div>
 </footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmDGYiMj9gdA2Jk0Xt9rZpQB5qm"
-        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/assets/js/app.js"></script>
 </body>
 </html>
