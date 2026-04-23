@@ -12,7 +12,13 @@ class Session {
         ini_set('session.use_strict_mode', '1');
         ini_set('session.cookie_samesite', 'Lax');
         ini_set('session.cookie_secure', getenv('APP_ENV') !== 'development' ? '1' : '0');
-        session_save_path(ROOT_PATH . '/storage/sessions');
+        $sessionPath = ROOT_PATH . '/storage/sessions';
+        if (!is_dir($sessionPath)) {
+            @mkdir($sessionPath, 0755, true);
+        }
+        if (is_dir($sessionPath) && is_writable($sessionPath)) {
+            session_save_path($sessionPath);
+        }
         session_start();
     }
 }
