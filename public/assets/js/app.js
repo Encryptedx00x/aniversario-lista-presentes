@@ -187,6 +187,18 @@ const GiftPage = {
 
         setTimeout(() => {
             bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+
+            const pendingGiftId = window._pendingGiftId;
+            if (pendingGiftId) {
+                window._pendingGiftId = null;
+                const btn = document.querySelector(`.btn-choose-gift[data-gift-id="${pendingGiftId}"]`);
+                if (btn) {
+                    btn.dataset.loggedIn = '1';
+                    btn.click();
+                } else {
+                    window.location.reload();
+                }
+            }
         }, 1200);
     },
 
