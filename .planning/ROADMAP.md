@@ -85,6 +85,13 @@ Plans:
 
 **Requirements:** STOCK-01, STOCK-02, STOCK-03, STOCK-04, STOCK-05, RESERVE-01, RESERVE-02, RESERVE-03
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Schema migration (nullable cols + status enum + FK), ReservationModel, ReservationController, AuthMiddleware::requireGuest(), routes + /csrf-token
+- [ ] 03-02-PLAN.md — app.js Phase-3 wiring (POST /reserve, stale CSRF fix, card DOM update, Bootstrap Toast)
+- [ ] 03-03-PLAN.md — my-gifts/index.php view, cancel form, empty state, conditional nav link in main.php
+
 **Success Criteria:**
 1. Após cadastro no modal, reserva é criada com status=reserved sem ação extra do usuário
 2. `available_quantity` é decrementado; presente `single` fica com status esgotado
