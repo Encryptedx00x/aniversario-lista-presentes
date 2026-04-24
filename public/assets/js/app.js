@@ -1,8 +1,6 @@
+// App JS — Phase 1 stub
+
 const GiftPage = {
-    _getCsrfToken() {
-        const entry = document.cookie.split('; ').find(r => r.startsWith('csrf_token='));
-        return entry ? entry.split('=')[1] : '';
-    },
     _debounceTimer: null,
 
     init() {
@@ -123,7 +121,7 @@ const GiftPage = {
                 e.preventDefault();
                 if (signupError) signupError.classList.add('d-none');
 
-                const csrfToken = GiftPage._getCsrfToken();
+                const csrfToken = modalEl.dataset.csrfToken;
                 const formData  = new FormData(formSignup);
                 formData.append('csrf_token', csrfToken);
 
@@ -155,7 +153,7 @@ const GiftPage = {
                 e.preventDefault();
                 if (loginError) loginError.classList.add('d-none');
 
-                const csrfToken = GiftPage._getCsrfToken();
+                const csrfToken = modalEl.dataset.csrfToken;
                 const formData  = new FormData(formLogin);
                 formData.append('csrf_token', csrfToken);
 
