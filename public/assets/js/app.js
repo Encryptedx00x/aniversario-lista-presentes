@@ -176,6 +176,7 @@ const GiftPage = {
                 if (data.success) {
                     this._onReserveSuccess(btn, data);
                 } else {
+                    console.error('[reserve] backend returned error:', data);
                     this._onReserveError(btn, data);
                 }
             })
@@ -206,6 +207,12 @@ const GiftPage = {
         msgEl.textContent = message;
         toastEl.classList.remove('text-bg-success', 'text-bg-danger');
         toastEl.classList.add(isError ? 'text-bg-danger' : 'text-bg-success');
+
+        if (typeof bootstrap === 'undefined' || !bootstrap.Toast) {
+            console.error('[reserve] bootstrap toast unavailable:', message);
+            alert(message);
+            return;
+        }
 
         bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 4500 }).show();
     },
