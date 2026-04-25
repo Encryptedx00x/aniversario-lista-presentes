@@ -339,13 +339,24 @@ const GiftPage = {
     _onAuthSuccess() {
         const modalEl = document.getElementById('authModal');
         const successDiv = document.getElementById('auth-success');
+        const pageMeta = document.getElementById('page-meta');
 
         if (successDiv) {
             successDiv.classList.remove('d-none');
         }
 
+        if (pageMeta) {
+            pageMeta.dataset.loggedIn = '1';
+        }
+
+        document.querySelectorAll('.btn-choose-gift[data-gift-id]').forEach((btn) => {
+            btn.dataset.loggedIn = '1';
+        });
+
         setTimeout(() => {
-            bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+            if (modalEl) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+            }
 
             const pendingGiftId = window._pendingGiftId;
             if (!pendingGiftId) {
@@ -361,8 +372,7 @@ const GiftPage = {
                     window._pendingGiftId = null;
                     const btn = document.querySelector(`.btn-choose-gift[data-gift-id="${pendingGiftId}"]`);
                     if (btn) {
-                        btn.dataset.loggedIn = '1';
-                        btn.click();
+                        this._reserveGift(btn, pendingGiftId);
                     } else {
                         window.location.reload();
                     }
