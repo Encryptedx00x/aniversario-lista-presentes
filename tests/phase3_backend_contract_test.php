@@ -37,6 +37,7 @@ assertTrue(isset($routes['POST']['/my-gifts/cancel']), 'Route POST /my-gifts/can
 $authMiddlewareSource = file_get_contents($root . '/app/Middleware/AuthMiddleware.php');
 assertTrue($authMiddlewareSource !== false, 'AuthMiddleware source is readable');
 assertTrue(str_contains($authMiddlewareSource, 'function requireGuest'), 'AuthMiddleware::requireGuest exists');
+assertTrue(str_contains($authMiddlewareSource, 'findById'), 'AuthMiddleware::requireGuest validates guest user still exists');
 
 $reservationModelSource = file_get_contents($root . '/app/Models/ReservationModel.php');
 assertTrue($reservationModelSource !== false, 'ReservationModel source is readable');
@@ -60,6 +61,7 @@ assertTrue(str_contains($reservationControllerSource, 'function store'), 'Reserv
 assertTrue(str_contains($reservationControllerSource, 'function myGifts'), 'ReservationController::myGifts exists');
 assertTrue(str_contains($reservationControllerSource, 'function cancel'), 'ReservationController::cancel exists');
 assertTrue(str_contains($reservationControllerSource, 'function csrfToken'), 'ReservationController::csrfToken exists');
+assertTrue(str_contains($reservationControllerSource, "'requires_auth' => true"), 'ReservationController returns requires_auth flag for expired auth');
 assertTrue(str_contains($reservationControllerSource, "'Esse presente acabou de ficar indisponível.'") || str_contains($reservationModelSource, "'Esse presente acabou de ficar indisponível.'"), 'Exhausted stock message contract exists');
 
 $migrationSource = file_get_contents($root . '/sql/migrate_phase3.sql');

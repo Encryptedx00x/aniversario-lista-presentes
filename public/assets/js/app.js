@@ -262,6 +262,14 @@ const GiftPage = {
     _onReserveError(btn, data) {
         const message = data?.error || 'Não foi possível concluir a reserva.';
 
+        if (data?.requires_auth) {
+            const pageMeta = document.getElementById('page-meta');
+            if (pageMeta) pageMeta.dataset.loggedIn = '0';
+            document.querySelectorAll('.btn-choose-gift[data-gift-id]').forEach((el) => {
+                el.dataset.loggedIn = '0';
+            });
+        }
+
         if (data?.is_exhausted) {
             const card = btn.closest('.card');
             if (card) {
@@ -282,6 +290,13 @@ const GiftPage = {
         }
 
         this._showReserveToast(message, true);
+
+        if (data?.requires_auth) {
+            const modalEl = document.getElementById('authModal');
+            if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            }
+        }
     },
 
     // --- Auth modal: tab switching + form submission ---

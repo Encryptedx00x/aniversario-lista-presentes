@@ -27,6 +27,14 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/my-gifts">Meus Presentes</a>
                     </li>
+                    <li class="nav-item">
+                        <form method="POST" action="/auth/guest-logout" class="d-inline">
+                            <input type="hidden"
+                                   name="csrf_token"
+                                   value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
+                            <button type="submit" class="btn btn-link nav-link">Sair</button>
+                        </form>
+                    </li>
                 <?php endif; ?>
                 <li class="nav-item">
                     <a class="nav-link" href="/pix">Pix</a>
