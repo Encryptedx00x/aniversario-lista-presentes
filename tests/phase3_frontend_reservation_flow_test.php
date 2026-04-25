@@ -46,9 +46,13 @@ assertTrue(str_contains($appJs, 'qtyText.textContent = `Disponível: ${available
 assertTrue(str_contains($appJs, "btn.textContent = 'Indisponível';"), 'reserve success/error can switch button to Indisponível');
 assertTrue(str_contains($appJs, 'if (data?.is_exhausted)'), 'reserve error handles race-condition exhausted response');
 assertTrue(str_contains($appJs, 'this._showReserveToast(message, true);'), 'reserve error shows error toast');
+assertTrue(str_contains($appJs, 'this._showReserveBanner(message, isError);'), 'reserve flow mirrors feedback in visible banner');
+assertTrue(str_contains($appJs, "modalEl.addEventListener('show.bs.modal'"), 'auth modal reset hook runs on modal open');
+assertTrue(str_contains($appJs, '_resetAuthModalState(true);'), 'auth modal fields are reset before showing');
 
 assertTrue(str_contains($giftsView, 'id="reserve-toast"'), 'gifts view contains reservation toast container');
 assertTrue(str_contains($giftsView, 'id="reserve-toast-message"'), 'gifts view contains reservation toast message placeholder');
 assertTrue(str_contains($giftsView, 'href="/my-gifts"'), 'reservation toast contains "Ver meus presentes" link target');
+assertTrue(str_contains($giftsView, 'id="reserve-feedback"'), 'gifts view contains persistent reservation feedback banner');
 
 fwrite(STDOUT, "\nPhase 3 frontend reservation flow contract checks passed.\n");
