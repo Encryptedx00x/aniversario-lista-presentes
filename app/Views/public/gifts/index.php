@@ -8,6 +8,11 @@
 <div class="container py-4">
 
     <h1 class="mb-4 fw-bold">Lista de Presentes</h1>
+    <div id="reserve-feedback"
+         class="alert d-none"
+         role="status"
+         aria-live="polite">
+    </div>
 
     <!-- Filter bar -->
     <div class="row g-3 mb-4 align-items-end">

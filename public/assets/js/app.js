@@ -196,6 +196,8 @@ const GiftPage = {
     },
 
     _showReserveToast(message, isError = false) {
+        this._showReserveBanner(message, isError);
+
         const toastEl = document.getElementById('reserve-toast');
         const msgEl = document.getElementById('reserve-toast-message');
 
@@ -215,6 +217,15 @@ const GiftPage = {
         }
 
         bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 4500 }).show();
+    },
+
+    _showReserveBanner(message, isError = false) {
+        const banner = document.getElementById('reserve-feedback');
+        if (!banner) return;
+
+        banner.textContent = message;
+        banner.classList.remove('d-none', 'alert-success', 'alert-danger');
+        banner.classList.add(isError ? 'alert-danger' : 'alert-success');
     },
 
     _onReserveSuccess(btn, data) {
@@ -271,6 +282,10 @@ const GiftPage = {
     initAuthModal() {
         const modalEl = document.getElementById('authModal');
         if (!modalEl) return;
+
+        modalEl.addEventListener('show.bs.modal', () => {
+            this._resetAuthModalState(true);
+        });
 
         // Tab switching
         modalEl.addEventListener('click', (e) => {
@@ -403,6 +418,34 @@ const GiftPage = {
                     }
                 });
         }, 1200);
+    },
+
+    _resetAuthModalState(clearForms = false) {
+        const successDiv = document.getElementById('auth-success');
+        const signupError = document.getElementById('signup-error');
+        const loginError = document.getElementById('login-error');
+        const tabSignup = document.getElementById('tab-signup');
+        const tabLogin = document.getElementById('tab-login');
+        const formSignup = document.getElementById('form-signup');
+        const formLogin = document.getElementById('form-login');
+
+        if (successDiv) successDiv.classList.add('d-none');
+        if (signupError) signupError.classList.add('d-none');
+        if (loginError) loginError.classList.add('d-none');
+
+        if (tabSignup && tabLogin) {
+            tabSignup.classList.remove('d-none');
+            tabLogin.classList.add('d-none');
+        }
+
+        document.querySelectorAll('#authModal [data-tab]').forEach((el) => {
+            el.classList.toggle('active', el.dataset.tab === 'signup');
+        });
+
+        if (clearForms) {
+            if (formSignup) formSignup.reset();
+            if (formLogin) formLogin.reset();
+        }
     },
 
     // --- Slug auto-generation (admin gift form only) ---
