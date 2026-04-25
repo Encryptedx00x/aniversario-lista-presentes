@@ -29,7 +29,7 @@ assertTrue($appJs !== false, 'app.js is readable');
 $giftsView = file_get_contents($giftsViewPath);
 assertTrue($giftsView !== false, 'gifts/index.php is readable');
 
-assertTrue(str_contains($appJs, "if (loggedIn !== '1')"), 'initChooseGift has guest-auth branch');
+assertTrue(str_contains($appJs, 'if (!loggedIn)'), 'initChooseGift has guest-auth branch');
 assertTrue(str_contains($appJs, 'this._reserveGift(btn, giftId);'), 'logged guest flow calls _reserveGift');
 assertTrue(!str_contains($appJs, 'console.log'), 'reservation click flow no longer uses console.log stub');
 
@@ -40,7 +40,7 @@ assertTrue(str_contains($appJs, "csrf_token: csrfToken"), 'reserve payload inclu
 
 assertTrue(str_contains($appJs, 'this._fetchFreshCsrfToken()'), '_onAuthSuccess refreshes CSRF token');
 assertTrue(str_contains($appJs, "fetch('/csrf-token'"), '_fetchFreshCsrfToken requests /csrf-token');
-assertTrue(str_contains($appJs, 'btn.click();'), '_onAuthSuccess re-clicks pending gift button');
+assertTrue(str_contains($appJs, 'this._reserveGift(btn, pendingGiftId);'), '_onAuthSuccess resumes pending reservation');
 
 assertTrue(str_contains($appJs, 'qtyText.textContent = `Disponível: ${availableQty}`;'), 'reserve success updates available quantity in DOM');
 assertTrue(str_contains($appJs, "btn.textContent = 'Indisponível';"), 'reserve success/error can switch button to Indisponível');
