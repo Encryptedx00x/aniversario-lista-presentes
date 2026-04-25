@@ -165,3 +165,20 @@
         </div>
     </div>
 </div>
+
+<!-- Reservation feedback toast (Phase 3) -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="reserve-toast"
+         class="toast align-items-center text-bg-success border-0"
+         role="status"
+         aria-live="polite"
+         aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <span id="reserve-toast-message">Reserva concluída!</span>
+                <a href="/my-gifts" class="link-light fw-semibold ms-1 text-decoration-underline">Ver meus presentes</a>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+        </div>
+    </div>
+</div>

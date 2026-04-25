@@ -9,7 +9,7 @@ class Router {
     public static function dispatch(string $uri, string $method, array $routes): void {
         $routeMap = $routes[$method] ?? [];
 
-        // 1. Exact match (fast path — all Phase 1 routes, no regex overhead)
+        // 1. Exact match (fast path — no regex overhead)
         if (isset($routeMap[$uri])) {
             [$controllerName, $action, $middleware] = array_pad($routeMap[$uri], 3, null);
             self::run($controllerName, $action, $middleware, $method, []);
@@ -42,9 +42,11 @@ class Router {
         string $method,
         array $params
     ): void {
-        // Auth guard — checked before CSRF so unauthenticated users get a clean redirect
+        // Auth guards run before CSRF, so unauthorized users get a clean redirect.
         if ($middleware === 'auth') {
             AuthMiddleware::handle();
+        } elseif ($middleware === 'guest') {
+            AuthMiddleware::requireGuest();
         }
 
         // CSRF validation on every state-mutating request (SEC-02)

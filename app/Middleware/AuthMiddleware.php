@@ -10,4 +10,11 @@ class AuthMiddleware {
             exit;
         }
     }
+
+    public static function requireGuest(): void {
+        if (($_SESSION['role'] ?? '') !== 'guest' || empty($_SESSION['user_id'])) {
+            header('Location: /gifts');
+            exit;
+        }
+    }
 }
