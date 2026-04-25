@@ -23,6 +23,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/gifts">Presentes</a>
                 </li>
+                <?php if (($_SESSION['role'] ?? '') === 'guest'): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/my-gifts">Meus Presentes</a>
+                    </li>
+                <?php endif; ?>
                 <li class="nav-item">
                     <a class="nav-link" href="/pix">Pix</a>
                 </li>

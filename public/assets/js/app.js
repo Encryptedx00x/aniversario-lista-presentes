@@ -1,4 +1,4 @@
-// App JS — Phase 1 stub
+// App JS — Gift page interactions + auth + reservations
 
 const GiftPage = {
     _debounceTimer: null,
@@ -17,21 +17,21 @@ const GiftPage = {
 
     // --- Filter bar: search debounce + category/sort AJAX swap ---
     initFilter() {
-        const searchInput   = document.getElementById('search-input');
+        const searchInput    = document.getElementById('search-input');
         const categoryFilter = document.getElementById('category-filter');
-        const sortFilter    = document.getElementById('sort-filter');
-        const container     = document.getElementById('gifts-container');
+        const sortFilter     = document.getElementById('sort-filter');
+        const container      = document.getElementById('gifts-container');
 
         if (!searchInput || !categoryFilter || !sortFilter || !container) return;
 
         const fetchGifts = () => {
             const params = new URLSearchParams({
-                search:   searchInput.value,
+                search: searchInput.value,
                 category: categoryFilter.value,
-                sort:     sortFilter.value,
+                sort: sortFilter.value,
             });
 
-            container.style.opacity       = '0.5';
+            container.style.opacity = '0.5';
             container.style.pointerEvents = 'none';
 
             fetch('/gifts/filter?' + params.toString())
@@ -40,13 +40,13 @@ const GiftPage = {
                     return r.text();
                 })
                 .then(html => {
-                    container.innerHTML           = html;
-                    container.style.opacity       = '1';
+                    container.innerHTML = html;
+                    container.style.opacity = '1';
                     container.style.pointerEvents = '';
                 })
                 .catch(err => {
                     console.error('[filter] fetch failed:', err);
-                    container.style.opacity       = '1';
+                    container.style.opacity = '1';
                     container.style.pointerEvents = '';
                 });
         };
@@ -66,7 +66,9 @@ const GiftPage = {
             const btn = e.target.closest('.btn-choose-gift');
             if (!btn) return;
 
-            const giftId   = btn.dataset.giftId;
+            e.preventDefault();
+
+            const giftId = btn.dataset.giftId;
             const loggedIn = btn.dataset.loggedIn;
 
             window._pendingGiftId = giftId;
@@ -75,11 +77,169 @@ const GiftPage = {
                 const modalEl = document.getElementById('authModal');
                 if (!modalEl) return;
                 bootstrap.Modal.getOrCreateInstance(modalEl).show();
-            } else {
-                // Phase 3 hook — reservation will be wired here
-                console.log('Gift selected:', giftId);
+                return;
             }
+
+            this._reserveGift(btn, giftId);
         });
+    },
+
+    _getCurrentCsrfToken() {
+        const modalEl = document.getElementById('authModal');
+        return modalEl?.dataset?.csrfToken || '';
+    },
+
+    _setCurrentCsrfToken(token) {
+        const modalEl = document.getElementById('authModal');
+        if (modalEl && token) {
+            modalEl.dataset.csrfToken = token;
+        }
+    },
+
+    _fetchFreshCsrfToken() {
+        return fetch('/csrf-token', {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+        })
+            .then(r => {
+                if (!r.ok) {
+                    throw new Error('csrf-token HTTP ' + r.status);
+                }
+                return r.json();
+            })
+            .then(data => {
+                if (!data || typeof data.token !== 'string' || data.token.length < 16) {
+                    throw new Error('csrf-token payload inválido');
+                }
+                this._setCurrentCsrfToken(data.token);
+                return data.token;
+            });
+    },
+
+    _reserveGift(btn, giftId) {
+        if (!giftId) return;
+
+        const csrfToken = this._getCurrentCsrfToken();
+        if (!csrfToken) {
+            this._showReserveToast('Não foi possível validar sua sessão. Recarregue a página.', true);
+            return;
+        }
+
+        btn.disabled = true;
+
+        const body = new URLSearchParams({
+            gift_id: String(giftId),
+            csrf_token: csrfToken,
+        });
+
+        fetch('/reserve', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Accept': 'application/json',
+            },
+            body: body.toString(),
+        })
+            .then(async (r) => {
+                let data = null;
+                try {
+                    data = await r.json();
+                } catch (err) {
+                    // Keep null; handled below.
+                }
+
+                if (!r.ok && !data) {
+                    throw new Error('reserve HTTP ' + r.status);
+                }
+
+                return data || { success: false, error: 'Resposta inválida do servidor.' };
+            })
+            .then((data) => {
+                if (data.success) {
+                    this._onReserveSuccess(btn, data);
+                } else {
+                    this._onReserveError(btn, data);
+                }
+            })
+            .catch((err) => {
+                console.error('[reserve] request failed:', err);
+                this._onReserveError(btn, {
+                    success: false,
+                    error: 'Não foi possível concluir sua reserva agora. Tente novamente.',
+                    is_exhausted: false,
+                });
+            })
+            .finally(() => {
+                if (!btn.classList.contains('btn-secondary')) {
+                    btn.disabled = false;
+                }
+            });
+    },
+
+    _showReserveToast(message, isError = false) {
+        const toastEl = document.getElementById('reserve-toast');
+        const msgEl = document.getElementById('reserve-toast-message');
+
+        if (!toastEl || !msgEl) {
+            alert(message);
+            return;
+        }
+
+        msgEl.textContent = message;
+        toastEl.classList.remove('text-bg-success', 'text-bg-danger');
+        toastEl.classList.add(isError ? 'text-bg-danger' : 'text-bg-success');
+
+        bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 4500 }).show();
+    },
+
+    _onReserveSuccess(btn, data) {
+        const card = btn.closest('.card');
+        const availableQty = Number(data.available_qty);
+        const isExhausted = Boolean(data.is_exhausted);
+
+        if (card) {
+            const qtyText = card.querySelector('p.small.text-muted.mt-auto.mb-0');
+            if (qtyText && Number.isFinite(availableQty)) {
+                qtyText.textContent = `Disponível: ${availableQty}`;
+            }
+
+            if (isExhausted) {
+                card.classList.add('gift-card--esgotado');
+                btn.className = 'btn btn-secondary w-100';
+                btn.textContent = 'Indisponível';
+                btn.disabled = true;
+                btn.classList.remove('btn-choose-gift');
+                delete btn.dataset.giftId;
+                delete btn.dataset.loggedIn;
+            }
+        }
+
+        this._showReserveToast('Reserva concluída! Veja em "Meus Presentes".', false);
+    },
+
+    _onReserveError(btn, data) {
+        const message = data?.error || 'Não foi possível concluir a reserva.';
+
+        if (data?.is_exhausted) {
+            const card = btn.closest('.card');
+            if (card) {
+                const qtyText = card.querySelector('p.small.text-muted.mt-auto.mb-0');
+                if (qtyText) {
+                    qtyText.textContent = 'Disponível: 0';
+                }
+
+                card.classList.add('gift-card--esgotado');
+            }
+
+            btn.className = 'btn btn-secondary w-100';
+            btn.textContent = 'Indisponível';
+            btn.disabled = true;
+            btn.classList.remove('btn-choose-gift');
+            delete btn.dataset.giftId;
+            delete btn.dataset.loggedIn;
+        }
+
+        this._showReserveToast(message, true);
     },
 
     // --- Auth modal: tab switching + form submission ---
@@ -92,9 +252,11 @@ const GiftPage = {
             const tab = e.target.closest('[data-tab]');
             if (!tab) return;
 
-            const target    = tab.dataset.tab;
+            e.preventDefault();
+
+            const target = tab.dataset.tab;
             const tabSignup = document.getElementById('tab-signup');
-            const tabLogin  = document.getElementById('tab-login');
+            const tabLogin = document.getElementById('tab-login');
 
             if (!tabSignup || !tabLogin) return;
 
@@ -106,14 +268,13 @@ const GiftPage = {
                 tabSignup.classList.add('d-none');
             }
 
-            // Toggle active on nav links
             modalEl.querySelectorAll('[data-tab]').forEach(el => {
                 el.classList.toggle('active', el.dataset.tab === target);
             });
         });
 
         // Signup form submission
-        const formSignup  = document.getElementById('form-signup');
+        const formSignup = document.getElementById('form-signup');
         const signupError = document.getElementById('signup-error');
 
         if (formSignup) {
@@ -121,9 +282,8 @@ const GiftPage = {
                 e.preventDefault();
                 if (signupError) signupError.classList.add('d-none');
 
-                const csrfToken = modalEl.dataset.csrfToken;
-                const formData  = new FormData(formSignup);
-                formData.append('csrf_token', csrfToken);
+                const formData = new FormData(formSignup);
+                formData.append('csrf_token', this._getCurrentCsrfToken());
 
                 fetch('/auth/guest-signup', { method: 'POST', body: formData })
                     .then(r => r.json())
@@ -145,7 +305,7 @@ const GiftPage = {
         }
 
         // Login form submission
-        const formLogin  = document.getElementById('form-login');
+        const formLogin = document.getElementById('form-login');
         const loginError = document.getElementById('login-error');
 
         if (formLogin) {
@@ -153,9 +313,8 @@ const GiftPage = {
                 e.preventDefault();
                 if (loginError) loginError.classList.add('d-none');
 
-                const csrfToken = modalEl.dataset.csrfToken;
-                const formData  = new FormData(formLogin);
-                formData.append('csrf_token', csrfToken);
+                const formData = new FormData(formLogin);
+                formData.append('csrf_token', this._getCurrentCsrfToken());
 
                 fetch('/auth/guest-login', { method: 'POST', body: formData })
                     .then(r => r.json())
@@ -178,8 +337,8 @@ const GiftPage = {
     },
 
     _onAuthSuccess() {
-        const modalEl     = document.getElementById('authModal');
-        const successDiv  = document.getElementById('auth-success');
+        const modalEl = document.getElementById('authModal');
+        const successDiv = document.getElementById('auth-success');
 
         if (successDiv) {
             successDiv.classList.remove('d-none');
@@ -189,16 +348,25 @@ const GiftPage = {
             bootstrap.Modal.getOrCreateInstance(modalEl).hide();
 
             const pendingGiftId = window._pendingGiftId;
-            if (pendingGiftId) {
-                window._pendingGiftId = null;
-                const btn = document.querySelector(`.btn-choose-gift[data-gift-id="${pendingGiftId}"]`);
-                if (btn) {
-                    btn.dataset.loggedIn = '1';
-                    btn.click();
-                } else {
-                    window.location.reload();
-                }
+            if (!pendingGiftId) {
+                return;
             }
+
+            this._fetchFreshCsrfToken()
+                .catch((err) => {
+                    console.error('[auth] failed to refresh csrf token:', err);
+                    return null;
+                })
+                .finally(() => {
+                    window._pendingGiftId = null;
+                    const btn = document.querySelector(`.btn-choose-gift[data-gift-id="${pendingGiftId}"]`);
+                    if (btn) {
+                        btn.dataset.loggedIn = '1';
+                        btn.click();
+                    } else {
+                        window.location.reload();
+                    }
+                });
         }, 1200);
     },
 
@@ -209,7 +377,6 @@ const GiftPage = {
 
         if (!nameInput || !slugInput) return;
 
-        // Track manual edits
         slugInput.addEventListener('input', () => {
             slugInput.dataset.auto = 'false';
         });
@@ -228,7 +395,7 @@ const GiftPage = {
 
     // --- Image preview (admin gift form only) ---
     initImagePreview() {
-        const fileInput  = document.querySelector('[name="image"]');
+        const fileInput = document.querySelector('[name="image"]');
         const imgPreview = document.getElementById('image-preview');
 
         if (!fileInput || !imgPreview) return;
@@ -239,7 +406,7 @@ const GiftPage = {
 
             const reader = new FileReader();
             reader.addEventListener('load', (e) => {
-                imgPreview.src           = e.target.result;
+                imgPreview.src = e.target.result;
                 imgPreview.style.display = 'block';
             });
             reader.readAsDataURL(file);
