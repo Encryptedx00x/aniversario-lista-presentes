@@ -92,26 +92,28 @@ class ReservationModel extends BaseModel {
      * Returns active reservations for the current guest (newest first).
      */
     public function getActiveByUser(int $userId): array {
-        return $this->query(
-            'SELECT
-                r.id,
-                r.gift_id,
-                CASE WHEN r.status = 'active' THEN 'reserved' ELSE r.status END AS status,
-                r.created_at,
-                g.name,
-                g.description,
-                g.price,
-                g.image_path,
-                g.available_qty,
-                g.slug
-             FROM reservations r
-             INNER JOIN gifts g ON g.id = r.gift_id
-             WHERE r.user_id = :user_id
-             ORDER BY r.created_at DESC',
-            [
-                ':user_id' => $userId,
-            ]
-        )->fetchAll();
+        try {
+            return $this->query(
+                'SELECT
+                    r.id,
+                    r.gift_id,
+                    CASE WHEN r.status = \'active\' THEN \'reserved\' ELSE r.status END AS status,
+                    r.created_at,
+                    g.name AS gift_name,
+                    g.category,
+                    g.image_path
+                 FROM reservations r
+                 INNER JOIN gifts g ON g.id = r.gift_id
+                 WHERE r.user_id = :user_id
+                 ORDER BY r.created_at DESC',
+                [
+                    ':user_id' => $userId,
+                ]
+            )->fetchAll();
+        } catch (\Throwable $e) {
+            error_log('[ReservationModel::getActiveByUser] ' . $e->getMessage());
+            return [];
+        }
     }
 
     /**

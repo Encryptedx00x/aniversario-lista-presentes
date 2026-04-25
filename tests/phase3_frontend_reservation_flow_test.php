@@ -37,6 +37,7 @@ assertTrue(str_contains($appJs, "fetch('/reserve'"), 'reserve flow posts to /res
 assertTrue(str_contains($appJs, "method: 'POST'"), 'reserve flow uses POST');
 assertTrue(str_contains($appJs, 'gift_id: String(giftId)'), 'reserve payload includes gift_id');
 assertTrue(str_contains($appJs, "csrf_token: csrfToken"), 'reserve payload includes csrf_token');
+assertTrue(str_contains($appJs, 'this._fetchFreshCsrfToken()'), 'reserve flow refreshes CSRF token before POST');
 
 assertTrue(str_contains($appJs, 'this._fetchFreshCsrfToken()'), '_onAuthSuccess refreshes CSRF token');
 assertTrue(str_contains($appJs, "fetch('/csrf-token'"), '_fetchFreshCsrfToken requests /csrf-token');
