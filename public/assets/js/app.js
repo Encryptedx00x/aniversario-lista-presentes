@@ -63,19 +63,37 @@ const GiftPage = {
     // --- Gift card "Escolher este presente" buttons (delegated) ---
     initChooseGift() {
         document.addEventListener('click', (e) => {
-            const btn = e.target.closest('.btn-choose-gift');
+            const target = e.target;
+            if (!(target instanceof Element)) return;
+
+            const btn = target.closest('.btn-choose-gift');
             if (!btn) return;
 
             e.preventDefault();
 
-            const giftId = btn.dataset.giftId;
-            const loggedIn = btn.dataset.loggedIn;
+            const giftId = (btn.getAttribute('data-gift-id') || '').trim();
+            if (!giftId) {
+                console.error('[choose-gift] missing data-gift-id on clicked button');
+                return;
+            }
+
+            const pageLoggedIn = document.getElementById('page-meta')?.dataset?.loggedIn;
+            const loggedIn = pageLoggedIn === '1' || btn.dataset.loggedIn === '1';
 
             window._pendingGiftId = giftId;
 
-            if (loggedIn !== '1') {
+            if (!loggedIn) {
                 const modalEl = document.getElementById('authModal');
-                if (!modalEl) return;
+                if (!modalEl) {
+                    console.error('[choose-gift] auth modal not found');
+                    return;
+                }
+
+                if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+                    console.error('[choose-gift] bootstrap modal unavailable');
+                    return;
+                }
+
                 bootstrap.Modal.getOrCreateInstance(modalEl).show();
                 return;
             }
