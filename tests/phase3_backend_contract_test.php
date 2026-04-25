@@ -45,8 +45,14 @@ assertTrue(str_contains($reservationModelSource, 'beginTransaction'), 'Reservati
 assertTrue(str_contains($reservationModelSource, 'rollBack'), 'ReservationModel rolls back on failure');
 assertTrue(str_contains($reservationModelSource, 'available_qty = available_qty - 1'), 'ReservationModel decrements available_qty atomically');
 assertTrue(str_contains($reservationModelSource, 'INSERT INTO reservations (gift_id, user_id)'), 'ReservationModel insert uses schema-compatible default status');
-assertTrue(str_contains($reservationModelSource, "CASE WHEN r.status = 'active' THEN 'reserved'"), 'ReservationModel normalizes legacy active status for UI');
+assertTrue(
+    str_contains($reservationModelSource, "CASE WHEN r.status = \\'active\\' THEN \\'reserved\\'")
+    || str_contains($reservationModelSource, "CASE WHEN r.status = 'active' THEN 'reserved'"),
+    'ReservationModel normalizes legacy active status for UI'
+);
 assertTrue(str_contains($reservationModelSource, "in_array(\$reservationStatus, ['reserved', 'active']"), 'ReservationModel cancel accepts both reserved and legacy active statuses');
+assertTrue(str_contains($reservationModelSource, 'g.name AS gift_name'), 'ReservationModel my-gifts query aliases gift_name for view contract');
+assertTrue(str_contains($reservationModelSource, '[ReservationModel::getActiveByUser]'), 'ReservationModel my-gifts query failures are logged and handled');
 
 $reservationControllerSource = file_get_contents($root . '/app/Controllers/ReservationController.php');
 assertTrue($reservationControllerSource !== false, 'ReservationController source is readable');

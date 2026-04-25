@@ -137,27 +137,33 @@ const GiftPage = {
     _reserveGift(btn, giftId) {
         if (!giftId) return;
 
-        const csrfToken = this._getCurrentCsrfToken();
-        if (!csrfToken) {
-            this._showReserveToast('Não foi possível validar sua sessão. Recarregue a página.', true);
-            return;
-        }
-
         btn.disabled = true;
 
-        const body = new URLSearchParams({
-            gift_id: String(giftId),
-            csrf_token: csrfToken,
-        });
+        this._fetchFreshCsrfToken()
+            .catch((err) => {
+                console.error('[reserve] failed to refresh csrf token:', err);
+                return null;
+            })
+            .then(() => {
+                const csrfToken = this._getCurrentCsrfToken();
+                if (!csrfToken) {
+                    throw new Error('csrf token ausente');
+                }
 
-        fetch('/reserve', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'Accept': 'application/json',
-            },
-            body: body.toString(),
-        })
+                const body = new URLSearchParams({
+                    gift_id: String(giftId),
+                    csrf_token: csrfToken,
+                });
+
+                return fetch('/reserve', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept': 'application/json',
+                    },
+                    body: body.toString(),
+                });
+            })
             .then(async (r) => {
                 let data = null;
                 try {
@@ -184,7 +190,7 @@ const GiftPage = {
                 console.error('[reserve] request failed:', err);
                 this._onReserveError(btn, {
                     success: false,
-                    error: 'Não foi possível concluir sua reserva agora. Tente novamente.',
+                    error: 'Não foi possível concluir sua reserva agora. Atualize a página e tente novamente.',
                     is_exhausted: false,
                 });
             })
