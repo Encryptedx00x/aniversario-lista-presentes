@@ -7,6 +7,7 @@ return [
         '/'                               => ['GiftController',        'index'],
         '/gifts'                          => ['GiftController',        'index'],
         '/gifts/filter'                   => ['GiftController',        'filter'],
+        '/pix'                            => ['PixController',         'index'],
         '/csrf-token'                     => ['ReservationController', 'csrfToken'],
         '/my-gifts'                       => ['ReservationController', 'myGifts',      'guest'],
         '/admin/login'                    => ['AdminAuthController',   'loginForm'],
@@ -18,6 +19,7 @@ return [
     'POST' => [
         '/reserve'                        => ['ReservationController', 'store',        'guest'],
         '/my-gifts/cancel'                => ['ReservationController', 'cancel',       'guest'],
+        '/pix/contribute'                 => ['PixController',         'contribute'],
         '/admin/login'                    => ['AdminAuthController',   'loginPost'],
         '/admin/logout'                   => ['AdminAuthController',   'logout',       'auth'],
         '/admin/gifts/store'              => ['AdminGiftController',   'store',        'auth'],
