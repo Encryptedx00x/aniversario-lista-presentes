@@ -9,7 +9,7 @@ $pixTotal = (int) ($stats['pix_total'] ?? 0);
 ?>
 <div class="row g-4 mb-4">
     <div class="col-sm-6 col-xl-2">
-        <div class="card text-center h-100">
+        <div class="card text-center h-100 dashboard-metric-card">
             <div class="card-body">
                 <div class="display-6 fw-bold text-primary"><?= $e($giftsTotal) ?></div>
                 <div class="text-muted small mt-1">Presentes</div>
@@ -17,7 +17,7 @@ $pixTotal = (int) ($stats['pix_total'] ?? 0);
         </div>
     </div>
     <div class="col-sm-6 col-xl-2">
-        <div class="card text-center h-100">
+        <div class="card text-center h-100 dashboard-metric-card">
             <div class="card-body">
                 <div class="display-6 fw-bold text-success"><?= $e($giftsAvailable) ?></div>
                 <div class="text-muted small mt-1">Disponíveis</div>
@@ -25,7 +25,7 @@ $pixTotal = (int) ($stats['pix_total'] ?? 0);
         </div>
     </div>
     <div class="col-sm-6 col-xl-2">
-        <div class="card text-center h-100">
+        <div class="card text-center h-100 dashboard-metric-card">
             <div class="card-body">
                 <div class="display-6 fw-bold text-danger"><?= $e($giftsSoldOut) ?></div>
                 <div class="text-muted small mt-1">Esgotados</div>
@@ -33,7 +33,7 @@ $pixTotal = (int) ($stats['pix_total'] ?? 0);
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="card text-center h-100">
+        <div class="card text-center h-100 dashboard-metric-card">
             <div class="card-body">
                 <div class="display-6 fw-bold text-warning"><?= $e($reservationsTotal) ?></div>
                 <div class="text-muted small mt-1">Reservas</div>
@@ -41,7 +41,7 @@ $pixTotal = (int) ($stats['pix_total'] ?? 0);
         </div>
     </div>
     <div class="col-sm-6 col-xl-3">
-        <div class="card text-center h-100">
+        <div class="card text-center h-100 dashboard-metric-card">
             <div class="card-body">
                 <div class="display-6 fw-bold text-info"><?= $e($pixTotal) ?></div>
                 <div class="text-muted small mt-1">Contribuições Pix</div>

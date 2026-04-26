@@ -1,6 +1,70 @@
-/* Custom styles — Phase 1 stub */
+:root {
+  --ui-bg: #ffffff;
+  --ui-surface: #ffffff;
+  --ui-text: #0f0f14;
+  --ui-muted: #6a6a78;
+  --ui-border: #ececf3;
+  --ui-purple: #6d28d9;
+  --ui-purple-dark: #4c1d95;
+  --ui-shadow: 0 10px 30px rgba(15, 15, 20, 0.08);
+  --ui-radius: 16px;
+}
 
-/* ── Phase 2: Gift card states ────────────────────────────────────────────── */
+body {
+  background: radial-gradient(circle at top right, #f5eeff 0%, var(--ui-bg) 35%);
+  color: var(--ui-text);
+}
+
+.app-navbar {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.app-navbar .navbar-brand {
+  color: var(--ui-purple-dark);
+  letter-spacing: 0.2px;
+}
+
+.app-navbar .nav-link {
+  color: var(--ui-text);
+  transition: color .22s ease, transform .22s ease;
+}
+
+.app-navbar .nav-link:hover,
+.app-navbar .nav-link:focus {
+  color: var(--ui-purple);
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--ui-purple);
+  --bs-btn-border-color: var(--ui-purple);
+  --bs-btn-hover-bg: var(--ui-purple-dark);
+  --bs-btn-hover-border-color: var(--ui-purple-dark);
+  --bs-btn-active-bg: #3e157e;
+  --bs-btn-active-border-color: #3e157e;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--ui-purple);
+  --bs-btn-border-color: var(--ui-purple);
+  --bs-btn-hover-bg: var(--ui-purple);
+  --bs-btn-hover-border-color: var(--ui-purple);
+}
+
+.card {
+  border: 1px solid var(--ui-border);
+  border-radius: var(--ui-radius);
+  box-shadow: var(--ui-shadow);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(76, 29, 149, 0.14);
+}
+
 .gift-card--esgotado {
   opacity: 0.55;
   filter: grayscale(30%);
@@ -8,8 +72,8 @@
 
 .gift-card__featured-badge {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   z-index: 1;
 }
 
@@ -18,30 +82,45 @@
   object-fit: cover;
 }
 
-@media (max-width: 767.98px) {
-  .gift-card .card-img-top {
-    height: 160px;
-  }
-}
-
 .gift-card__placeholder {
   height: 200px;
-  background: #e9ecef;
+  background: #f3f4f6;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #adb5bd;
+  color: #9ca3af;
+}
+
+#reserve-feedback {
+  border: 1px solid transparent;
+  border-radius: 14px;
+}
+
+.dashboard-metric-card .display-6 {
+  color: var(--ui-purple-dark) !important;
+}
+
+footer {
+  background: #0f0f14;
+  color: #f8f8ff !important;
+  border-top: 1px solid #1f1f2a !important;
 }
 
 @media (max-width: 767.98px) {
+  .btn {
+    min-height: 44px;
+  }
+
+  .gift-card .card-img-top,
   .gift-card__placeholder {
     height: 160px;
   }
 }
 
-/* Touch targets: minimum 44px height on mobile */
-@media (max-width: 767.98px) {
-  .btn {
-    min-height: 44px;
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
   }
 }
