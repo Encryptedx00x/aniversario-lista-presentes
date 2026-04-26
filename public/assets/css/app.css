@@ -1,12 +1,12 @@
 :root {
   --bg: #ffffff;
-  --bg-soft: #f6f4ff;
+  --bg-soft: #f5efe6;
   --surface: rgba(255, 255, 255, 0.7);
   --surface-strong: #ffffff;
   --text: #111116;
-  --muted: #666676;
-  --line: rgba(77, 57, 149, 0.16);
-  --purple: #7c3aed;
+  --muted: #5b4e52;
+  --line: rgba(94, 32, 59, 0.16);
+  --purple: #7a1f45;
   --purple-bright: #a855f7;
   --purple-deep: #4c1d95;
   --success: #22c55e;
@@ -23,7 +23,7 @@ body.theme-modern {
   color: var(--text);
   min-height: 100vh;
   background:
-    radial-gradient(circle at 10% -10%, rgba(168, 85, 247, 0.09) 0%, transparent 34%),
+    radial-gradient(circle at 10% -10%, rgba(122, 31, 69, 0.1) 0%, transparent 34%),
     radial-gradient(circle at 95% 0%, rgba(10, 10, 10, 0.05) 0%, transparent 36%),
     linear-gradient(170deg, #ffffff 0%, #f7f7fa 40%, #ffffff 100%);
   font-family: "Inter", "Satoshi", "Segoe UI", Roboto, sans-serif;
@@ -138,7 +138,7 @@ body.theme-modern {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: .16;
+  opacity: .22;
   z-index: -3;
   filter: saturate(115%) contrast(108%);
 }
@@ -148,7 +148,7 @@ body.theme-modern {
   inset: 0;
   background-image: radial-gradient(rgba(0,0,0,.045) 1px, transparent 1px);
   background-size: 3px 3px;
-  opacity: .34;
+  opacity: .22;
   z-index: -2;
   pointer-events: none;
 }
@@ -245,7 +245,7 @@ body.theme-modern {
 .gift-collage-card {
   grid-column: span 4;
   border: 1px solid rgba(26,18,24,.14);
-  background: rgba(255, 252, 247, .88);
+  background: rgba(248, 240, 231, .84);
   backdrop-filter: blur(6px);
   border-radius: 14px;
   padding: 14px;
@@ -700,3 +700,36 @@ body.theme-modern {
 
 .showcase-chip--mini span { font-size: .62rem; }
 .showcase-chip--mini strong { font-size: .74rem; font-weight: 700; }
+.reveal-ready {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.gifts-filter-wrap {
+  border: 1px solid rgba(26,18,24,.12);
+  border-radius: 14px;
+  padding: 10px;
+  background: rgba(255, 249, 242, .75);
+}
+
+.gifts-grid-editorial .card {
+  background: linear-gradient(150deg, rgba(255,255,255,.95), rgba(247,240,235,.9));
+}
+
+.pix-payment-panel,
+.pix-form-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.pix-payment-panel::after,
+.pix-form-panel::after {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 999px;
+  right: -60px;
+  top: -70px;
+  background: radial-gradient(circle, rgba(122,31,69,.13), transparent 68%);
+}

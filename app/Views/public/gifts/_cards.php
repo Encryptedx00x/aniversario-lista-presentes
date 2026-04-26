@@ -22,7 +22,7 @@
     $isFeatured = (bool)$gift['featured'];
     $cardClass  = $isSoldOut ? 'gift-card h-100 shadow-sm gift-card--esgotado' : 'gift-card h-100 shadow-sm';
 ?>
-<div class="col">
+<div class="col" data-reveal>
     <div class="card <?= $cardClass ?>">
         <div class="position-relative">
             <?php if ($gift['image_path']): ?>

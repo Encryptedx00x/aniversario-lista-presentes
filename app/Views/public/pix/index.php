@@ -4,7 +4,7 @@
  */
 ?>
 <div class="container py-4 pix-page">
-    <section class="pix-hero mb-4">
+    <section class="pix-hero mb-4" data-reveal>
         <h1 class="mb-2 fw-bold">Contribuir via Pix</h1>
         <p class="mb-0">Um fluxo visual mais criativo para dar o presente com agilidade.</p>
     </section>
@@ -18,7 +18,7 @@
     <?php endif; ?>
 
     <div class="pix-grid">
-        <div class="pix-payment-panel">
+        <div class="pix-payment-panel" data-reveal>
             <h2 class="h5 mb-3">Dados para pagamento</h2>
             <div class="pix-keyline"><span>Chave Pix</span><strong><?= $e($pixKey !== '' ? $pixKey : 'Configure no painel admin') ?></strong></div>
             <div class="pix-keyline"><span>Recebedor</span><strong><?= $e($pixReceiver !== '' ? $pixReceiver : APP_NAME) ?></strong></div>
@@ -36,7 +36,7 @@
             <?php endif; ?>
         </div>
 
-        <div class="pix-form-panel">
+        <div class="pix-form-panel" data-reveal>
             <h2 class="h5 mb-3">Registrar contribuição</h2>
             <form method="POST" action="/pix/contribute">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">

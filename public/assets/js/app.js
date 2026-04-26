@@ -505,6 +505,7 @@ const GiftPage = {
         const video = document.getElementById('bg-scroll-video');
         const kineticEls = Array.from(document.querySelectorAll('[data-kinetic]'));
         const parallaxEls = Array.from(document.querySelectorAll('[data-parallax]'));
+        const revealEls = Array.from(document.querySelectorAll('[data-reveal]'));
         const cursorPreview = document.getElementById('cursor-preview');
         const cursorPreviewImg = document.getElementById('cursor-preview-img');
         const hoverKeywords = Array.from(document.querySelectorAll('.hover-keyword[data-preview]'));
@@ -545,6 +546,70 @@ const GiftPage = {
 
         window.addEventListener('scroll', onScroll, { passive: true });
         onScroll();
+
+        const hasGSAP = typeof window.gsap !== 'undefined';
+        const hasScrollTrigger = typeof window.ScrollTrigger !== 'undefined';
+        if (hasGSAP && hasScrollTrigger) {
+            window.gsap.registerPlugin(window.ScrollTrigger);
+
+            revealEls.forEach((el) => {
+                window.gsap.fromTo(el,
+                    { autoAlpha: 0, y: 30 },
+                    {
+                        autoAlpha: 1,
+                        y: 0,
+                        duration: 1,
+                        ease: 'power3.out',
+                        scrollTrigger: {
+                            trigger: el,
+                            start: 'top 88%',
+                            once: true,
+                        },
+                    }
+                );
+            });
+
+            kineticEls.forEach((el) => {
+                const speed = Number(el.getAttribute('data-speed') || 0.2);
+                window.gsap.to(el, {
+                    yPercent: -12 * speed * 10,
+                    scaleX: 1.05,
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: el,
+                        start: 'top bottom',
+                        end: 'bottom top',
+                        scrub: true,
+                    },
+                });
+            });
+
+            if (video) {
+                const bindVideoScroll = () => {
+                    if (!video.duration || !Number.isFinite(video.duration)) return;
+                    window.gsap.to(video, {
+                        currentTime: Math.max(video.duration - 0.02, 0),
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: document.body,
+                            start: 'top top',
+                            end: 'bottom bottom',
+                            scrub: true,
+                        },
+                    });
+                };
+
+                if (video.readyState >= 1) {
+                    bindVideoScroll();
+                } else {
+                    video.addEventListener('loadedmetadata', bindVideoScroll, { once: true });
+                }
+            }
+        } else {
+            revealEls.forEach((el) => {
+                el.classList.add('reveal-ready');
+            });
+        }
 
         if (hoverKeywords.length > 0 && cursorPreview && cursorPreviewImg) {
             window.addEventListener('mousemove', (ev) => {

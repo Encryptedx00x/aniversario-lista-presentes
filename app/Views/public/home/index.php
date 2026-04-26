@@ -7,29 +7,29 @@ $previewC = !empty($featured[2]['image_path']) ? (string) $featured[2]['image_pa
 ?>
 
 <div class="editorial-stage">
-    <video id="bg-scroll-video" class="bg-scroll-video" muted playsinline preload="metadata" aria-hidden="true">
+    <video id="bg-scroll-video" class="bg-scroll-video" muted autoplay loop playsinline preload="auto" aria-hidden="true">
         <source src="https://cdn.coverr.co/videos/coverr-ink-in-water-1579/1080p.mp4" type="video/mp4">
     </video>
     <div class="editorial-grain" aria-hidden="true"></div>
 
-    <section class="home-editorial-hero">
+    <section class="home-editorial-hero" data-reveal>
         <p class="home-editorial-kicker">edição de aniversário</p>
-        <h1 class="home-editorial-title" data-kinetic data-speed="0.22">
+        <h1 class="home-editorial-title" data-kinetic data-speed="0.22" data-reveal>
             Celebre em <span class="ink">movimento</span>.<br>
             Escolha presentes como quem compõe uma obra.
         </h1>
 
-        <p class="home-editorial-subtitle" data-kinetic data-speed="0.14">
+        <p class="home-editorial-subtitle" data-kinetic data-speed="0.14" data-reveal>
             Entre na lista, reserve com fluidez e contribua via Pix em uma experiência
             editorial viva — com ritmo, textura e presença.
         </p>
 
-        <div class="home-editorial-actions" data-kinetic data-speed="0.12">
+        <div class="home-editorial-actions" data-kinetic data-speed="0.12" data-reveal>
             <a href="/gifts" class="btn btn-dark px-4">Ver presentes</a>
             <a href="/pix" class="btn btn-outline-dark px-4">Contribuir via Pix</a>
         </div>
 
-        <div class="countdown-editorial" data-kinetic data-speed="0.08">
+        <div class="countdown-editorial" data-kinetic data-speed="0.08" data-reveal>
             <p class="countdown-editorial__label">contagem para o aniversário</p>
             <?php if ($days !== null && $nextDate !== null): ?>
                 <div class="countdown-editorial__days"><?= (int) $days ?></div>
@@ -41,7 +41,7 @@ $previewC = !empty($featured[2]['image_path']) ? (string) $featured[2]['image_pa
         </div>
     </section>
 
-    <section class="home-manifesto" data-parallax="0.12">
+    <section class="home-manifesto" data-parallax="0.12" data-reveal>
         <p>
             Uma noite com atmosfera de
             <span class="hover-keyword" data-preview="<?= htmlspecialchars($previewA, ENT_QUOTES, 'UTF-8') ?>">festa autoral</span>,
@@ -53,7 +53,7 @@ $previewC = !empty($featured[2]['image_path']) ? (string) $featured[2]['image_pa
     </section>
 
     <?php if (!empty($featured)): ?>
-        <section class="gift-collage-grid">
+        <section class="gift-collage-grid" data-reveal>
             <?php foreach ($featured as $idx => $gift): ?>
                 <article class="gift-collage-card" data-parallax="<?= htmlspecialchars((string) (0.04 * ($idx + 1)), ENT_QUOTES, 'UTF-8') ?>">
                     <div class="gift-collage-card__meta">

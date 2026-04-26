@@ -5,9 +5,9 @@
  * Variables available: $gifts, $categories, $e (from View::render extract).
  */
 ?>
-<div class="container py-4">
+<div class="container py-4 gifts-editorial">
 
-    <section class="gifts-hero mb-4">
+    <section class="gifts-hero mb-4" data-reveal>
         <p class="gifts-hero__kicker mb-2">Gift Experience</p>
         <h1 class="gifts-hero__title mb-2">Lista de Presentes</h1>
         <p class="gifts-hero__subtitle mb-0">
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Filter bar -->
-    <div class="row g-3 mb-4 align-items-end">
+    <div class="row g-3 mb-4 align-items-end gifts-filter-wrap" data-reveal>
         <div class="col-md-5">
             <label for="search-input" class="form-label visually-hidden">Buscar presente</label>
             <input type="text"
@@ -50,7 +50,7 @@
     </div>
 
     <!-- Card grid — initial server render; JS replaces innerHTML on filter -->
-    <div id="gifts-container" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div id="gifts-container" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 gifts-grid-editorial" data-reveal>
         <?php require __DIR__ . '/_cards.php'; ?>
     </div>
 
