@@ -13,6 +13,7 @@
         <p class="gifts-hero__subtitle mb-0">
             Escolha um presente, abra o link do produto ou contribua via Pix com uma experiência visual premium.
         </p>
+        <p class="gifts-hero__micro mt-3 mb-0">Edição visual: movimento, contraste e composição editorial.</p>
     </section>
     <div id="reserve-feedback"
          class="alert d-none"
