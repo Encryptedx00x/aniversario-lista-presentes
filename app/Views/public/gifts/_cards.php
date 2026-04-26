@@ -54,6 +54,14 @@
                     R$ <?= $e(number_format((float)$gift['price'], 2, ',', '.')) ?>
                 </p>
             <?php endif; ?>
+            <?php if (!empty($gift['purchase_url'])): ?>
+                <a href="<?= $e($gift['purchase_url']) ?>"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="small text-decoration-underline mb-2 d-inline-block">
+                    Ver link do produto
+                </a>
+            <?php endif; ?>
             <p class="small text-muted mt-auto mb-0">
                 Disponível: <?= $e($gift['available_qty']) ?>
             </p>
@@ -67,6 +75,12 @@
                         data-logged-in="<?= isset($_SESSION['user_id']) ? '1' : '0' ?>">
                     Escolher este presente
                 </button>
+                <?php if ((float)$gift['price'] > 0): ?>
+                    <a class="btn btn-outline-success w-100 mt-2"
+                       href="/pix?gift_id=<?= $e((string) $gift['id']) ?>&amount=<?= $e(number_format((float)$gift['price'], 2, '.', '')) ?>">
+                        Dar este presente via Pix
+                    </a>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>

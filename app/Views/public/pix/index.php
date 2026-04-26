@@ -4,10 +4,19 @@
  * Variables:
  * - $pixKey, $pixReceiver, $pixCity, $pixQrCode, $pixCopyPaste
  * - $prefillGuestName, $prefillGuestEmail
+ * - $selectedGift, $suggestedAmount
  */
 ?>
 <div class="container py-4">
     <h1 class="mb-4 fw-bold">Contribuir via Pix</h1>
+
+    <?php if (!empty($selectedGift)): ?>
+        <div class="alert alert-warning mb-4">
+            Você está contribuindo para o presente:
+            <strong><?= $e((string) ($selectedGift['name'] ?? '')) ?></strong>.
+            Ao confirmar, ele será marcado como dado.
+        </div>
+    <?php endif; ?>
 
     <div class="row g-4">
         <div class="col-lg-6">
@@ -43,6 +52,11 @@
                         <input type="hidden"
                                name="csrf_token"
                                value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
+                        <?php if (!empty($selectedGift['id'])): ?>
+                            <input type="hidden"
+                                   name="gift_id"
+                                   value="<?= $e((string) $selectedGift['id']) ?>">
+                        <?php endif; ?>
 
                         <div class="mb-3">
                             <label for="guest_name" class="form-label">Nome</label>
@@ -72,6 +86,7 @@
                                    name="amount"
                                    min="1"
                                    step="0.01"
+                                   value="<?= $e(number_format((float) ($suggestedAmount ?? 0), 2, '.', '')) ?>"
                                    required>
                         </div>
 
