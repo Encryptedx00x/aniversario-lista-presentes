@@ -11,49 +11,37 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-light app-navbar">
-    <div class="container">
-        <a class="navbar-brand fw-semibold" href="/"><?= htmlspecialchars(APP_NAME, ENT_QUOTES, 'UTF-8') ?></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/gifts">Presentes</a>
-                </li>
-                <?php if (($_SESSION['role'] ?? '') === 'guest'): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/my-gifts">Meus Presentes</a>
-                    </li>
-                    <li class="nav-item">
-                        <form method="POST" action="/auth/guest-logout" class="d-inline">
-                            <input type="hidden"
-                                   name="csrf_token"
-                                   value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
-                            <button type="submit" class="btn btn-link nav-link">Sair</button>
-                        </form>
-                    </li>
-                <?php endif; ?>
-                <li class="nav-item">
-                    <a class="nav-link" href="/pix">Pix</a>
-                </li>
-            </ul>
-        </div>
+<body class="theme-modern">
+<header class="site-header">
+    <div class="container site-header__inner">
+        <a class="site-logo" href="/"><?= htmlspecialchars(APP_NAME, ENT_QUOTES, 'UTF-8') ?></a>
+        <nav class="site-nav" aria-label="Navegação principal">
+            <a class="site-nav__link" href="/gifts">Presentes</a>
+            <?php if (($_SESSION['role'] ?? '') === 'guest'): ?>
+                <a class="site-nav__link" href="/my-gifts">Meus Presentes</a>
+            <?php endif; ?>
+            <a class="site-nav__link" href="/pix">Pix</a>
+            <?php if (($_SESSION['role'] ?? '') === 'guest'): ?>
+                <form method="POST" action="/auth/guest-logout" class="site-nav__form">
+                    <input type="hidden"
+                           name="csrf_token"
+                           value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
+                    <button type="submit" class="site-nav__link site-nav__button">Sair</button>
+                </form>
+            <?php endif; ?>
+        </nav>
     </div>
-</nav>
-<main class="container py-4">
+</header>
+<main class="container py-4 site-main">
     <?php $flash = \App\Helpers\Flash::get(); if ($flash): ?>
-        <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : 'success' ?> alert-dismissible fade show" role="alert">
+        <div class="app-flash app-flash--<?= $flash['type'] === 'error' ? 'error' : 'success' ?>" role="alert">
             <?= htmlspecialchars($flash['msg'], ENT_QUOTES, 'UTF-8') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
         </div>
     <?php endif; ?>
     <?= $content ?>
 </main>
-<footer class="py-3 border-top text-center text-muted small">
-    <div class="container"><?= htmlspecialchars(APP_NAME, ENT_QUOTES, 'UTF-8') ?></div>
+<footer class="site-footer">
+    <div class="container site-footer__inner"><?= htmlspecialchars(APP_NAME, ENT_QUOTES, 'UTF-8') ?></div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/assets/js/app.js"></script>
