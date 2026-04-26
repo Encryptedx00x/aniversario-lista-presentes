@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/assets/css/app.css">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+<nav class="navbar navbar-expand-lg navbar-light app-navbar">
     <div class="container">
         <a class="navbar-brand fw-semibold" href="/"><?= htmlspecialchars(APP_NAME, ENT_QUOTES, 'UTF-8') ?></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
