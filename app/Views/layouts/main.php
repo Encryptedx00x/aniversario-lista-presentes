@@ -19,7 +19,7 @@
     <div class="container site-header__inner">
         <a class="site-logo" href="/"><?= htmlspecialchars(APP_NAME, ENT_QUOTES, 'UTF-8') ?></a>
         <nav class="site-nav" aria-label="Navegação principal">
-            <a class="site-nav__link" href="#home">Home</a>
+            <a class="site-nav__link" href="/">Home</a>
             <a class="site-nav__link" href="/gifts">Presentes</a>
             <?php if (($_SESSION['role'] ?? '') === 'guest'): ?>
                 <a class="site-nav__link" href="/my-gifts">Meus Presentes</a>
