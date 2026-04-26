@@ -68,6 +68,22 @@ $formAction = $isEdit
 
             <!-- Category -->
             <div class="mb-3">
+                <label for="purchase_url" class="form-label">Link de compra (URL)</label>
+                <input
+                    type="url"
+                    id="purchase_url"
+                    name="purchase_url"
+                    class="form-control <?= isset($errors['purchase_url']) ? 'is-invalid' : '' ?>"
+                    value="<?= $e($gift['purchase_url'] ?? '') ?>"
+                    placeholder="https://loja.exemplo.com/produto"
+                >
+                <?php if (isset($errors['purchase_url'])): ?>
+                    <div class="invalid-feedback"><?= $e($errors['purchase_url']) ?></div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Category -->
+            <div class="mb-3">
                 <label for="category" class="form-label">Categoria</label>
                 <input
                     type="text"

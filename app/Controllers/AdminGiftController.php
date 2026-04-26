@@ -222,6 +222,7 @@ class AdminGiftController {
             'name'          => trim($_POST['name']          ?? ''),
             'slug'          => trim($_POST['slug']          ?? ''),
             'description'   => trim($_POST['description']  ?? ''),
+            'purchase_url'  => trim($_POST['purchase_url'] ?? ''),
             'category'      => trim($_POST['category']     ?? ''),
             'type'          => (($_POST['type'] ?? '') === 'multi') ? 'multi' : 'single',
             'price'         => (float)($_POST['price']         ?? 0),
@@ -242,6 +243,9 @@ class AdminGiftController {
             $errors['slug'] = 'Slug é obrigatório.';
         } elseif (!preg_match('/^[a-z0-9\-]+$/', $data['slug'])) {
             $errors['slug'] = 'Slug deve conter apenas letras minúsculas, números e hífens.';
+        }
+        if ($data['purchase_url'] !== '' && !filter_var($data['purchase_url'], FILTER_VALIDATE_URL)) {
+            $errors['purchase_url'] = 'URL de compra inválida.';
         }
         return $errors;
     }

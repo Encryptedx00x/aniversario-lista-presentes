@@ -101,7 +101,9 @@ class ReservationModel extends BaseModel {
                     r.created_at,
                     g.name AS gift_name,
                     g.category,
-                    g.image_path
+                    g.image_path,
+                    g.price,
+                    g.purchase_url
                  FROM reservations r
                  INNER JOIN gifts g ON g.id = r.gift_id
                  WHERE r.user_id = :user_id
