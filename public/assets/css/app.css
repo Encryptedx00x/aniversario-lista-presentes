@@ -136,15 +136,85 @@ body.theme-modern {
   box-shadow: 0 32px 70px rgba(15, 15, 20, 0.13);
 }
 
+.home-hero__grid {
+  display: grid;
+  grid-template-columns: 1.25fr .75fr;
+  gap: 14px;
+}
+
 .home-hero__kicker { color: var(--purple); text-transform: uppercase; letter-spacing: 1.4px; font-size: .75rem; font-weight: 700; }
 .home-hero__title { color: #111116; font-size: clamp(2rem, 4.3vw, 3.9rem); line-height: .95; font-weight: 900; max-width: 900px; }
 .home-hero__subtitle { color: #4a4a56; max-width: 720px; font-size: 1.03rem; }
 .home-hero__actions { display: flex; gap: .65rem; flex-wrap: wrap; }
 
-.home-highlights {
+.countdown-card {
+  border-radius: 20px;
+  border: 1px solid rgba(17,17,22,.15);
+  background: #111116;
+  color: #fff;
+  padding: 14px;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: center;
+  box-shadow: 0 24px 40px rgba(10, 10, 16, .35);
+}
+
+.countdown-card__label { text-transform: uppercase; letter-spacing: 1px; font-size: .7rem; color: #b8b4ce; }
+.countdown-card__days { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; line-height: 1; color: #c8afff; }
+.countdown-card__text { margin: .35rem 0; color: #f5f4ff; }
+.countdown-card__date { font-size: .83rem; color: #b8b4ce; margin: 0; }
+
+.home-mosaic {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 12px;
+}
+
+.mosaic-tile {
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid rgba(17,17,22,.1);
+  animation: fade-slide .55s ease both;
+}
+
+.mosaic-tile h2 { font-size: 1.1rem; margin-bottom: 6px; }
+.mosaic-tile p { margin: 0; font-size: .92rem; }
+
+.mosaic-tile--dark {
+  grid-column: span 5;
+  background: #111116;
+  color: #fff;
+}
+
+.mosaic-tile--light {
+  grid-column: span 4;
+  background: #fff;
+  color: #111116;
+}
+
+.mosaic-tile--accent {
+  grid-column: span 3;
+  background: linear-gradient(145deg, #7c3aed, #5b21b6);
+  color: #fff;
+}
+
+.home-gift-card {
+  border: 1px solid rgba(17,17,22,.12);
+  border-radius: 16px;
+  background: linear-gradient(150deg, #ffffff, #f6f4ff);
+  padding: 14px;
+  transition: transform .28s ease, box-shadow .28s ease;
+}
+
+.home-gift-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 34px rgba(17,17,22,.12);
+}
+
+.home-gift-card__head {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
 }
 
 .showcase-chip {
@@ -279,6 +349,25 @@ body.theme-modern {
   border-radius: 999px;
 }
 
+.gift-card {
+  overflow: hidden;
+}
+
+.gift-card .card-body {
+  position: relative;
+}
+
+.gift-card .card-body::before {
+  content: "";
+  position: absolute;
+  inset: -40% auto auto -35%;
+  width: 220px;
+  height: 220px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(124,58,237,.18), transparent 62%);
+  pointer-events: none;
+}
+
 .gift-card--esgotado {
   opacity: .68;
   filter: grayscale(24%);
@@ -383,6 +472,63 @@ body.theme-modern {
   border-radius: 12px;
 }
 
+.pix-page {
+  position: relative;
+}
+
+.pix-hero {
+  border-radius: 22px;
+  border: 1px solid rgba(17,17,22,.1);
+  background: linear-gradient(145deg, #111116, #1c1c24);
+  color: #fff;
+  padding: 22px;
+}
+
+.pix-grid {
+  display: grid;
+  grid-template-columns: .9fr 1.1fr;
+  gap: 14px;
+}
+
+.pix-payment-panel,
+.pix-form-panel {
+  border: 1px solid rgba(17,17,22,.1);
+  border-radius: 18px;
+  background: #fff;
+  padding: 16px;
+  box-shadow: 0 16px 34px rgba(17,17,22,.08);
+}
+
+.pix-keyline {
+  border: 1px solid rgba(124,58,237,.18);
+  background: #fbf9ff;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.pix-keyline span {
+  display: block;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #7b65ae;
+}
+
+.pix-keyline strong {
+  color: #111116;
+  font-size: .95rem;
+}
+
+.pix-qr {
+  max-width: 280px;
+  width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(17,17,22,.12);
+  padding: 8px;
+  background: #fff;
+}
+
 .site-footer {
   margin-top: 28px;
   border-top: 1px solid rgba(124, 58, 237, 0.12);
@@ -434,8 +580,13 @@ body.theme-modern {
   .site-logo { font-size: .92rem; }
   .site-nav__link { font-size: .82rem; padding: 7px 10px; }
   .home-hero { padding: 1.2rem; border-radius: 24px; }
+  .home-hero__grid { grid-template-columns: 1fr; }
   .home-hero__title { font-size: clamp(1.6rem, 10vw, 2.2rem); }
-  .home-highlights { grid-template-columns: 1fr; }
+  .home-mosaic { grid-template-columns: 1fr; }
+  .mosaic-tile--dark,
+  .mosaic-tile--light,
+  .mosaic-tile--accent { grid-column: span 1; }
+  .pix-grid { grid-template-columns: 1fr; }
   .gifts-hero { padding: 22px; }
   .btn { min-height: 44px; }
   .gift-card .card-img-top,

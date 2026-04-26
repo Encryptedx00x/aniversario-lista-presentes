@@ -15,6 +15,7 @@ return [
         '/admin/gifts'                    => ['AdminGiftController',   'index',        'auth'],
         '/admin/gifts/create'             => ['AdminGiftController',   'create',       'auth'],
         '/admin/gifts/{id}/edit'          => ['AdminGiftController',   'edit',         'auth'],
+        '/admin/settings'                 => ['AdminSettingsController','index',       'auth'],
     ],
     'POST' => [
         '/reserve'                        => ['ReservationController', 'store',        'guest'],
@@ -26,6 +27,7 @@ return [
         '/admin/gifts/{id}/update'        => ['AdminGiftController',   'update',       'auth'],
         '/admin/gifts/{id}/delete'        => ['AdminGiftController',   'delete',       'auth'],
         '/admin/gifts/{id}/toggle-active' => ['AdminGiftController',   'toggleActive', 'auth'],
+        '/admin/settings'                 => ['AdminSettingsController','save',        'auth'],
         '/auth/guest-signup'              => ['GuestAuthController',   'signupPost'],
         '/auth/guest-login'               => ['GuestAuthController',   'loginPost'],
         '/auth/guest-logout'              => ['GuestAuthController',   'logout'],
