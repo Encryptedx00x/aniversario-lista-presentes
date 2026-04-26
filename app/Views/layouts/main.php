@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="/assets/css/app.css?v=<?= $cssV ?>">
 </head>
 <body class="theme-modern">
+<div class="bg-orb bg-orb--a" aria-hidden="true"></div>
+<div class="bg-orb bg-orb--b" aria-hidden="true"></div>
 <header class="site-header">
     <div class="container site-header__inner">
         <a class="site-logo" href="/"><?= htmlspecialchars(APP_NAME, ENT_QUOTES, 'UTF-8') ?></a>

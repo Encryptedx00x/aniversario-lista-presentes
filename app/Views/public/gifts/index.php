@@ -7,7 +7,13 @@
 ?>
 <div class="container py-4">
 
-    <h1 class="mb-4 fw-bold">Lista de Presentes</h1>
+    <section class="gifts-hero mb-4">
+        <p class="gifts-hero__kicker mb-2">Gift Experience</p>
+        <h1 class="gifts-hero__title mb-2">Lista de Presentes</h1>
+        <p class="gifts-hero__subtitle mb-0">
+            Escolha um presente, abra o link do produto ou contribua via Pix com uma experiência visual premium.
+        </p>
+    </section>
     <div id="reserve-feedback"
          class="alert d-none"
          role="status"
