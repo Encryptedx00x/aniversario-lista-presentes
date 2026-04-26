@@ -1,75 +1,73 @@
 <?php
 $days = $countdownDays ?? null;
 $nextDate = $nextBirthdayLabel ?? null;
+$previewA = !empty($featured[0]['image_path']) ? (string) $featured[0]['image_path'] : 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=900&auto=format&fit=crop';
+$previewB = !empty($featured[1]['image_path']) ? (string) $featured[1]['image_path'] : 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=900&auto=format&fit=crop';
+$previewC = !empty($featured[2]['image_path']) ? (string) $featured[2]['image_path'] : 'https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=900&auto=format&fit=crop';
 ?>
-<section class="home-hero mb-4">
-    <div class="home-hero__grid">
-        <div>
-            <p class="home-hero__kicker mb-2">Aniversário em foco</p>
-            <h1 class="home-hero__title mb-3">Escolha presentes com uma experiência mais viva, criativa e memorável.</h1>
-            <p class="home-hero__subtitle mb-4">
-                Navegue pela lista, reserve itens e contribua por Pix com uma interface pensada para celebrar — não para parecer um dashboard corporativo.
-            </p>
-            <div class="home-hero__actions">
-                <a href="/gifts" class="btn btn-primary px-4">Explorar presentes</a>
-                <a href="/pix" class="btn btn-outline-primary px-4">Contribuir via Pix</a>
-            </div>
+
+<div class="editorial-stage">
+    <video id="bg-scroll-video" class="bg-scroll-video" muted playsinline preload="metadata" aria-hidden="true">
+        <source src="https://cdn.coverr.co/videos/coverr-ink-in-water-1579/1080p.mp4" type="video/mp4">
+    </video>
+    <div class="editorial-grain" aria-hidden="true"></div>
+
+    <section class="home-editorial-hero">
+        <p class="home-editorial-kicker">edição de aniversário</p>
+        <h1 class="home-editorial-title" data-kinetic data-speed="0.22">
+            Celebre em <span class="ink">movimento</span>.<br>
+            Escolha presentes como quem compõe uma obra.
+        </h1>
+
+        <p class="home-editorial-subtitle" data-kinetic data-speed="0.14">
+            Entre na lista, reserve com fluidez e contribua via Pix em uma experiência
+            editorial viva — com ritmo, textura e presença.
+        </p>
+
+        <div class="home-editorial-actions" data-kinetic data-speed="0.12">
+            <a href="/gifts" class="btn btn-dark px-4">Ver presentes</a>
+            <a href="/pix" class="btn btn-outline-dark px-4">Contribuir via Pix</a>
         </div>
 
-        <aside class="countdown-card">
-            <p class="countdown-card__label">Contagem regressiva</p>
+        <div class="countdown-editorial" data-kinetic data-speed="0.08">
+            <p class="countdown-editorial__label">contagem para o aniversário</p>
             <?php if ($days !== null && $nextDate !== null): ?>
-                <div class="countdown-card__days"><?= (int) $days ?></div>
-                <p class="countdown-card__text">dias para o aniversário</p>
-                <p class="countdown-card__date">Próxima data: <?= htmlspecialchars($nextDate, ENT_QUOTES, 'UTF-8') ?></p>
+                <div class="countdown-editorial__days"><?= (int) $days ?></div>
+                <p class="countdown-editorial__date">próxima data: <?= htmlspecialchars($nextDate, ENT_QUOTES, 'UTF-8') ?></p>
             <?php else: ?>
-                <div class="countdown-card__days">--</div>
-                <p class="countdown-card__text">Defina a data no painel admin</p>
-                <p class="countdown-card__date">Menu: Admin → Configurações</p>
+                <div class="countdown-editorial__days">--</div>
+                <p class="countdown-editorial__date">defina a data em Admin → Configurações</p>
             <?php endif; ?>
-        </aside>
-    </div>
-</section>
-
-<section class="home-mosaic mb-4">
-    <article class="mosaic-tile mosaic-tile--dark">
-        <h2>Presentes incríveis</h2>
-        <p>Cards criativos com categoria, status e ações rápidas para reservar ou contribuir.</p>
-    </article>
-    <article class="mosaic-tile mosaic-tile--light">
-        <h2>Fluxo sem atrito</h2>
-        <p>Autenticação no modal + continuação da ação de reserva automaticamente.</p>
-    </article>
-    <article class="mosaic-tile mosaic-tile--accent">
-        <h2>Pix integrado</h2>
-        <p>Contribuição com sugestão de valor e vínculo direto ao presente selecionado.</p>
-    </article>
-</section>
-
-<?php if (!empty($featured)): ?>
-    <section class="home-featured">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h4 mb-0 fw-bold">Sugestões em destaque</h2>
-            <a href="/gifts" class="small text-decoration-none fw-semibold">Ver lista completa</a>
-        </div>
-        <div class="row g-4">
-            <?php foreach ($featured as $gift): ?>
-                <div class="col-12 col-md-6 col-lg-4">
-                    <article class="home-gift-card h-100">
-                        <div class="home-gift-card__head">
-                            <span class="showcase-chip showcase-chip--mini"><span>Disponível</span><strong><?= htmlspecialchars((string) $gift['available_qty'], ENT_QUOTES, 'UTF-8') ?></strong></span>
-                            <?php if (!empty($gift['category'])): ?>
-                                <span class="showcase-chip showcase-chip--mini"><span>Categoria</span><strong><?= htmlspecialchars((string) $gift['category'], ENT_QUOTES, 'UTF-8') ?></strong></span>
-                            <?php endif; ?>
-                        </div>
-                        <h3 class="h5 fw-bold mb-2"><?= htmlspecialchars((string) $gift['name'], ENT_QUOTES, 'UTF-8') ?></h3>
-                        <?php if (!empty($gift['description'])): ?>
-                            <p class="text-secondary small mb-3"><?= htmlspecialchars((string) $gift['description'], ENT_QUOTES, 'UTF-8') ?></p>
-                        <?php endif; ?>
-                        <a class="btn btn-sm btn-primary" href="/gifts">Escolher presente</a>
-                    </article>
-                </div>
-            <?php endforeach; ?>
         </div>
     </section>
-<?php endif; ?>
+
+    <section class="home-manifesto" data-parallax="0.12">
+        <p>
+            Uma noite com atmosfera de
+            <span class="hover-keyword" data-preview="<?= htmlspecialchars($previewA, ENT_QUOTES, 'UTF-8') ?>">festa autoral</span>,
+            trilha de
+            <span class="hover-keyword" data-preview="<?= htmlspecialchars($previewB, ENT_QUOTES, 'UTF-8') ?>">energia cinética</span>
+            e detalhes de
+            <span class="hover-keyword" data-preview="<?= htmlspecialchars($previewC, ENT_QUOTES, 'UTF-8') ?>">luxo contemporâneo</span>.
+        </p>
+    </section>
+
+    <?php if (!empty($featured)): ?>
+        <section class="gift-collage-grid">
+            <?php foreach ($featured as $idx => $gift): ?>
+                <article class="gift-collage-card" data-parallax="<?= htmlspecialchars((string) (0.04 * ($idx + 1)), ENT_QUOTES, 'UTF-8') ?>">
+                    <div class="gift-collage-card__meta">
+                        <span><?= htmlspecialchars((string) ($gift['category'] ?? 'presente'), ENT_QUOTES, 'UTF-8') ?></span>
+                        <strong>Disponível: <?= htmlspecialchars((string) ($gift['available_qty'] ?? 0), ENT_QUOTES, 'UTF-8') ?></strong>
+                    </div>
+                    <h3><?= htmlspecialchars((string) ($gift['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></h3>
+                    <a href="/gifts" class="gift-collage-card__link">Escolher presente</a>
+                </article>
+            <?php endforeach; ?>
+        </section>
+    <?php endif; ?>
+
+    <div id="cursor-preview" class="cursor-preview" aria-hidden="true">
+        <img id="cursor-preview-img" src="" alt="">
+    </div>
+</div>
