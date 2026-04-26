@@ -304,8 +304,17 @@ const GiftPage = {
         const modalEl = document.getElementById('authModal');
         if (!modalEl) return;
 
+        modalEl.addEventListener('shown.bs.modal', () => {
+            this._cleanupModalArtifacts();
+        });
+
+        modalEl.addEventListener('hidden.bs.modal', () => {
+            this._cleanupModalArtifacts();
+        });
+
         modalEl.addEventListener('show.bs.modal', () => {
             this._resetAuthModalState(true);
+            this._fetchFreshCsrfToken().catch(() => null);
         });
 
         // Tab switching
@@ -342,26 +351,7 @@ const GiftPage = {
             formSignup.addEventListener('submit', (e) => {
                 e.preventDefault();
                 if (signupError) signupError.classList.add('d-none');
-
-                const formData = new FormData(formSignup);
-                formData.append('csrf_token', this._getCurrentCsrfToken());
-
-                fetch('/auth/guest-signup', { method: 'POST', body: formData })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.success) {
-                            GiftPage._onAuthSuccess();
-                        } else if (signupError) {
-                            signupError.textContent = data.error;
-                            signupError.classList.remove('d-none');
-                        }
-                    })
-                    .catch(() => {
-                        if (signupError) {
-                            signupError.textContent = 'Erro inesperado. Tente novamente.';
-                            signupError.classList.remove('d-none');
-                        }
-                    });
+                this._submitGuestAuth('/auth/guest-signup', formSignup, signupError);
             });
         }
 
@@ -373,28 +363,59 @@ const GiftPage = {
             formLogin.addEventListener('submit', (e) => {
                 e.preventDefault();
                 if (loginError) loginError.classList.add('d-none');
-
-                const formData = new FormData(formLogin);
-                formData.append('csrf_token', this._getCurrentCsrfToken());
-
-                fetch('/auth/guest-login', { method: 'POST', body: formData })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.success) {
-                            GiftPage._onAuthSuccess();
-                        } else if (loginError) {
-                            loginError.textContent = data.error;
-                            loginError.classList.remove('d-none');
-                        }
-                    })
-                    .catch(() => {
-                        if (loginError) {
-                            loginError.textContent = 'Erro inesperado. Tente novamente.';
-                            loginError.classList.remove('d-none');
-                        }
-                    });
+                this._submitGuestAuth('/auth/guest-login', formLogin, loginError);
             });
         }
+    },
+
+    _submitGuestAuth(endpoint, form, errorBox) {
+        this._fetchFreshCsrfToken()
+            .catch(() => null)
+            .then(() => {
+                const csrfToken = this._getCurrentCsrfToken();
+                if (!csrfToken) {
+                    throw new Error('csrf token ausente');
+                }
+
+                const formData = new FormData(form);
+                formData.append('csrf_token', csrfToken);
+                return fetch(endpoint, { method: 'POST', body: formData });
+            })
+            .then(async (r) => {
+                let data = null;
+                try {
+                    data = await r.json();
+                } catch (err) {
+                    data = null;
+                }
+
+                if (r.status === 403) {
+                    await this._fetchFreshCsrfToken().catch(() => null);
+                    return {
+                        success: false,
+                        error: (data && data.error) || 'Sua sessão foi atualizada. Tente novamente.',
+                    };
+                }
+
+                return data || { success: false, error: 'Erro inesperado. Tente novamente.' };
+            })
+            .then((data) => {
+                if (data.success) {
+                    this._onAuthSuccess();
+                    return;
+                }
+
+                if (errorBox) {
+                    errorBox.textContent = data.error || 'Erro inesperado. Tente novamente.';
+                    errorBox.classList.remove('d-none');
+                }
+            })
+            .catch(() => {
+                if (errorBox) {
+                    errorBox.textContent = 'Erro inesperado. Tente novamente.';
+                    errorBox.classList.remove('d-none');
+                }
+            });
     },
 
     _onAuthSuccess() {
@@ -467,6 +488,15 @@ const GiftPage = {
             if (formSignup) formSignup.reset();
             if (formLogin) formLogin.reset();
         }
+    },
+
+    _cleanupModalArtifacts() {
+        const anyVisibleModal = document.querySelector('.modal.show');
+        if (anyVisibleModal) return;
+
+        document.querySelectorAll('.modal-backdrop').forEach((el) => el.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('padding-right');
     },
 
     // --- Slug auto-generation (admin gift form only) ---

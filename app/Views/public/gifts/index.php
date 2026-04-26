@@ -62,7 +62,7 @@
 </div>
 
 <!-- Auth modal -->
-<div class="modal fade"
+<div class="modal fade auth-modal"
      id="authModal"
      tabindex="-1"
      data-bs-backdrop="static"
@@ -84,12 +84,12 @@
             <div class="modal-body">
 
                 <!-- Tab nav -->
-                <ul class="nav nav-tabs mb-4" role="tablist">
+                <ul class="nav nav-tabs mb-4 auth-tabs" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#" data-tab="signup" role="tab">Criar conta</a>
+                        <a class="nav-link active auth-tab-link" href="#" data-tab="signup" role="tab">Criar conta</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" data-tab="login" role="tab">Entrar</a>
+                        <a class="nav-link auth-tab-link" href="#" data-tab="login" role="tab">Entrar</a>
                     </li>
                 </ul>
 
