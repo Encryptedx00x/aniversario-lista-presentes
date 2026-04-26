@@ -7,27 +7,6 @@
 ?>
 <div class="container py-4">
 
-    <section class="showcase-home mb-4" id="home">
-        <div class="showcase-home__grid">
-            <div>
-                <p class="showcase-home__eyebrow mb-2">Digital Gift Atelier</p>
-                <h1 class="showcase-home__title mb-3">Uma home com direção criativa, motion e presença visual.</h1>
-                <p class="showcase-home__subtitle mb-4">
-                    Selecione um presente com uma experiência interativa de alto nível e finalize por reserva tradicional ou Pix.
-                </p>
-                <div class="showcase-home__actions">
-                    <a class="btn btn-primary px-4" href="#gifts-container">Explorar presentes</a>
-                    <a class="btn btn-outline-primary px-4" href="/pix">Contribuir via Pix</a>
-                </div>
-            </div>
-            <div class="showcase-home__panel">
-                <div class="showcase-chip"><span>Curadoria</span><strong><?= count($gifts) ?> presentes</strong></div>
-                <div class="showcase-chip"><span>Fluxo</span><strong>Reserva + Pix</strong></div>
-                <div class="showcase-chip"><span>Experiência</span><strong>Motion-first</strong></div>
-            </div>
-        </div>
-    </section>
-
     <section class="gifts-hero mb-4">
         <p class="gifts-hero__kicker mb-2">Gift Experience</p>
         <h1 class="gifts-hero__title mb-2">Lista de Presentes</h1>
