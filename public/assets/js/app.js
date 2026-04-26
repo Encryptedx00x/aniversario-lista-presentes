@@ -585,6 +585,7 @@ const GiftPage = {
             });
 
             if (video) {
+                video.play().catch(() => null);
                 const bindVideoScroll = () => {
                     if (!video.duration || !Number.isFinite(video.duration)) return;
                     window.gsap.to(video, {
@@ -604,6 +605,24 @@ const GiftPage = {
                 } else {
                     video.addEventListener('loadedmetadata', bindVideoScroll, { once: true });
                 }
+            }
+
+            const storyline = document.querySelector('.birthday-storyline');
+            if (storyline) {
+                window.gsap.fromTo('.birthday-storyline__item',
+                    { y: 24, autoAlpha: 0 },
+                    {
+                        y: 0,
+                        autoAlpha: 1,
+                        stagger: 0.14,
+                        duration: 0.9,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: storyline,
+                            start: 'top 78%',
+                        },
+                    }
+                );
             }
         } else {
             revealEls.forEach((el) => {

@@ -7,6 +7,7 @@
     <section class="pix-hero mb-4" data-reveal>
         <h1 class="mb-2 fw-bold">Contribuir via Pix</h1>
         <p class="mb-0">Um fluxo visual mais criativo para dar o presente com agilidade.</p>
+        <div class="pix-hero__ticker">PIX • CELEBRAR • PRESENTEAR • PIX • CELEBRAR • PRESENTEAR</div>
     </section>
 
     <?php if (!empty($selectedGift)): ?>

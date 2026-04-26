@@ -141,6 +141,7 @@ body.theme-modern {
   opacity: .22;
   z-index: -3;
   filter: saturate(115%) contrast(108%);
+  mix-blend-mode: multiply;
 }
 
 .editorial-grain {
@@ -164,6 +165,7 @@ body.theme-modern {
   font-size: .75rem;
   color: #5d2e53;
   margin-bottom: 10px;
+  animation: ink-pulse 4.2s ease-in-out infinite;
 }
 
 .home-editorial-title {
@@ -228,6 +230,39 @@ body.theme-modern {
   font-size: clamp(1.1rem, 2.1vw, 1.75rem);
   line-height: 1.35;
   color: #21181f;
+}
+
+.birthday-storyline {
+  margin: 2.4rem 0 2.8rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.birthday-storyline__item {
+  border: 1px solid rgba(26,18,24,.14);
+  background: rgba(255,250,242,.78);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.birthday-storyline__item span {
+  display: inline-block;
+  font-size: .72rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #7a1f45;
+}
+
+.birthday-storyline__item h4 {
+  margin: .35rem 0;
+  font-size: 1.06rem;
+}
+
+.birthday-storyline__item p {
+  margin: 0;
+  font-size: .9rem;
+  color: #3f3139;
 }
 
 .hover-keyword {
@@ -367,6 +402,13 @@ body.theme-modern {
 .gifts-hero__subtitle {
   color: rgba(255, 255, 255, .84);
   max-width: 720px;
+}
+
+.gifts-hero__micro {
+  color: #bea3ff;
+  font-size: .82rem;
+  letter-spacing: .8px;
+  text-transform: uppercase;
 }
 
 .app-flash {
@@ -571,6 +613,17 @@ body.theme-modern {
   background: linear-gradient(145deg, #111116, #1c1c24);
   color: #fff;
   padding: 22px;
+  overflow: hidden;
+  position: relative;
+}
+
+.pix-hero__ticker {
+  margin-top: 10px;
+  white-space: nowrap;
+  font-size: .73rem;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,.74);
+  animation: ticker-slide 18s linear infinite;
 }
 
 .pix-grid {
@@ -664,6 +717,16 @@ body.theme-modern {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes ticker-slide {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes ink-pulse {
+  0%, 100% { opacity: .8; letter-spacing: 2px; }
+  50% { opacity: 1; letter-spacing: 2.6px; }
+}
+
 @media (max-width: 767.98px) {
   .site-header__inner { min-height: 66px; }
   .site-logo { font-size: .92rem; }
@@ -671,6 +734,7 @@ body.theme-modern {
   .home-editorial-title { font-size: clamp(1.9rem, 10vw, 3rem); }
   .gift-collage-grid { grid-template-columns: 1fr; }
   .gift-collage-card { grid-column: span 1; }
+  .birthday-storyline { grid-template-columns: 1fr; }
   .cursor-preview { display: none; }
   .pix-grid { grid-template-columns: 1fr; }
   .gifts-hero { padding: 22px; }

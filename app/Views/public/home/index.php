@@ -52,6 +52,24 @@ $previewC = !empty($featured[2]['image_path']) ? (string) $featured[2]['image_pa
         </p>
     </section>
 
+    <section class="birthday-storyline" data-reveal>
+        <article class="birthday-storyline__item" data-parallax="0.06">
+            <span>01</span>
+            <h4>Escolher</h4>
+            <p>Descubra presentes com curadoria visual e interação viva.</p>
+        </article>
+        <article class="birthday-storyline__item" data-parallax="0.1">
+            <span>02</span>
+            <h4>Reservar</h4>
+            <p>Fluxo instantâneo, autenticação no modal e confirmação elegante.</p>
+        </article>
+        <article class="birthday-storyline__item" data-parallax="0.14">
+            <span>03</span>
+            <h4>Celebrar</h4>
+            <p>Contribua por Pix e transforme o presente em experiência memorável.</p>
+        </article>
+    </section>
+
     <?php if (!empty($featured)): ?>
         <section class="gift-collage-grid" data-reveal>
             <?php foreach ($featured as $idx => $gift): ?>
