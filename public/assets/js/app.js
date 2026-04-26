@@ -94,6 +94,7 @@ const GiftPage = {
                     return;
                 }
 
+                this._cleanupModalArtifacts();
                 bootstrap.Modal.getOrCreateInstance(modalEl).show();
                 return;
             }
