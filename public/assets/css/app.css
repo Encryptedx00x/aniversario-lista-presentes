@@ -58,6 +58,11 @@ body.theme-modern {
   gap: 10px;
 }
 
+.site-nav__form {
+  margin: 0;
+  display: inline-flex;
+}
+
 .site-nav__link {
   border: 1px solid transparent;
   background: transparent;
@@ -187,6 +192,37 @@ h1, h2, h3 {
   text-align: center;
   padding: 14px 0;
   font-size: .88rem;
+}
+
+.admin-shell .admin-topbar {
+  background: #120f1d !important;
+  border-bottom: 1px solid #2e2547;
+}
+
+.admin-shell .sidebar {
+  background: #faf9ff !important;
+  border-right-color: var(--line) !important;
+}
+
+.admin-shell .sidebar .nav-link {
+  color: #2d2742;
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+.admin-shell .sidebar .nav-link.active,
+.admin-shell .sidebar .nav-link:hover {
+  background: var(--purple-soft);
+  color: var(--purple-strong);
+}
+
+.admin-main .alert {
+  border-radius: 12px;
+}
+
+.admin-login-shell .card,
+.admin-login-shell .container > .card {
+  border-radius: 18px;
 }
 
 @keyframes fade-slide {
