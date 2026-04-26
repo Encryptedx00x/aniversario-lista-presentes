@@ -264,6 +264,67 @@ body.theme-modern {
   border: 1px solid var(--line);
 }
 
+.auth-modal .modal-dialog {
+  max-width: 560px;
+}
+
+.auth-modal .modal-content {
+  border: 1px solid rgba(124, 58, 237, 0.18);
+  border-radius: 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 85% -10%, rgba(168, 85, 247, .18), transparent 40%),
+    #ffffff;
+  box-shadow: 0 30px 70px rgba(57, 29, 109, .28);
+}
+
+.auth-modal .modal-header {
+  border-bottom: 1px solid rgba(124, 58, 237, 0.12);
+  padding: 1rem 1.25rem;
+}
+
+.auth-modal .modal-title {
+  font-weight: 800;
+  letter-spacing: .2px;
+  color: #2d1b59;
+}
+
+.auth-tabs {
+  border: 1px solid rgba(124, 58, 237, .15);
+  border-radius: 999px;
+  padding: 4px;
+  background: rgba(124, 58, 237, .07);
+  display: inline-flex;
+  gap: 4px;
+}
+
+.auth-tabs .nav-item {
+  margin: 0 !important;
+}
+
+.auth-tab-link.nav-link {
+  border: none !important;
+  border-radius: 999px !important;
+  color: #5f4a92 !important;
+  font-weight: 700;
+  padding: .5rem .95rem;
+}
+
+.auth-tab-link.nav-link.active {
+  color: #fff !important;
+  background: linear-gradient(120deg, #7c3aed, #a855f7) !important;
+  box-shadow: 0 8px 18px rgba(124, 58, 237, .24);
+}
+
+.auth-modal .btn-close {
+  border-radius: 999px;
+  background-color: rgba(124, 58, 237, .12);
+}
+
+.auth-modal .alert {
+  border-radius: 12px;
+}
+
 .site-footer {
   margin-top: 28px;
   border-top: 1px solid rgba(124, 58, 237, 0.12);
