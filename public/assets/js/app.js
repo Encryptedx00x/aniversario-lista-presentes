@@ -8,6 +8,7 @@ const GiftPage = {
             'initFilter',
             'initChooseGift',
             'initAuthModal',
+            'initEditorialExperience',
             'initSlugGeneration',
             'initImagePreview',
         ].forEach(fn => {
@@ -498,6 +499,79 @@ const GiftPage = {
         document.querySelectorAll('.modal-backdrop').forEach((el) => el.remove());
         document.body.classList.remove('modal-open');
         document.body.style.removeProperty('padding-right');
+    },
+
+    initEditorialExperience() {
+        const video = document.getElementById('bg-scroll-video');
+        const kineticEls = Array.from(document.querySelectorAll('[data-kinetic]'));
+        const parallaxEls = Array.from(document.querySelectorAll('[data-parallax]'));
+        const cursorPreview = document.getElementById('cursor-preview');
+        const cursorPreviewImg = document.getElementById('cursor-preview-img');
+        const hoverKeywords = Array.from(document.querySelectorAll('.hover-keyword[data-preview]'));
+
+        if (!video && kineticEls.length === 0 && hoverKeywords.length === 0 && parallaxEls.length === 0) {
+            return;
+        }
+
+        const state = {
+            mouseX: window.innerWidth / 2,
+            mouseY: window.innerHeight / 2,
+            previewX: window.innerWidth / 2,
+            previewY: window.innerHeight / 2,
+        };
+
+        const onScroll = () => {
+            const y = window.scrollY || window.pageYOffset || 0;
+            kineticEls.forEach((el) => {
+                const speed = Number(el.getAttribute('data-speed') || 0.12);
+                const stretch = Math.sin(y * 0.0025) * 0.06;
+                el.style.transform = `translate3d(0, ${y * speed * -0.25}px, 0) scaleX(${1 + stretch})`;
+            });
+
+            parallaxEls.forEach((el) => {
+                const factor = Number(el.getAttribute('data-parallax') || 0.08);
+                el.style.transform = `translate3d(0, ${y * factor * -0.45}px, 0)`;
+            });
+
+            if (video && video.duration && Number.isFinite(video.duration)) {
+                const maxScroll = Math.max(document.body.scrollHeight - window.innerHeight, 1);
+                const progress = Math.min(Math.max(y / maxScroll, 0), 1);
+                const target = progress * Math.max(video.duration - 0.08, 0);
+                if (Math.abs(video.currentTime - target) > 0.05) {
+                    video.currentTime = target;
+                }
+            }
+        };
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        if (hoverKeywords.length > 0 && cursorPreview && cursorPreviewImg) {
+            window.addEventListener('mousemove', (ev) => {
+                state.mouseX = ev.clientX + 24;
+                state.mouseY = ev.clientY + 18;
+            });
+
+            const animatePreview = () => {
+                state.previewX += (state.mouseX - state.previewX) * 0.17;
+                state.previewY += (state.mouseY - state.previewY) * 0.17;
+                cursorPreview.style.left = `${state.previewX}px`;
+                cursorPreview.style.top = `${state.previewY}px`;
+                requestAnimationFrame(animatePreview);
+            };
+            requestAnimationFrame(animatePreview);
+
+            hoverKeywords.forEach((keyword) => {
+                keyword.addEventListener('mouseenter', () => {
+                    const src = keyword.getAttribute('data-preview');
+                    if (src) cursorPreviewImg.src = src;
+                    cursorPreview.classList.add('is-visible');
+                });
+                keyword.addEventListener('mouseleave', () => {
+                    cursorPreview.classList.remove('is-visible');
+                });
+            });
+        }
     },
 
     // --- Slug auto-generation (admin gift form only) ---
