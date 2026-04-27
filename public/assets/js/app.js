@@ -137,7 +137,7 @@ const App = {
     // ──────────────────────────────────────────────────────────────────────
     initChooseGift() {
         document.addEventListener('click', (e) => {
-            const btn = e.target.closest('.btn-choose-gift');
+            const btn = e.target.closest('.btn-choose-gift, .btn-pix-gift');
             if (!btn) return;
 
             e.preventDefault();
@@ -151,6 +151,10 @@ const App = {
 
             if (loggedIn !== '1') {
                 this._openAuthModal();
+                return;
+            }
+            if (btn.classList.contains('btn-pix-gift')) {
+                this._contributePix(btn, giftId);
                 return;
             }
             this._reserveGift(btn, giftId);
@@ -241,10 +245,9 @@ const App = {
                 });
             })
             .finally(() => {
-                if (!btn.disabled || !btn.classList.contains('gift-card__cta')) {
-                    return;
+                if (btn && btn.classList.contains('btn-choose-gift')) {
+                    btn.disabled = false;
                 }
-                if (!btn.matches('[disabled]')) btn.disabled = false;
             });
     },
 
@@ -273,7 +276,9 @@ const App = {
             }
         }
 
+        this._markCardAsSelected(card, 'Selecionado');
         this._showReserveToast('Reserva concluída! Veja em "Minhas reservas".', false);
+        this._showRedirectCountdown(data?.redirect_url || btn?.dataset?.redirectUrl || '');
     },
 
     _onReserveError(btn, data) {
@@ -291,6 +296,78 @@ const App = {
         }
 
         this._showReserveToast(message, true);
+    },
+
+    _contributePix(btn, giftId) {
+        const csrfToken = this._getCurrentCsrfToken();
+        if (!csrfToken) {
+            this._showReserveToast('Não foi possível validar sua sessão. Recarregue a página.', true);
+            return;
+        }
+
+        const body = new URLSearchParams({
+            gift_id: String(giftId),
+            csrf_token: csrfToken,
+        });
+
+        fetch('/contribute-pix', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Accept': 'application/json',
+            },
+            body: body.toString(),
+        })
+            .then(async (r) => {
+                const data = await r.json().catch(() => ({}));
+                if (!r.ok) throw new Error(data.error || ('pix HTTP ' + r.status));
+                return data;
+            })
+            .then((data) => {
+                if (!data.success) throw new Error(data.error || 'Falha no PIX');
+                this._markCardAsSelected(btn.closest('.gift-card'), 'Contribuído via PIX');
+                this._showReserveToast('Contribuição PIX registrada com sucesso.', false);
+            })
+            .catch((err) => {
+                this._showReserveToast(err.message || 'Falha ao registrar PIX.', true);
+            });
+    },
+
+    _markCardAsSelected(card, label) {
+        if (!card) return;
+        const ctaContainer = card.querySelector('.gift-card__foot');
+        if (!ctaContainer) return;
+        const currentCtas = ctaContainer.querySelectorAll('.gift-card__cta');
+        currentCtas.forEach((node) => node.remove());
+
+        const selectedBtn = document.createElement('button');
+        selectedBtn.className = 'gift-card__cta';
+        selectedBtn.disabled = true;
+        selectedBtn.textContent = label;
+        ctaContainer.appendChild(selectedBtn);
+    },
+
+    _showRedirectCountdown(redirectUrl) {
+        if (!redirectUrl) return;
+        const modal = document.getElementById('reserveRedirectModal');
+        const countdownEl = document.getElementById('reserve-redirect-countdown');
+        const linkEl = document.getElementById('reserve-redirect-link');
+        if (!modal || !countdownEl || !linkEl) return;
+
+        linkEl.href = redirectUrl;
+        let seconds = 10;
+        countdownEl.textContent = String(seconds);
+        modal.classList.add('is-open');
+
+        clearInterval(modal._countdownTimer);
+        modal._countdownTimer = setInterval(() => {
+            seconds -= 1;
+            countdownEl.textContent = String(Math.max(0, seconds));
+            if (seconds <= 0) {
+                clearInterval(modal._countdownTimer);
+                window.location.href = redirectUrl;
+            }
+        }, 1000);
     },
 
     // ──────────────────────────────────────────────────────────────────────
@@ -429,7 +506,7 @@ const App = {
                 .finally(() => {
                     window._pendingGiftId = null;
                     const btn = document.querySelector(
-                        `.btn-choose-gift[data-gift-id="${pendingGiftId}"]`
+                        `.btn-choose-gift[data-gift-id="${pendingGiftId}"], .btn-pix-gift[data-gift-id="${pendingGiftId}"]`
                     );
                     if (btn) btn.click();
                     else window.location.reload();

@@ -8,18 +8,28 @@ class GiftModel extends BaseModel {
     /**
      * Returns all active gifts ordered by availability then sort_order.
      */
-    public function getAllActive(): array {
-        return $this->query(
-            'SELECT * FROM gifts WHERE is_active = 1
-             ORDER BY available_qty DESC, sort_order ASC'
-        )->fetchAll();
+    public function getAllActive(int $userId = 0): array {
+        $sql = 'SELECT g.*, us.action_type AS user_action_type
+                FROM gifts g
+                LEFT JOIN (
+                    SELECT gift_id, MAX(action_type) AS action_type
+                    FROM reservations
+                    WHERE user_id = :user_id AND status = :status
+                    GROUP BY gift_id
+                ) us ON us.gift_id = g.id
+                WHERE g.is_active = 1
+                ORDER BY g.available_qty DESC, g.sort_order ASC';
+        return $this->query($sql, [
+            ':user_id' => $userId,
+            ':status' => 'active',
+        ])->fetchAll();
     }
 
     /**
      * Returns active gifts filtered by optional search and category,
      * ordered by the given sort key.
      */
-    public function filter(string $search, string $category, string $sort): array {
+    public function filter(string $search, string $category, string $sort, int $userId = 0): array {
         $orderBy = match ($sort) {
             'price_asc'  => 'price ASC',
             'price_desc' => 'price DESC',
@@ -27,22 +37,32 @@ class GiftModel extends BaseModel {
             default      => 'available_qty DESC, sort_order ASC', // 'available'
         };
 
-        $conditions = ['is_active = 1'];
+        $conditions = ['g.is_active = 1'];
         $params     = [];
 
         if ($search !== '') {
-            $conditions[] = 'name LIKE :search';
+            $conditions[] = 'g.name LIKE :search';
             $params[':search'] = '%' . $search . '%';
         }
 
         if ($category !== '') {
-            $conditions[] = 'category = :category';
+            $conditions[] = 'g.category = :category';
             $params[':category'] = $category;
         }
 
         $where = implode(' AND ', $conditions);
-        $sql   = "SELECT * FROM gifts WHERE {$where} ORDER BY {$orderBy}";
-
+        $sql = "SELECT g.*, us.action_type AS user_action_type
+                FROM gifts g
+                LEFT JOIN (
+                    SELECT gift_id, MAX(action_type) AS action_type
+                    FROM reservations
+                    WHERE user_id = :user_id AND status = :status
+                    GROUP BY gift_id
+                ) us ON us.gift_id = g.id
+                WHERE {$where}
+                ORDER BY {$orderBy}";
+        $params[':user_id'] = $userId;
+        $params[':status'] = 'active';
         return $this->query($sql, $params)->fetchAll();
     }
 
@@ -54,19 +74,44 @@ class GiftModel extends BaseModel {
         $params     = [];
 
         if ($search !== '') {
-            $conditions[] = 'name LIKE :search';
+            $conditions[] = 'g.name LIKE :search';
             $params[':search'] = '%' . $search . '%';
         }
 
         if ($status === 'active') {
-            $conditions[] = 'is_active = 1';
+            $conditions[] = 'g.is_active = 1';
         } elseif ($status === 'inactive') {
-            $conditions[] = 'is_active = 0';
+            $conditions[] = 'g.is_active = 0';
         }
         // 'all' — no status condition
 
         $where = $conditions ? ('WHERE ' . implode(' AND ', $conditions)) : '';
-        $sql   = "SELECT * FROM gifts {$where} ORDER BY id DESC";
+        $sql = "SELECT
+                    g.*,
+                    tr.reserved_by,
+                    tr.pix_by,
+                    tr.reserved_count,
+                    tr.pix_count
+                FROM gifts g
+                LEFT JOIN (
+                    SELECT
+                        r.gift_id,
+                        GROUP_CONCAT(DISTINCT CASE
+                            WHEN r.action_type = 'reserved' AND r.status = 'active'
+                            THEN CONCAT(u.name, ' <', u.email, '>')
+                            ELSE NULL END SEPARATOR ' | ') AS reserved_by,
+                        GROUP_CONCAT(DISTINCT CASE
+                            WHEN r.action_type = 'pix' AND r.status = 'active'
+                            THEN CONCAT(u.name, ' <', u.email, '>')
+                            ELSE NULL END SEPARATOR ' | ') AS pix_by,
+                        SUM(CASE WHEN r.action_type = 'reserved' AND r.status = 'active' THEN 1 ELSE 0 END) AS reserved_count,
+                        SUM(CASE WHEN r.action_type = 'pix' AND r.status = 'active' THEN 1 ELSE 0 END) AS pix_count
+                    FROM reservations r
+                    INNER JOIN users u ON u.id = r.user_id
+                    GROUP BY r.gift_id
+                ) tr ON tr.gift_id = g.id
+                {$where}
+                ORDER BY g.id DESC";
 
         return $this->query($sql, $params)->fetchAll();
     }
@@ -92,10 +137,10 @@ class GiftModel extends BaseModel {
         $this->query(
             'INSERT INTO gifts
                 (name, slug, description, category, type, price, image_path,
-                 quantity, available_qty, featured, is_active, sort_order)
+                 quantity, available_qty, featured, is_active, sort_order, redirect_url)
              VALUES
                 (:name, :slug, :description, :category, :type, :price, :image_path,
-                 :quantity, :available_qty, :featured, :is_active, :sort_order)',
+                 :quantity, :available_qty, :featured, :is_active, :sort_order, :redirect_url)',
             [
                 ':name'          => $data['name']          ?? '',
                 ':slug'          => $data['slug']          ?? '',
@@ -109,6 +154,7 @@ class GiftModel extends BaseModel {
                 ':featured'      => $data['featured']      ?? 0,
                 ':is_active'     => $data['is_active']     ?? 1,
                 ':sort_order'    => $data['sort_order']    ?? 0,
+                ':redirect_url'  => $data['redirect_url']  ?? null,
             ]
         );
         return (int) $this->db->lastInsertId();
@@ -126,7 +172,7 @@ class GiftModel extends BaseModel {
         $allowed = [
             'name', 'slug', 'description', 'category', 'type', 'price',
             'image_path', 'quantity', 'available_qty', 'featured',
-            'is_active', 'sort_order',
+            'is_active', 'sort_order', 'redirect_url',
         ];
 
         $setClauses = [];
@@ -180,8 +226,8 @@ class GiftModel extends BaseModel {
      */
     public function reservationCount(int $id): int {
         return (int) $this->query(
-            'SELECT COUNT(*) FROM reservations WHERE gift_id = :id',
-            [':id' => $id]
+            'SELECT COUNT(*) FROM reservations WHERE gift_id = :id AND status = :status',
+            [':id' => $id, ':status' => 'active']
         )->fetchColumn();
     }
 }

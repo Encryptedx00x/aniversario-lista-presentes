@@ -14,7 +14,7 @@ class ReservationModel extends BaseModel {
             $this->db->beginTransaction();
 
             $gift = $this->query(
-                'SELECT id, quantity, available_qty, reserved
+                'SELECT id, quantity, available_qty, reserved, redirect_url
                  FROM gifts
                  WHERE id = :gift_id AND is_active = 1
                  FOR UPDATE',
@@ -49,12 +49,13 @@ class ReservationModel extends BaseModel {
             );
 
             $this->query(
-                'INSERT INTO reservations (gift_id, user_id, status)
-                 VALUES (:gift_id, :user_id, :status)',
+                'INSERT INTO reservations (gift_id, user_id, status, action_type)
+                 VALUES (:gift_id, :user_id, :status, :action_type)',
                 [
                     ':gift_id' => $giftId,
                     ':user_id' => $userId,
                     ':status'  => 'active',
+                    ':action_type' => 'reserved',
                 ]
             );
 
@@ -71,6 +72,7 @@ class ReservationModel extends BaseModel {
                 'success' => true,
                 'available_qty' => $availableQty,
                 'is_exhausted' => ($availableQty === 0),
+                'redirect_url' => (string) ($gift['redirect_url'] ?? ''),
             ];
         } catch (\Throwable $e) {
             if ($this->db->inTransaction()) {
@@ -96,8 +98,10 @@ class ReservationModel extends BaseModel {
                 r.id,
                 r.gift_id,
                 r.status,
+                r.action_type,
                 r.created_at,
-                g.name,
+                g.name AS gift_name,
+                g.category,
                 g.description,
                 g.price,
                 g.image_path,
@@ -115,6 +119,43 @@ class ReservationModel extends BaseModel {
         )->fetchAll();
     }
 
+    public function contributePix(int $giftId, int $userId): array {
+        try {
+            $gift = $this->query(
+                'SELECT id FROM gifts WHERE id = :gift_id AND is_active = 1 LIMIT 1',
+                [':gift_id' => $giftId]
+            )->fetch();
+
+            if (!$gift) {
+                return [
+                    'success' => false,
+                    'error' => 'Presente não encontrado.',
+                ];
+            }
+
+            $this->query(
+                'INSERT INTO reservations (gift_id, user_id, status, action_type)
+                 VALUES (:gift_id, :user_id, :status, :action_type)',
+                [
+                    ':gift_id' => $giftId,
+                    ':user_id' => $userId,
+                    ':status' => 'active',
+                    ':action_type' => 'pix',
+                ]
+            );
+
+            return [
+                'success' => true,
+            ];
+        } catch (\Throwable $e) {
+            error_log('[ReservationModel::contributePix] ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Não foi possível registrar o PIX agora. Tente novamente.',
+            ];
+        }
+    }
+
     /**
      * Cancels one active reservation owned by the given guest and returns stock.
      */
@@ -123,7 +164,7 @@ class ReservationModel extends BaseModel {
             $this->db->beginTransaction();
 
             $reservation = $this->query(
-                'SELECT id, gift_id, status
+                'SELECT id, gift_id, status, action_type
                  FROM reservations
                  WHERE id = :reservation_id AND user_id = :user_id
                  FOR UPDATE',
@@ -146,6 +187,13 @@ class ReservationModel extends BaseModel {
                 return [
                     'success' => false,
                     'error' => 'Essa reserva já foi cancelada.',
+                ];
+            }
+            if (($reservation['action_type'] ?? 'reserved') !== 'reserved') {
+                $this->db->rollBack();
+                return [
+                    'success' => false,
+                    'error' => 'Somente reservas podem ser canceladas.',
                 ];
             }
 

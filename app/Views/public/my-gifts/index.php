@@ -11,7 +11,7 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
 <main class="section--tight">
 
     <div class="page-head">
-        <div class="page-eyebrow">Suas reservas</div>
+        <div class="page-eyebrow">Minha lista</div>
         <h1 class="page-title">O que você <em>já garantiu.</em></h1>
     </div>
 
@@ -19,9 +19,9 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
         <div class="reservation" style="grid-template-columns: 1fr; padding: 56px 32px; text-align: center;">
             <div>
                 <div class="empty-state__icon">✦</div>
-                <h2 class="reservation__title" style="margin-bottom: 8px;">Você ainda não reservou presentes.</h2>
+                <h2 class="reservation__title" style="margin-bottom: 8px;">Você ainda não selecionou nenhum presente.</h2>
                 <p class="reservation__desc" style="margin: 0 auto 22px; max-width: 360px;">
-                    Quando você escolher um presente, ele aparece aqui pra você acompanhar com calma.
+                    Você ainda não reservou presentes. Quando você escolher um presente, ele aparece aqui pra você acompanhar com calma.
                 </p>
                 <a href="/gifts" class="btn-solid">Ver a lista <span aria-hidden="true">→</span></a>
             </div>
@@ -35,6 +35,7 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
 
                     $statusLabel = match ($status) {
                         'reserved'  => 'Reservado · você tem 4 dias e 12h pra confirmar',
+                        'pix'       => 'Contribuição via PIX registrada',
                         'confirmed' => 'Confirmado · obrigada!',
                         'cancelled' => 'Cancelada',
                         default     => ucfirst($status),
@@ -42,6 +43,7 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
 
                     $statusClass = match ($status) {
                         'reserved'  => 'reservation__status--reserved',
+                        'pix'       => 'reservation__status--confirmed',
                         'confirmed' => 'reservation__status--confirmed',
                         'cancelled' => 'reservation__status--cancelled',
                         default     => 'reservation__status--reserved',

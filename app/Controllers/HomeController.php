@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Helpers\View;
+use App\Helpers\SiteConfig;
 use App\Models\GiftModel;
-use App\Models\ReservationModel;
 
 class HomeController {
 
@@ -14,7 +14,9 @@ class HomeController {
      */
     public function index(array $params = []): void {
         $giftModel = new GiftModel;
-        $allGifts  = $giftModel->getAllActive();
+        $userId    = (int) ($_SESSION['user_id'] ?? 0);
+        $allGifts  = $giftModel->getAllActive($userId);
+        $siteCfg   = SiteConfig::getPublicSettings();
 
         // Top 3 cards for the "Em destaque" section: featured first, then by sort_order.
         usort($allGifts, function ($a, $b) {
@@ -34,12 +36,11 @@ class HomeController {
             ? (int) round(($reservedCount / $totalCapacity) * 100)
             : 0;
 
-        // Target date: 12 June 2026 (matches the design copy).
-        $target  = mktime(0, 0, 0, 6, 12, 2026) ?: (time() + 47 * 86400);
+        $target  = (int) ($siteCfg['eventTimestamp'] ?? time());
         $diff    = max(0, $target - time());
         $days    = (int) floor($diff / 86400);
 
-        View::render('public/home', [
+        View::render('public/home', array_merge([
             'title'     => APP_NAME,
             'layout'    => 'main',
             'featured'  => $featured,
@@ -52,17 +53,17 @@ class HomeController {
                 'targetIso'      => date('c', $target),
             ],
             'activeNav' => 'home',
-        ]);
+        ], $siteCfg));
     }
 
     /**
      * Pix info page — static data, no backend transaction.
      */
     public function pix(array $params = []): void {
-        View::render('public/pix', [
+        View::render('public/pix', array_merge([
             'title'     => APP_NAME . ' — Pix',
             'layout'    => 'main',
             'activeNav' => 'pix',
-        ]);
+        ], SiteConfig::getPublicSettings()));
     }
 }

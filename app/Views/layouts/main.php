@@ -24,7 +24,7 @@ $navItems = [
     ['key' => 'home',  'label' => 'Início',          'href' => '/'],
     ['key' => 'gifts', 'label' => 'Lista',           'href' => '/gifts'],
     ['key' => 'pix',   'label' => 'Pix',             'href' => '/pix'],
-    ['key' => 'my',    'label' => 'Minhas reservas', 'href' => '/my-gifts'],
+    ['key' => 'my',    'label' => 'Minha Lista', 'href' => '/my-gifts'],
 ];
 
 $flash = \App\Helpers\Flash::get();
@@ -95,7 +95,7 @@ $flash = \App\Helpers\Flash::get();
                 <a href="/gifts">Lista</a>
                 <a href="/pix">Pix</a>
                 <?php if (($_SESSION['role'] ?? '') === 'guest'): ?>
-                    <a href="/my-gifts">Minhas reservas</a>
+                    <a href="/my-gifts">Minha Lista</a>
                 <?php endif; ?>
             </div>
             <div class="site-footer__col">

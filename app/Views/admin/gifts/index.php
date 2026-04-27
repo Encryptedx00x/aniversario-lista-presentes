@@ -5,7 +5,7 @@
 /** @var \Closure $e */
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 admin-page-head">
     <h1 class="fs-3 fw-semibold mb-0">Presentes</h1>
     <a href="/admin/gifts/create" class="btn btn-primary">+ Novo presente</a>
 </div>
@@ -42,6 +42,7 @@
         <a href="/admin/gifts/create" class="btn btn-primary">+ Novo presente</a>
     </div>
 <?php else: ?>
+    <div class="card shadow-sm border-0">
     <div class="table-responsive">
         <table class="table table-hover align-middle">
             <thead class="table-light">
@@ -51,6 +52,7 @@
                     <th>Categoria</th>
                     <th>Preço</th>
                     <th>Disponível</th>
+                    <th>Rastreio</th>
                     <th>Status</th>
                     <th>Ações</th>
                 </tr>
@@ -99,12 +101,28 @@
                         <span><?= (int)$gift['available_qty'] ?> / <?= (int)$gift['quantity'] ?></span>
                     </td>
 
+                    <td>
+                        <?php if (!empty($gift['reserved_by'])): ?>
+                            <div class="small"><span class="badge bg-primary-subtle text-primary">Reservado</span> <?= $e($gift['reserved_by']) ?></div>
+                        <?php endif; ?>
+                        <?php if (!empty($gift['pix_by'])): ?>
+                            <div class="small mt-1"><span class="badge bg-info-subtle text-info-emphasis">PIX</span> <?= $e($gift['pix_by']) ?></div>
+                        <?php endif; ?>
+                        <?php if (empty($gift['reserved_by']) && empty($gift['pix_by'])): ?>
+                            <span class="text-muted small">Disponível</span>
+                        <?php endif; ?>
+                    </td>
+
                     <!-- Status badge -->
                     <td>
-                        <?php if ($gift['is_active']): ?>
-                            <span class="badge bg-success">Ativo</span>
-                        <?php else: ?>
+                        <?php if (!$gift['is_active']): ?>
                             <span class="badge bg-secondary">Inativo</span>
+                        <?php elseif (!empty($gift['pix_count'])): ?>
+                            <span class="badge bg-info">Pix</span>
+                        <?php elseif (!empty($gift['reserved_count'])): ?>
+                            <span class="badge bg-warning text-dark">Reservado</span>
+                        <?php else: ?>
+                            <span class="badge bg-success">Disponível</span>
                         <?php endif; ?>
                     </td>
 
@@ -148,5 +166,6 @@
                 <?php endforeach; ?>
             </tbody>
         </table>
+    </div>
     </div>
 <?php endif; ?>

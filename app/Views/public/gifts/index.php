@@ -75,3 +75,12 @@ $brandName = $brandName ?? 'Maria, 30.';
         <button type="button" class="toast__close" data-dismiss-toast aria-label="Fechar">×</button>
     </div>
 </div>
+
+<div class="auth-modal-backdrop" id="reserveRedirectModal" role="dialog" aria-modal="true" aria-labelledby="reserveRedirectTitle">
+    <div class="auth-modal auth-modal--compact">
+        <h2 id="reserveRedirectTitle">Presente reservado com sucesso</h2>
+        <p>Você será redirecionado em <strong id="reserve-redirect-countdown">10</strong>s.</p>
+        <p class="small text-muted mb-2">Se não acontecer automaticamente, use o link abaixo.</p>
+        <a href="#" id="reserve-redirect-link" target="_blank" rel="noopener">Abrir link do presente</a>
+    </div>
+</div>

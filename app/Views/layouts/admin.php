@@ -14,17 +14,17 @@
 <body>
 
 <!-- Top header with admin name (D-07) and logout button (D-06) -->
-<nav class="navbar navbar-dark bg-dark px-3">
-    <a class="navbar-brand" href="/admin/dashboard">Painel Admin</a>
+<nav class="navbar px-3 admin-topbar">
+    <a class="navbar-brand fw-semibold" href="/admin/dashboard">Painel Admin</a>
     <div class="d-flex align-items-center gap-3">
-        <span class="text-light small">
+        <span class="small text-muted">
             <?= htmlspecialchars($_SESSION['name'] ?? '', ENT_QUOTES, 'UTF-8') ?>
         </span>
         <!-- Logout form — POST with CSRF (SEC-02, D-06) -->
         <form method="POST" action="/admin/logout" class="d-inline m-0">
             <input type="hidden" name="csrf_token"
                    value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
-            <button type="submit" class="btn btn-outline-light btn-sm">Sair</button>
+            <button type="submit" class="btn btn-outline-secondary btn-sm">Sair</button>
         </form>
     </div>
 </nav>
@@ -32,7 +32,7 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar (D-05: all items visible and clickable) -->
-        <nav class="col-md-2 col-lg-2 d-md-block bg-light sidebar py-3 border-end" style="min-height: calc(100vh - 56px)">
+        <nav class="col-md-2 col-lg-2 d-md-block bg-white sidebar py-3 border-end" style="min-height: calc(100vh - 56px)">
             <ul class="nav flex-column">
                 <li class="nav-item">
                     <a class="nav-link<?= (strpos($_SERVER['REQUEST_URI'], '/admin/dashboard') === 0) ? ' active fw-semibold' : '' ?>"
@@ -58,7 +58,7 @@
         </nav>
 
         <!-- Main content -->
-        <main class="col-md-10 col-lg-10 py-4 px-4">
+        <main class="col-md-10 col-lg-10 py-4 px-4 admin-main">
             <?php $flash = \App\Helpers\Flash::get(); if ($flash): ?>
                 <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : 'success' ?> alert-dismissible fade show" role="alert">
                     <?= htmlspecialchars($flash['msg'], ENT_QUOTES, 'UTF-8') ?>

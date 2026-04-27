@@ -45,6 +45,8 @@ if (empty($gifts)): ?>
             $price      = (float) ($gift['price'] ?? 0);
             $idStr      = str_pad((string) (int) ($gift['id'] ?? 0), 2, '0', STR_PAD_LEFT);
             $qty        = (int) $gift['available_qty'];
+            $userAction = (string) ($gift['user_action_type'] ?? '');
+            $isMine     = $userAction !== '';
         ?>
         <article class="<?= $cardClass ?>"
                  style="animation-delay: <?= $e($delay) ?>; --card-accent: <?= $e($accent) ?>;">
@@ -95,16 +97,29 @@ if (empty($gifts)): ?>
                             ? 'R$ ' . $e(number_format($price, ($price == (int) $price ? 0 : 2), ',', '.'))
                             : '—' ?>
                     </span>
-                    <?php if ($isSoldOut): ?>
+                    <?php if ($isMine): ?>
+                        <button class="gift-card__cta" disabled>
+                            <?= $userAction === 'pix' ? 'Contribuído via PIX' : 'Selecionado' ?>
+                        </button>
+                    <?php elseif ($isSoldOut): ?>
                         <button class="gift-card__cta" disabled>Indisponível</button>
                     <?php else: ?>
-                        <button type="button"
-                                class="gift-card__cta btn-choose-gift"
-                                data-gift-id="<?= $e($gift['id']) ?>"
-                                data-logged-in="<?= isset($_SESSION['user_id']) ? '1' : '0' ?>"
-                                style="--cta-hover: <?= $e($accent) ?>;">
-                            Quero esse <span aria-hidden="true">→</span>
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button type="button"
+                                    class="gift-card__cta btn-choose-gift"
+                                    data-gift-id="<?= $e($gift['id']) ?>"
+                                    data-logged-in="<?= isset($_SESSION['user_id']) ? '1' : '0' ?>"
+                                    data-redirect-url="<?= $e($gift['redirect_url'] ?? '') ?>"
+                                    style="--cta-hover: <?= $e($accent) ?>;">
+                                Quero esse <span aria-hidden="true">→</span>
+                            </button>
+                            <button type="button"
+                                    class="gift-card__cta btn-pix-gift"
+                                    data-gift-id="<?= $e($gift['id']) ?>"
+                                    data-logged-in="<?= isset($_SESSION['user_id']) ? '1' : '0' ?>">
+                                Enviar valor via PIX
+                            </button>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>

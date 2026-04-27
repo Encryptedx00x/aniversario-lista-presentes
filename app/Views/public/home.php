@@ -17,6 +17,7 @@ $countdown     = $countdown     ?? [
     'targetIso'      => '',
 ];
 $brandName     = $brandName     ?? 'Maria, 30.';
+$eventAge      = (int) ($eventAge ?? 30);
 $activeNav     = 'home';
 ?>
 <main>
@@ -31,7 +32,7 @@ $activeNav     = 'home';
                     <span class="eyebrow__text" data-countdown-days-eyebrow>Faltam <?= $e($countdown['days']) ?> dias</span>
                 </span>
                 <h1 class="hero__headline">
-                    Trinta anos<br>
+                    <?= $e((string) $eventAge) ?> anos<br>
                     de <span class="hero__highlight">
                         boas
                         <svg class="hero__squiggle" viewBox="0 0 220 22" preserveAspectRatio="none" aria-hidden="true">
@@ -119,7 +120,7 @@ $activeNav     = 'home';
     <section class="marquee" aria-hidden="true">
         <div class="marquee__track">
             <?php for ($i = 0; $i < 4; $i++): ?>
-                <span class="marquee__item marquee__item--accent">✺ Trinta anos</span>
+                <span class="marquee__item marquee__item--accent">✺ <?= $e((string) $eventAge) ?> anos</span>
                 <span class="marquee__item">ano da virada</span>
                 <span class="marquee__item">★ doze de junho</span>
                 <span class="marquee__item marquee__item--accent">sem pressão, sem firula</span>
@@ -193,6 +194,14 @@ if ($includeAuthModal):
             <a href="/my-gifts">Ver meus presentes</a>
         </div>
         <button type="button" class="toast__close" data-dismiss-toast aria-label="Fechar">×</button>
+    </div>
+</div>
+<div class="auth-modal-backdrop" id="reserveRedirectModal" role="dialog" aria-modal="true" aria-labelledby="reserveRedirectTitle">
+    <div class="auth-modal auth-modal--compact">
+        <h2 id="reserveRedirectTitle">Presente reservado com sucesso</h2>
+        <p>Você será redirecionado em <strong id="reserve-redirect-countdown">10</strong>s.</p>
+        <p class="small text-muted mb-2">Se não acontecer automaticamente, use o link abaixo.</p>
+        <a href="#" id="reserve-redirect-link" target="_blank" rel="noopener">Abrir link do presente</a>
     </div>
 </div>
 <?php endif; ?>
