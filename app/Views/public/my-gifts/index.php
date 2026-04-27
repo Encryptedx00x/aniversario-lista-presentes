@@ -76,6 +76,15 @@
                                         <strong>Data:</strong>
                                         <?= $e($createdAt) ?>
                                     </p>
+                                    <?php if (!empty($reservation['purchase_url'])): ?>
+                                        <p class="small mb-3">
+                                            <a href="<?= $e((string) $reservation['purchase_url']) ?>"
+                                               target="_blank"
+                                               rel="noopener noreferrer">
+                                                Abrir link de compra deste presente
+                                            </a>
+                                        </p>
+                                    <?php endif; ?>
 
                                     <div class="mt-auto">
                                         <?php if ($isReserved): ?>
@@ -90,6 +99,12 @@
                                                     Cancelar reserva
                                                 </button>
                                             </form>
+                                            <?php if (!empty($reservation['gift_id'])): ?>
+                                                <a class="btn btn-outline-success btn-sm ms-2"
+                                                   href="/pix?gift_id=<?= $e((string) $reservation['gift_id']) ?>&amount=<?= $e(number_format((float)($reservation['price'] ?? 0), 2, '.', '')) ?>">
+                                                    Dar via Pix
+                                                </a>
+                                            <?php endif; ?>
                                         <?php else: ?>
                                             <p class="small text-muted mb-0">Esta reserva não pode mais ser cancelada.</p>
                                         <?php endif; ?>

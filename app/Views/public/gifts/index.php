@@ -5,12 +5,24 @@
  * Variables available: $gifts, $categories, $e (from View::render extract).
  */
 ?>
-<div class="container py-4">
+<div class="container py-4 gifts-editorial">
 
-    <h1 class="mb-4 fw-bold">Lista de Presentes</h1>
+    <section class="gifts-hero mb-4" data-reveal>
+        <p class="gifts-hero__kicker mb-2">Gift Experience</p>
+        <h1 class="gifts-hero__title mb-2">Lista de Presentes</h1>
+        <p class="gifts-hero__subtitle mb-0">
+            Escolha um presente, abra o link do produto ou contribua via Pix com uma experiência visual premium.
+        </p>
+        <p class="gifts-hero__micro mt-3 mb-0">Edição visual: movimento, contraste e composição editorial.</p>
+    </section>
+    <div id="reserve-feedback"
+         class="alert d-none"
+         role="status"
+         aria-live="polite">
+    </div>
 
     <!-- Filter bar -->
-    <div class="row g-3 mb-4 align-items-end">
+    <div class="row g-3 mb-4 align-items-end gifts-filter-wrap" data-reveal>
         <div class="col-md-5">
             <label for="search-input" class="form-label visually-hidden">Buscar presente</label>
             <input type="text"
@@ -39,7 +51,7 @@
     </div>
 
     <!-- Card grid — initial server render; JS replaces innerHTML on filter -->
-    <div id="gifts-container" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div id="gifts-container" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 gifts-grid-editorial" data-reveal>
         <?php require __DIR__ . '/_cards.php'; ?>
     </div>
 
@@ -51,10 +63,10 @@
 </div>
 
 <!-- Auth modal -->
-<div class="modal fade"
+<div class="modal fade auth-modal"
      id="authModal"
      tabindex="-1"
-     data-bs-backdrop="static"
+     data-bs-backdrop="false"
      data-bs-keyboard="false"
      data-csrf-token="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>"
      aria-labelledby="authModalLabel"
@@ -73,12 +85,12 @@
             <div class="modal-body">
 
                 <!-- Tab nav -->
-                <ul class="nav nav-tabs mb-4" role="tablist">
+                <ul class="nav nav-tabs mb-4 auth-tabs" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#" data-tab="signup" role="tab">Criar conta</a>
+                        <a class="nav-link active auth-tab-link" href="#" data-tab="signup" role="tab">Criar conta</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" data-tab="login" role="tab">Entrar</a>
+                        <a class="nav-link auth-tab-link" href="#" data-tab="login" role="tab">Entrar</a>
                     </li>
                 </ul>
 
