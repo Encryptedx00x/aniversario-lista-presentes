@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: Phase 2 — complete (all 4 plans done), Phase 3 next
+current_phase: Phase 5 — in progress (dashboard + pix/reservation hardening), Phase 6 next
 status: in_progress
-stopped_at: context exhaustion at 90% (2026-04-24)
-last_updated: "2026-04-24T03:22:06.580Z"
+stopped_at: planning update for new visual refactor phase (2026-04-26)
+last_updated: "2026-04-26T00:00:00Z"
 progress:
-  total_phases: 6
-  completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
-  percent: 100
+  total_phases: 7
+  completed_phases: 4
+  total_plans: 12
+  completed_plans: 9
+  percent: 75
 ---
 
 # Project State — Sistema de Aniversário
@@ -19,8 +19,8 @@ progress:
 ## Current Position
 
 **Milestone:** v1.0
-**Current Phase:** Phase 2 — complete (all 4 plans done), Phase 3 next
-**Last Action:** 02-04 complete — GuestAuthController JSON endpoints, UserModel::create(), app.js GiftPage (filter debounce, auth modal, slug generation, image preview)
+**Current Phase:** Phase 5 — in progress (dashboard + pix/reservation hardening), Phase 6 next
+**Last Action:** Added Pix flow base, purchase URL support, dashboard metrics, and reserve/auth robustness fixes
 
 ## Progress
 
@@ -28,10 +28,11 @@ progress:
 |-------|--------|-----------|
 | 1 — Base & Infraestrutura | ✅ Complete | 2026-04-22 |
 | 2 — Presentes Públicos & CRUD Admin | ✅ Complete | 2026-04-22 |
-| 3 — Reserva Atômica & Meus Presentes | ⬜ Not Started | — |
-| 4 — Fluxo Pix | ⬜ Not Started | — |
-| 5 — Painel Admin Completo | ⬜ Not Started | — |
+| 3 — Reserva Atômica & Meus Presentes | ✅ Complete* | 2026-04-26 |
+| 4 — Fluxo Pix | ✅ Complete* | 2026-04-26 |
+| 5 — Painel Admin Completo | 🔄 In Progress | 2026-04-26 |
 | 6 — Seed, Deploy & Refinamento | ⬜ Not Started | — |
+| 7 — Refatoração Visual Moderna | ⬜ Not Started | — |
 
 ## Key Context
 
@@ -55,6 +56,6 @@ progress:
 
 ## Session Continuity
 
-Last session: 2026-04-24T03:22:06.574Z
-Stopped at: context exhaustion at 90% (2026-04-24)
-Next step: Execute Phase 3 — Reserva Atômica & Meus Presentes
+Last session: 2026-04-26T00:00:00Z
+Stopped at: planning update for new visual refactor phase (2026-04-26)
+Next step: Execute remaining Phase 5 admin management flows, then Phase 6 deploy package

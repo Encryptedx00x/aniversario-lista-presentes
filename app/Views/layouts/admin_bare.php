@@ -8,9 +8,10 @@
           href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
           crossorigin="anonymous">
-    <link rel="stylesheet" href="/assets/css/app.css">
+    <?php $cssV = @filemtime(ROOT_PATH . '/public/assets/css/app.css') ?: time(); ?>
+    <link rel="stylesheet" href="/assets/css/app.css?v=<?= $cssV ?>">
 </head>
-<body class="bg-light d-flex align-items-center" style="min-height:100vh">
+<body class="theme-modern admin-login-shell d-flex align-items-center" style="min-height:100vh">
     <div class="container" style="max-width:400px">
         <?php $flash = \App\Helpers\Flash::get(); if ($flash): ?>
             <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : 'success' ?> mb-3">

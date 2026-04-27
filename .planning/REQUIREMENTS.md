@@ -58,6 +58,14 @@
 - [ ] **ADMIN-03**: Admin pode configurar chave Pix, nome do recebedor, cidade, QR Code
 - [ ] **ADMIN-04**: Admin pode configurar cores primária e secundária do tema
 
+### UI — Refatoração Visual Moderna (branco/preto/roxo)
+
+- [ ] **UI-01**: Paleta global aplica branco, preto e roxo como identidade visual principal
+- [ ] **UI-02**: Componentes (cards, botões, navbar, modal, formulários) seguem padrão visual elegante e consistente
+- [ ] **UI-03**: Animações suaves de interação (hover/focus/entrada) melhoram percepção de qualidade
+- [ ] **UI-04**: Layout responsivo e espaçamento tipográfico refinados para mobile e desktop
+- [ ] **UI-05**: Sistema respeita acessibilidade visual e `prefers-reduced-motion`
+
 ### SEC — Segurança
 
 - [ ] **SEC-01**: Todas as queries usam PDO com prepared statements
@@ -108,3 +116,4 @@
 | Phase 4 | PIX-01..05 — Fluxo Pix completo |
 | Phase 5 | ADMIN-01..04 — Dashboard + configurações |
 | Phase 6 | DEPLOY-01..05 — Seed, README, refinamento visual |
+| Phase 7 | UI-01..05 — Refatoração visual moderna (branco/preto/roxo) |

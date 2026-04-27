@@ -91,15 +91,16 @@ class GiftModel extends BaseModel {
     public function insert(array $data): int {
         $this->query(
             'INSERT INTO gifts
-                (name, slug, description, category, type, price, image_path,
+                (name, slug, description, purchase_url, category, type, price, image_path,
                  quantity, available_qty, featured, is_active, sort_order)
              VALUES
-                (:name, :slug, :description, :category, :type, :price, :image_path,
+                (:name, :slug, :description, :purchase_url, :category, :type, :price, :image_path,
                  :quantity, :available_qty, :featured, :is_active, :sort_order)',
             [
                 ':name'          => $data['name']          ?? '',
                 ':slug'          => $data['slug']          ?? '',
                 ':description'   => $data['description']  ?? null,
+                ':purchase_url'  => $data['purchase_url'] ?? null,
                 ':category'      => $data['category']      ?? null,
                 ':type'          => $data['type']          ?? 'single',
                 ':price'         => $data['price']         ?? 0,
@@ -124,7 +125,7 @@ class GiftModel extends BaseModel {
         }
 
         $allowed = [
-            'name', 'slug', 'description', 'category', 'type', 'price',
+            'name', 'slug', 'description', 'purchase_url', 'category', 'type', 'price',
             'image_path', 'quantity', 'available_qty', 'featured',
             'is_active', 'sort_order',
         ];

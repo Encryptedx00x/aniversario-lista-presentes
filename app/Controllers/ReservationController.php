@@ -7,6 +7,7 @@ use App\Helpers\Flash;
 use App\Helpers\View;
 use App\Middleware\CsrfMiddleware;
 use App\Models\ReservationModel;
+use App\Models\UserModel;
 
 class ReservationController {
 
@@ -25,7 +26,20 @@ class ReservationController {
             $this->json([
                 'success' => false,
                 'is_exhausted' => false,
+                'requires_auth' => true,
                 'error' => 'Faça login para reservar um presente.',
+            ], 401);
+        }
+
+        $guest = (new UserModel)->findById($userId);
+        if (!$guest || ($guest['role'] ?? '') !== 'guest') {
+            $_SESSION = [];
+            session_regenerate_id(true);
+            $this->json([
+                'success' => false,
+                'is_exhausted' => false,
+                'requires_auth' => true,
+                'error' => 'Sua sessão expirou. Entre novamente para continuar.',
             ], 401);
         }
 

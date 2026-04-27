@@ -1,6 +1,6 @@
 # Roadmap — Sistema de Aniversário
 
-**6 fases** | **37 requirements mapeados** | Cobertura v1 100% ✓
+**7 fases** | **42 requirements mapeados** | Cobertura v1 100% ✓
 
 ---
 
@@ -14,6 +14,7 @@
 | 4 | Fluxo Pix | Página Pix funcional + registro de contribuições | PIX-01..05 | 4 |
 | 5 | Painel Admin Completo | Dashboard, gestão de reservas/contribuições, configurações | ADMIN-01..04, RESERVE-04..06, PIX-04..05 | 5 |
 | 6 | Seed, Deploy & Refinamento | Projeto pronto para Hostinger com seed e documentação | DEPLOY-01..05 | 4 |
+| 7 | Refatoração Visual Moderna | Novo padrão visual elegante, animado e responsivo (branco/preto/roxo) | UI-01..05 | 5 |
 
 ---
 
@@ -141,10 +142,24 @@ Plans:
 
 ---
 
+### Phase 7: Refatoração Visual Moderna
+**Goal:** Aplicar uma nova linguagem visual premium em toda experiência pública e admin, com paleta branco/preto/roxo, animações sutis e refinamento visual completo sem quebrar compatibilidade Hostinger (sem build step obrigatório em produção).
+
+**Requirements:** UI-01, UI-02, UI-03, UI-04, UI-05
+
+**Success Criteria:**
+1. Paleta global usa branco/preto/roxo com contraste AA para áreas principais
+2. Componentes-chave (cards, botões, navbar, modal, dashboard) seguem o novo padrão visual consistente
+3. Animações sutis (hover/focus/entradas) funcionam com boa performance e sem prejudicar acessibilidade
+4. Layout mobile-first aprimorado (spacing, tipografia, hierarquia visual) em páginas públicas e admin
+5. Alternância/redução de movimento respeita `prefers-reduced-motion`
+
+---
+
 ## Requirement Coverage Validation
 
-**Total v1 requirements:** 37
-**Mapped:** 37
+**Total v1 requirements:** 42
+**Mapped:** 42
 **Coverage:** 100% ✓
 
 | Requirement | Phase |
@@ -160,3 +175,4 @@ Plans:
 | RESERVE-04..06 | 5 |
 | PIX-04..05 | 5 |
 | DEPLOY-01..05 | 6 |
+| UI-01..05 | 7 |

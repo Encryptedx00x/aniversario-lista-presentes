@@ -9,12 +9,13 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
           crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/assets/css/app.css">
+    <?php $cssV = @filemtime(ROOT_PATH . '/public/assets/css/app.css') ?: time(); ?>
+    <link rel="stylesheet" href="/assets/css/app.css?v=<?= $cssV ?>">
 </head>
-<body>
+<body class="theme-modern admin-shell">
 
 <!-- Top header with admin name (D-07) and logout button (D-06) -->
-<nav class="navbar navbar-dark bg-dark px-3">
+<nav class="navbar navbar-dark bg-dark px-3 admin-topbar">
     <a class="navbar-brand" href="/admin/dashboard">Painel Admin</a>
     <div class="d-flex align-items-center gap-3">
         <span class="text-light small">
@@ -58,7 +59,7 @@
         </nav>
 
         <!-- Main content -->
-        <main class="col-md-10 col-lg-10 py-4 px-4">
+        <main class="col-md-10 col-lg-10 py-4 px-4 admin-main">
             <?php $flash = \App\Helpers\Flash::get(); if ($flash): ?>
                 <div class="alert alert-<?= $flash['type'] === 'error' ? 'danger' : 'success' ?> alert-dismissible fade show" role="alert">
                     <?= htmlspecialchars($flash['msg'], ENT_QUOTES, 'UTF-8') ?>

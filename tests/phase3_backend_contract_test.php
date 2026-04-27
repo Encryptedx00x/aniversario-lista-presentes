@@ -37,6 +37,7 @@ assertTrue(isset($routes['POST']['/my-gifts/cancel']), 'Route POST /my-gifts/can
 $authMiddlewareSource = file_get_contents($root . '/app/Middleware/AuthMiddleware.php');
 assertTrue($authMiddlewareSource !== false, 'AuthMiddleware source is readable');
 assertTrue(str_contains($authMiddlewareSource, 'function requireGuest'), 'AuthMiddleware::requireGuest exists');
+assertTrue(str_contains($authMiddlewareSource, 'findById'), 'AuthMiddleware::requireGuest validates guest user still exists');
 
 $reservationModelSource = file_get_contents($root . '/app/Models/ReservationModel.php');
 assertTrue($reservationModelSource !== false, 'ReservationModel source is readable');
@@ -44,6 +45,15 @@ assertTrue(str_contains($reservationModelSource, 'FOR UPDATE'), 'ReservationMode
 assertTrue(str_contains($reservationModelSource, 'beginTransaction'), 'ReservationModel opens transaction');
 assertTrue(str_contains($reservationModelSource, 'rollBack'), 'ReservationModel rolls back on failure');
 assertTrue(str_contains($reservationModelSource, 'available_qty = available_qty - 1'), 'ReservationModel decrements available_qty atomically');
+assertTrue(str_contains($reservationModelSource, 'INSERT INTO reservations (gift_id, user_id)'), 'ReservationModel insert uses schema-compatible default status');
+assertTrue(
+    str_contains($reservationModelSource, "CASE WHEN r.status = \\'active\\' THEN \\'reserved\\'")
+    || str_contains($reservationModelSource, "CASE WHEN r.status = 'active' THEN 'reserved'"),
+    'ReservationModel normalizes legacy active status for UI'
+);
+assertTrue(str_contains($reservationModelSource, "in_array(\$reservationStatus, ['reserved', 'active']"), 'ReservationModel cancel accepts both reserved and legacy active statuses');
+assertTrue(str_contains($reservationModelSource, 'g.name AS gift_name'), 'ReservationModel my-gifts query aliases gift_name for view contract');
+assertTrue(str_contains($reservationModelSource, '[ReservationModel::getActiveByUser]'), 'ReservationModel my-gifts query failures are logged and handled');
 
 $reservationControllerSource = file_get_contents($root . '/app/Controllers/ReservationController.php');
 assertTrue($reservationControllerSource !== false, 'ReservationController source is readable');
@@ -51,6 +61,7 @@ assertTrue(str_contains($reservationControllerSource, 'function store'), 'Reserv
 assertTrue(str_contains($reservationControllerSource, 'function myGifts'), 'ReservationController::myGifts exists');
 assertTrue(str_contains($reservationControllerSource, 'function cancel'), 'ReservationController::cancel exists');
 assertTrue(str_contains($reservationControllerSource, 'function csrfToken'), 'ReservationController::csrfToken exists');
+assertTrue(str_contains($reservationControllerSource, "'requires_auth' => true"), 'ReservationController returns requires_auth flag for expired auth');
 assertTrue(str_contains($reservationControllerSource, "'Esse presente acabou de ficar indisponível.'") || str_contains($reservationModelSource, "'Esse presente acabou de ficar indisponível.'"), 'Exhausted stock message contract exists');
 
 $migrationSource = file_get_contents($root . '/sql/migrate_phase3.sql');
