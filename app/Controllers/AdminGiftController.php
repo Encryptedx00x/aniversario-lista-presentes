@@ -230,6 +230,7 @@ class AdminGiftController {
             'featured'      => isset($_POST['featured']) ? 1 : 0,
             'is_active'     => isset($_POST['active'])   ? 1 : 0,
             'sort_order'    => 0,
+            'redirect_url'  => trim((string) ($_POST['redirect_url'] ?? '')),
         ];
     }
 
@@ -242,6 +243,9 @@ class AdminGiftController {
             $errors['slug'] = 'Slug é obrigatório.';
         } elseif (!preg_match('/^[a-z0-9\-]+$/', $data['slug'])) {
             $errors['slug'] = 'Slug deve conter apenas letras minúsculas, números e hífens.';
+        }
+        if (($data['redirect_url'] ?? '') !== '' && filter_var($data['redirect_url'], FILTER_VALIDATE_URL) === false) {
+            $errors['redirect_url'] = 'URL de redirecionamento inválida.';
         }
         return $errors;
     }

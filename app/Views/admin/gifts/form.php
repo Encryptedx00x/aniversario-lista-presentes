@@ -92,6 +92,21 @@ $formAction = $isEdit
                 >
             </div>
 
+            <div class="mb-3">
+                <label for="redirect_url" class="form-label">URL de redirecionamento (opcional)</label>
+                <input
+                    type="url"
+                    id="redirect_url"
+                    name="redirect_url"
+                    class="form-control <?= isset($errors['redirect_url']) ? 'is-invalid' : '' ?>"
+                    value="<?= $e($gift['redirect_url'] ?? '') ?>"
+                    placeholder="https://loja.exemplo.com/presente"
+                >
+                <?php if (isset($errors['redirect_url'])): ?>
+                    <div class="invalid-feedback"><?= $e($errors['redirect_url']) ?></div>
+                <?php endif; ?>
+            </div>
+
             <!-- Type -->
             <div class="mb-3">
                 <label for="type" class="form-label">Tipo</label>

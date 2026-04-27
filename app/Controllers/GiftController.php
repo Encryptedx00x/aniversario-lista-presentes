@@ -4,13 +4,15 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Models\GiftModel;
+use App\Helpers\SiteConfig;
 use App\Helpers\View;
 
 class GiftController {
 
     public function index(array $params = []): void {
         $giftModel = new GiftModel;
-        $gifts     = $giftModel->getAllActive();
+        $userId    = (int) ($_SESSION['user_id'] ?? 0);
+        $gifts     = $giftModel->getAllActive($userId);
 
         // Build distinct category list for the filter dropdown
         $categories = array_values(array_unique(
@@ -18,12 +20,12 @@ class GiftController {
         ));
         sort($categories);
 
-        View::render('public/gifts/index', [
+        View::render('public/gifts/index', array_merge([
             'title'      => APP_NAME . ' — Lista de Presentes',
             'layout'     => 'main',
             'gifts'      => $gifts,
             'categories' => $categories,
-        ]);
+        ], SiteConfig::getPublicSettings()));
     }
 
     public function filter(array $params = []): void {
@@ -37,7 +39,8 @@ class GiftController {
             $sort = 'available';
         }
 
-        $gifts = (new GiftModel)->filter($search, $category, $sort);
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        $gifts = (new GiftModel)->filter($search, $category, $sort, $userId);
 
         // Render PARTIAL ONLY — not a full page. Do NOT use View::render() here.
         $e = fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');

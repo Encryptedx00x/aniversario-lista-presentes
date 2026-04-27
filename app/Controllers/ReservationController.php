@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Helpers\Flash;
+use App\Helpers\SiteConfig;
 use App\Helpers\View;
 use App\Middleware\CsrfMiddleware;
 use App\Models\ReservationModel;
@@ -44,7 +45,36 @@ class ReservationController {
             'success' => true,
             'available_qty' => (int) ($result['available_qty'] ?? 0),
             'is_exhausted' => (bool) ($result['is_exhausted'] ?? false),
+            'redirect_url' => (string) ($result['redirect_url'] ?? ''),
         ]);
+    }
+
+    public function contributePix(array $params = []): void {
+        $giftId = filter_var($_POST['gift_id'] ?? null, FILTER_VALIDATE_INT);
+        if (!$giftId || (int) $giftId <= 0) {
+            $this->json([
+                'success' => false,
+                'error' => 'Presente inválido.',
+            ], 422);
+        }
+
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        if ($userId <= 0) {
+            $this->json([
+                'success' => false,
+                'error' => 'Faça login para enviar via PIX.',
+            ], 401);
+        }
+
+        $result = (new ReservationModel)->contributePix((int) $giftId, $userId);
+        if (!($result['success'] ?? false)) {
+            $this->json([
+                'success' => false,
+                'error' => $result['error'] ?? 'Não foi possível registrar o PIX agora.',
+            ], 422);
+        }
+
+        $this->json(['success' => true]);
     }
 
     public function myGifts(array $params = []): void {
@@ -56,11 +86,16 @@ class ReservationController {
 
         $reservations = (new ReservationModel)->getActiveByUser($userId);
 
-        View::render('public/my-gifts/index', [
-            'title' => APP_NAME . ' — Meus Presentes',
+        $normalized = array_map(function (array $row): array {
+            $row['status'] = (($row['action_type'] ?? 'reserved') === 'pix') ? 'pix' : 'reserved';
+            return $row;
+        }, $reservations);
+
+        View::render('public/my-gifts/index', array_merge([
+            'title' => APP_NAME . ' — Minha Lista',
             'layout' => 'main',
-            'reservations' => $reservations,
-        ]);
+            'reservations' => $normalized,
+        ], SiteConfig::getPublicSettings()));
     }
 
     public function cancel(array $params = []): void {
