@@ -1,105 +1,120 @@
 <?php
 /**
- * public/my-gifts/index.php
- * Variables expected: $reservations (array), $e (escape closure)
+ * public/my-gifts/index.php — Editorial reservation list.
+ * Variables expected: $reservations (array), $e (escape closure).
  */
+$activeNav = 'my';
+
+$paletteColors  = ['#1B3A8B', '#2A2A2A', '#7A4B1F', '#A03426', '#3F3F3F', '#0F0F12', '#5C2A8F', '#1F5F4A'];
+$paletteAccents = ['#6B3FCC', '#1B3A8B'];
 ?>
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0 fw-bold">Meus Presentes</h1>
-        <a href="/gifts" class="btn btn-outline-primary btn-sm">Ver lista de presentes</a>
+<main class="section--tight">
+
+    <div class="page-head">
+        <div class="page-eyebrow">Suas reservas</div>
+        <h1 class="page-title">O que você <em>já garantiu.</em></h1>
     </div>
 
     <?php if (empty($reservations)): ?>
-        <div class="card border-0 shadow-sm">
-            <div class="card-body text-center py-5">
-                <i class="bi bi-gift fs-1 d-block text-muted mb-3"></i>
-                <h2 class="h5 mb-2">Você ainda não reservou presentes</h2>
-                <p class="text-muted mb-4">Quando escolher um presente, ele aparecerá aqui para você acompanhar.</p>
-                <a href="/gifts" class="btn btn-primary">Escolher presente</a>
+        <div class="reservation" style="grid-template-columns: 1fr; padding: 56px 32px; text-align: center;">
+            <div>
+                <div class="empty-state__icon">✦</div>
+                <h2 class="reservation__title" style="margin-bottom: 8px;">Você ainda não reservou presentes.</h2>
+                <p class="reservation__desc" style="margin: 0 auto 22px; max-width: 360px;">
+                    Quando você escolher um presente, ele aparece aqui pra você acompanhar com calma.
+                </p>
+                <a href="/gifts" class="btn-solid">Ver a lista <span aria-hidden="true">→</span></a>
             </div>
         </div>
     <?php else: ?>
-        <div class="row g-4">
-            <?php foreach ($reservations as $reservation): ?>
+        <div class="reservations">
+            <?php foreach ($reservations as $i => $reservation): ?>
                 <?php
-                    $status = (string)($reservation['status'] ?? 'reserved');
+                    $status     = (string) ($reservation['status'] ?? 'reserved');
                     $isReserved = $status === 'reserved';
 
                     $statusLabel = match ($status) {
-                        'reserved'  => 'Reservado',
-                        'confirmed' => 'Confirmado',
-                        'cancelled' => 'Cancelado',
+                        'reserved'  => 'Reservado · você tem 4 dias e 12h pra confirmar',
+                        'confirmed' => 'Confirmado · obrigada!',
+                        'cancelled' => 'Cancelada',
                         default     => ucfirst($status),
                     };
 
                     $statusClass = match ($status) {
-                        'reserved'  => 'bg-warning text-dark',
-                        'confirmed' => 'bg-success',
-                        'cancelled' => 'bg-secondary',
-                        default     => 'bg-light text-dark',
+                        'reserved'  => 'reservation__status--reserved',
+                        'confirmed' => 'reservation__status--confirmed',
+                        'cancelled' => 'reservation__status--cancelled',
+                        default     => 'reservation__status--reserved',
                     };
 
-                    $createdRaw = (string)($reservation['created_at'] ?? '');
-                    $createdAt = $createdRaw !== ''
-                        ? date('d/m/Y H:i', strtotime($createdRaw))
-                        : '-';
+                    $createdRaw = (string) ($reservation['created_at'] ?? '');
+                    $createdAt  = $createdRaw !== '' ? date('d/m/Y · H:i', strtotime($createdRaw) ?: time()) : '-';
+
+                    $color  = $paletteColors [(int) ($reservation['gift_id']  ?? $i) % count($paletteColors)];
+                    $accent = $paletteAccents[(int) ($reservation['gift_id']  ?? $i) % count($paletteAccents)];
+
+                    $name      = (string) ($reservation['gift_name'] ?? 'Presente');
+                    $words     = preg_split('/\s+/', trim($name)) ?: [];
+                    $lastWord  = end($words) !== false ? (string) end($words) : '?';
+                    $initial   = mb_strtoupper(mb_substr($lastWord, 0, 1, 'UTF-8'), 'UTF-8');
+                    $idStr     = str_pad((string) (int) ($reservation['gift_id'] ?? 0), 2, '0', STR_PAD_LEFT);
+                    $price     = (float) ($reservation['price'] ?? 0);
+                    $delay     = ($i * 100) . 'ms';
                 ?>
-                <div class="col-12 col-lg-6">
-                    <div class="card h-100 shadow-sm">
-                        <div class="row g-0 h-100">
-                            <div class="col-4 col-md-3">
-                                <?php if (!empty($reservation['image_path'])): ?>
-                                    <img src="<?= $e($reservation['image_path']) ?>"
-                                         class="img-fluid rounded-start h-100 w-100"
-                                         style="object-fit: cover; min-height: 140px;"
-                                         alt="<?= $e((string)($reservation['gift_name'] ?? 'Presente')) ?>">
-                                <?php else: ?>
-                                    <div class="d-flex align-items-center justify-content-center h-100 bg-light rounded-start text-muted"
-                                         style="min-height: 140px;">
-                                        <i class="bi bi-image fs-3"></i>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="col-8 col-md-9">
-                                <div class="card-body h-100 d-flex flex-column">
-                                    <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
-                                        <h2 class="h6 mb-0"><?= $e((string)($reservation['gift_name'] ?? 'Presente')) ?></h2>
-                                        <span class="badge <?= $statusClass ?>"><?= $e($statusLabel) ?></span>
-                                    </div>
+                <article class="reservation" style="animation-delay: <?= $e($delay) ?>;">
+                    <div class="reservation__media" style="background: <?= $e($color) ?>;">
+                        <div class="reservation__halo" aria-hidden="true"
+                             style="background: radial-gradient(circle at 30% 30%, <?= $e($accent) ?>66, transparent 60%);"></div>
+                        <?php if (!empty($reservation['image_path'])): ?>
+                            <img src="<?= $e($reservation['image_path']) ?>" alt="<?= $e($name) ?>" loading="lazy">
+                        <?php else: ?>
+                            <div class="reservation__placeholder" aria-hidden="true"><?= $e($initial) ?></div>
+                        <?php endif; ?>
+                    </div>
 
-                                    <p class="text-muted small mb-1">
-                                        <strong>Categoria:</strong>
-                                        <?= $e((string)($reservation['category'] ?? '-')) ?>
-                                    </p>
-                                    <p class="text-muted small mb-3">
-                                        <strong>Data:</strong>
-                                        <?= $e($createdAt) ?>
-                                    </p>
+                    <div class="reservation__body">
+                        <div class="reservation__meta">
+                            n° <?= $e($idStr) ?>
+                            <?php if (!empty($reservation['category'])): ?>
+                                · <?= $e($reservation['category']) ?>
+                            <?php endif; ?>
+                            · reservado em <?= $e($createdAt) ?>
+                        </div>
+                        <h3 class="reservation__title"><?= $e($name) ?></h3>
+                        <?php if (!empty($reservation['description'])): ?>
+                            <p class="reservation__desc"><?= $e($reservation['description']) ?></p>
+                        <?php endif; ?>
 
-                                    <div class="mt-auto">
-                                        <?php if ($isReserved): ?>
-                                            <form method="POST" action="/my-gifts/cancel" class="d-inline">
-                                                <input type="hidden"
-                                                       name="csrf_token"
-                                                       value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
-                                                <input type="hidden"
-                                                       name="reservation_id"
-                                                       value="<?= $e((string)($reservation['id'] ?? '')) ?>">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm">
-                                                    Cancelar reserva
-                                                </button>
-                                            </form>
-                                        <?php else: ?>
-                                            <p class="small text-muted mb-0">Esta reserva não pode mais ser cancelada.</p>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="reservation__status <?= $e($statusClass) ?>">
+                            <span class="reservation__status-dot" aria-hidden="true"></span>
+                            <?= $e($statusLabel) ?>
                         </div>
                     </div>
-                </div>
+
+                    <div class="reservation__side">
+                        <span class="reservation__price">
+                            <?= $price > 0
+                                ? 'R$ ' . $e(number_format($price, ($price == (int) $price ? 0 : 2), ',', '.'))
+                                : '—' ?>
+                        </span>
+                        <div class="reservation__actions">
+                            <?php if ($isReserved): ?>
+                                <form method="POST" action="/my-gifts/cancel">
+                                    <input type="hidden" name="csrf_token"
+                                           value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
+                                    <input type="hidden" name="reservation_id"
+                                           value="<?= $e((string) ($reservation['id'] ?? '')) ?>">
+                                    <button type="submit" class="btn-ghost-sm">Cancelar reserva</button>
+                                </form>
+                                <a href="/pix" class="btn-solid-sm">Pagar com Pix →</a>
+                            <?php else: ?>
+                                <p class="small text-muted mb-0">Esta reserva não pode mais ser cancelada.</p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </article>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
-</div>
+
+</main>
