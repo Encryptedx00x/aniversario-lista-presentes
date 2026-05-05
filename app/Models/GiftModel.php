@@ -70,7 +70,9 @@ class GiftModel extends BaseModel {
      * Returns gifts for admin filtered by optional search text and status.
      */
     public function adminFilter(string $search, string $status): array {
-        $conditions = [];
+        // Sentinel "Contribuição livre" sempre escondido — é gerenciado pelo
+        // próprio fluxo de PIX livre, não deve aparecer na listagem normal.
+        $conditions = ["(g.slug <> 'contribuicao-livre' OR g.slug IS NULL)"];
         $params     = [];
 
         if ($search !== '') {
@@ -295,5 +297,30 @@ class GiftModel extends BaseModel {
             'SELECT COUNT(*) FROM reservations WHERE gift_id = :id AND status = :status',
             [':id' => $id, ':status' => 'active']
         )->fetchColumn();
+    }
+
+    /**
+     * Aggregated counters for the admin dashboard. Excludes the
+     * "contribuicao-livre" sentinel from the gift counts so the dashboard
+     * reflects only real listed presentes.
+     */
+    public function adminStats(): array {
+        $row = $this->query(
+            "SELECT
+                COUNT(*) AS total,
+                SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END)                                    AS active_count,
+                SUM(CASE WHEN is_active = 1 AND available_qty > 0 THEN 1 ELSE 0 END)              AS available_count,
+                SUM(CASE WHEN is_active = 1 AND available_qty = 0 THEN 1 ELSE 0 END)              AS sold_out_count,
+                SUM(CASE WHEN is_active = 1 THEN available_qty ELSE 0 END)                       AS available_units
+             FROM gifts
+             WHERE slug <> 'contribuicao-livre' OR slug IS NULL"
+        )->fetch();
+        return [
+            'total'           => (int) ($row['total']            ?? 0),
+            'active'          => (int) ($row['active_count']     ?? 0),
+            'available'       => (int) ($row['available_count']  ?? 0),
+            'sold_out'        => (int) ($row['sold_out_count']   ?? 0),
+            'available_units' => (int) ($row['available_units']  ?? 0),
+        ];
     }
 }

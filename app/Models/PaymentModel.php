@@ -98,4 +98,27 @@ class PaymentModel extends BaseModel {
             ]
         );
     }
+
+    /**
+     * Aggregated counters / totals for the admin dashboard.
+     * approved_total is in BRL (decimal amount).
+     */
+    public function adminStats(): array {
+        $row = $this->query(
+            "SELECT
+                COUNT(*)                                                                          AS total,
+                SUM(CASE WHEN mp_status = 'approved' THEN 1 ELSE 0 END)                           AS approved_count,
+                COALESCE(SUM(CASE WHEN mp_status = 'approved' THEN amount ELSE 0 END), 0)         AS approved_total,
+                SUM(CASE WHEN mp_status = 'pending'  THEN 1 ELSE 0 END)                           AS pending_count,
+                SUM(CASE WHEN mp_status IN ('rejected','cancelled','expired') THEN 1 ELSE 0 END) AS failed_count
+             FROM payments"
+        )->fetch();
+        return [
+            'total'          => (int)   ($row['total']          ?? 0),
+            'approved_count' => (int)   ($row['approved_count'] ?? 0),
+            'approved_total' => (float) ($row['approved_total'] ?? 0),
+            'pending_count'  => (int)   ($row['pending_count']  ?? 0),
+            'failed_count'   => (int)   ($row['failed_count']   ?? 0),
+        ];
+    }
 }

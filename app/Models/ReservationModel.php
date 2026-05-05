@@ -159,6 +159,29 @@ class ReservationModel extends BaseModel {
     }
 
     /**
+     * Most recent activity for the admin dashboard. Mixes reservas and PIX
+     * (any active reservation row) and joins user/gift/payment so the view
+     * can render rows without extra queries.
+     */
+    public function recentActivity(int $limit = 6): array {
+        $limit = max(1, min(50, $limit));
+        return $this->query(
+            "SELECT r.id, r.action_type, r.created_at, r.status,
+                    u.name  AS user_name,
+                    g.name  AS gift_name,
+                    g.price AS gift_price,
+                    p.amount AS paid_amount
+             FROM reservations r
+             INNER JOIN users    u ON u.id = r.user_id
+             INNER JOIN gifts    g ON g.id = r.gift_id
+             LEFT  JOIN payments p ON p.reservation_id = r.id AND p.mp_status = 'approved'
+             WHERE r.status = 'active'
+             ORDER BY r.created_at DESC
+             LIMIT {$limit}"
+        )->fetchAll();
+    }
+
+    /**
      * Aggregated summary used by the admin dashboard / reservas page header.
      */
     public function adminSummary(): array {

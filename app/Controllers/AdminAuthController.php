@@ -4,6 +4,9 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Models\GiftModel;
+use App\Models\PaymentModel;
+use App\Models\ReservationModel;
 use App\Helpers\{View, Flash};
 
 class AdminAuthController {
@@ -42,9 +45,15 @@ class AdminAuthController {
 
     public function dashboard(array $params = []): void {
         // AuthMiddleware already verified $_SESSION['role'] === 'admin'
+        $reservModel = new ReservationModel;
+
         View::render('admin/dashboard', [
-            'title'  => 'Dashboard',
-            'layout' => 'admin',
+            'title'         => 'Dashboard',
+            'layout'        => 'admin',
+            'giftStats'     => (new GiftModel)->adminStats(),
+            'reservSummary' => $reservModel->adminSummary(),
+            'paymentStats'  => (new PaymentModel)->adminStats(),
+            'recent'        => $reservModel->recentActivity(6),
         ]);
     }
 
