@@ -1,0 +1,20 @@
+# Raiz do projeto — public_html/ na Hostinger
+# Roteamento: tudo passa por public/index.php (front controller)
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Servir apenas arquivos estáticos que existam de fato (ex: robots.txt)
+    # NÃO incluir -d: o diretório raiz (public_html/) não deve ser servido diretamente
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    # assets/ e uploads/ apontam para public/assets/ e public/uploads/
+    RewriteRule ^assets(/.*)?$  public/assets$1  [L]
+    RewriteRule ^uploads(/.*)?$ public/uploads$1 [L]
+
+    # Todo o resto vai para o front controller
+    RewriteRule ^ public/index.php [QSA,L]
+</IfModule>

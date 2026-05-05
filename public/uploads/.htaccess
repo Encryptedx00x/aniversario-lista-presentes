@@ -1,0 +1,6 @@
+Options -Indexes
+
+# Deny execution of server-side scripts (SEC-05 hardening for Hostinger shared hosting)
+<FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|cgi|sh)$">
+    Deny from all
+</FilesMatch>
