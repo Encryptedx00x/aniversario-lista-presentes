@@ -64,7 +64,7 @@ class ReservationController {
         }, $reservations);
 
         View::render('public/my-gifts/index', array_merge([
-            'title' => APP_NAME . ' — Minha Lista',
+            'title' => APP_NAME . ' · Minha Lista',
             'layout' => 'main',
             'reservations' => $normalized,
         ], SiteConfig::getPublicSettings()));

@@ -130,7 +130,7 @@ class MercadopagoController {
         // funcionando — basta estar configurado no painel MP > Webhooks.
         $payload = [
             'transaction_amount' => round((float) $amount, 2),
-            'description'        => 'Lista de presentes — ' . (string) ($gift['name'] ?? 'Presente'),
+            'description'        => 'Lista de presentes: ' . (string) ($gift['name'] ?? 'Presente'),
             'payment_method_id'  => 'pix',
             'date_of_expiration' => $expiresAtIso,
             'payer' => [
@@ -172,7 +172,7 @@ class MercadopagoController {
                         : (string) ($mpResp['message'] ?? $mpResp['error'] ?? '');
                 }
                 $userMsg = '[sandbox] ' . $e->getMessage()
-                    . ($cause !== '' ? ' — ' . $cause : '');
+                    . ($cause !== '' ? ': ' . $cause : '');
             }
             $this->json([
                 'success'    => false,

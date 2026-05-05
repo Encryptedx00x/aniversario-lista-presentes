@@ -45,15 +45,17 @@ class AdminAuthController {
 
     public function dashboard(array $params = []): void {
         // AuthMiddleware already verified $_SESSION['role'] === 'admin'
-        $reservModel = new ReservationModel;
+        $reservModel  = new ReservationModel;
+        $paymentModel = new PaymentModel;
 
         View::render('admin/dashboard', [
-            'title'         => 'Dashboard',
-            'layout'        => 'admin',
-            'giftStats'     => (new GiftModel)->adminStats(),
-            'reservSummary' => $reservModel->adminSummary(),
-            'paymentStats'  => (new PaymentModel)->adminStats(),
-            'recent'        => $reservModel->recentActivity(6),
+            'title'          => 'Dashboard',
+            'layout'         => 'admin',
+            'giftStats'      => (new GiftModel)->adminStats(),
+            'reservSummary'  => $reservModel->adminSummary(),
+            'paymentStats'   => $paymentModel->adminStats(),
+            'pendingPayments'=> $paymentModel->getPendingForAdmin(10),
+            'recent'         => $reservModel->recentActivity(6),
         ]);
     }
 

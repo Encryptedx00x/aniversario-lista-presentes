@@ -44,7 +44,7 @@ if ($selectedGift && (float) ($selectedGift['price'] ?? 0) > 0) {
         <div class="page-eyebrow">Mandar pelo Pix</div>
         <h1 class="page-title">Sem cadastro,<br>sem <em>pressa.</em></h1>
         <p class="hero__lead" style="max-width: 560px; margin-top: 18px;">
-            Se preferir mandar um valor — qualquer valor —, eu uno com as outras contribuições e cuido dos itens
+            Se preferir mandar qualquer valor, eu uno com as outras contribuições e cuido dos itens
             da lista. Funciona como um PIX normal, sem complicação.
         </p>
     </div>
@@ -100,7 +100,7 @@ if ($selectedGift && (float) ($selectedGift['price'] ?? 0) > 0) {
 
             <p class="pix-step__hint" style="margin-top: 22px;">
                 O QR code e o código copia-e-cola são gerados pelo MercadoPago no momento
-                em que você clica em <em>Gerar PIX</em> — eles confirmam o pagamento
+                em que você clica em <em>Gerar PIX</em>. A confirmação do pagamento acontece
                 automaticamente, sem precisar avisar.
             </p>
         </section>
@@ -129,9 +129,9 @@ if ($selectedGift && (float) ($selectedGift['price'] ?? 0) > 0) {
                 <?php else: ?>
                     <?php if (!$selectedGift): ?>
                         <p class="pix-step__text" style="margin-top: 4px; margin-bottom: 18px;">
-                            Sem item específico — só escolhe um valor e manda. A contribuição
+                            Sem item específico? É só escolher um valor e mandar. A contribuição
                             entra na minha lista geral. Se preferir mandar pra um presente,
-                            é só ir na <a href="/gifts">lista</a> e clicar em <em>Mandar pelo Pix</em>.
+                            vá na <a href="/gifts">lista</a> e clique em <em>Mandar pelo Pix</em>.
                         </p>
                     <?php endif; ?>
 
@@ -188,9 +188,9 @@ if ($selectedGift && (float) ($selectedGift['price'] ?? 0) > 0) {
                                          loading="lazy">
                                     <div class="pix-dynamic__info">
                                         <div class="pix-meta__label">Valor</div>
-                                        <div class="pix-dynamic__amount" data-pix-qr-amount>R$ —</div>
+                                        <div class="pix-dynamic__amount" data-pix-qr-amount>R$ 0,00</div>
                                         <div class="pix-meta__label" style="margin-top: 14px;">Expira em</div>
-                                        <div class="pix-dynamic__expires" data-pix-qr-expires>—</div>
+                                        <div class="pix-dynamic__expires" data-pix-qr-expires>aguardando</div>
                                     </div>
                                 </div>
                                 <div class="pix-meta__label" style="margin-top: 18px; margin-bottom: 8px;">
@@ -221,7 +221,7 @@ if ($selectedGift && (float) ($selectedGift['price'] ?? 0) > 0) {
                                 </span>
                             </div>
                             <p class="pix-step__hint">
-                                Pode fechar a aba — quando o pagamento for confirmado, ele aparece
+                                Pode fechar a aba. Quando o pagamento for confirmado, ele aparece
                                 em <strong>Minha Lista</strong> também.
                             </p>
                         </div>

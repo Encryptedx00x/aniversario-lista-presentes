@@ -77,7 +77,7 @@ class HomeController {
         }
 
         View::render('public/pix', array_merge([
-            'title'         => APP_NAME . ' — Pix',
+            'title'         => APP_NAME . ' · Pix',
             'layout'        => 'main',
             'activeNav'     => 'pix',
             'selectedGift'  => $selectedGift,

@@ -166,7 +166,7 @@ $activeNav       = 'home';
                         essas são as ideias que eu mais ia gostar. Ser amigo de vocês
                         já é mais que suficiente.”
                     </p>
-                    <div class="thank-you__sig">— <?= $e($brandName) ?></div>
+                    <div class="thank-you__sig">com carinho, <?= $e($brandName) ?></div>
                 </div>
                 <div class="thank-you__cards" aria-hidden="true">
                     <div class="thank-you__card thank-you__card--1"></div>

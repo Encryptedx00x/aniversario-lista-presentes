@@ -21,7 +21,7 @@ class GiftController {
         sort($categories);
 
         View::render('public/gifts/index', array_merge([
-            'title'      => APP_NAME . ' — Lista de Presentes',
+            'title'      => APP_NAME . ' · Lista de Presentes',
             'layout'     => 'main',
             'gifts'      => $gifts,
             'categories' => $categories,

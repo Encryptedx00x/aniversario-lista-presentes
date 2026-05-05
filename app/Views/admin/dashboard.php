@@ -92,44 +92,94 @@ $money = static fn (float $v): string => 'R$ ' . number_format($v, 2, ',', '.');
 </div>
 
 <!-- ── Secondary metrics ─────────────────────────────────────────── -->
-<?php if ($paymentStats['pending_count'] > 0 || $paymentStats['failed_count'] > 0): ?>
-    <div class="row g-3 mb-4">
-        <?php if ($paymentStats['pending_count'] > 0): ?>
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="rounded-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center"
-                             style="width: 44px; height: 44px;">
-                            <i class="bi bi-hourglass-split fs-5"></i>
-                        </div>
-                        <div>
-                            <div class="fw-semibold"><?= $e((string) $paymentStats['pending_count']) ?> PIX pendentes</div>
-                            <div class="small text-muted">
-                                Cobranças geradas, aguardando o pagamento cair.
-                            </div>
-                        </div>
+<?php
+$pendingPayments = $pendingPayments ?? [];
+
+$timeAgo = static function (?string $datetime): string {
+    if (!$datetime) return '';
+    $ts = strtotime($datetime);
+    if (!$ts) return '';
+    $diff = max(0, time() - $ts);
+    if ($diff < 60)        return 'agora há pouco';
+    if ($diff < 3600)      return floor($diff / 60) . ' min atrás';
+    if ($diff < 86400)     return floor($diff / 3600) . 'h atrás';
+    return floor($diff / 86400) . 'd atrás';
+};
+?>
+
+<?php if ($paymentStats['pending_count'] > 0): ?>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="rounded-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width: 44px; height: 44px;">
+                    <i class="bi bi-hourglass-split fs-5"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-semibold">
+                        <?= $e((string) $paymentStats['pending_count']) ?>
+                        PIX <?= $paymentStats['pending_count'] === 1 ? 'pendente' : 'pendentes' ?>
+                    </div>
+                    <div class="small text-muted">
+                        Cobranças geradas que ainda não foram pagas. Se for ruído, dá pra descartar.
                     </div>
                 </div>
             </div>
-        <?php endif; ?>
-        <?php if ($paymentStats['failed_count'] > 0): ?>
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center"
-                             style="width: 44px; height: 44px;">
-                            <i class="bi bi-x-circle fs-5"></i>
-                        </div>
-                        <div>
-                            <div class="fw-semibold"><?= $e((string) $paymentStats['failed_count']) ?> PIX que não foram pagos</div>
-                            <div class="small text-muted">
-                                Cobranças canceladas, recusadas ou que expiraram sem pagamento.
+
+            <?php if (!empty($pendingPayments)): ?>
+                <ul class="list-group list-group-flush">
+                    <?php foreach ($pendingPayments as $pp):
+                        $amt   = (float) ($pp['amount'] ?? 0);
+                        $when  = (string) ($pp['created_at'] ?? '');
+                    ?>
+                        <li class="list-group-item px-0 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="me-3">
+                                <div class="fw-semibold">
+                                    <?= $e((string) ($pp['user_name'] ?? 'Convidado')) ?>
+                                    <span class="text-muted fw-normal">·</span>
+                                    <?= $e((string) ($pp['gift_name'] ?? 'Contribuição livre')) ?>
+                                </div>
+                                <div class="small text-muted">
+                                    <?= $e($money($amt)) ?>
+                                    <?php if ($when !== ''): ?>
+                                        · <?= $e($timeAgo($when)) ?>
+                                    <?php endif; ?>
+                                    <?php if (!empty($pp['user_email'])): ?>
+                                        · <?= $e((string) $pp['user_email']) ?>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                            <form method="POST"
+                                  action="/admin/payments/<?= $e((string) $pp['id']) ?>/dismiss"
+                                  onsubmit="return confirm('Descartar esse PIX pendente? Ele some do dashboard. A cobrança no MercadoPago expira sozinha em 24h se ninguém pagar.');">
+                                <input type="hidden" name="csrf_token"
+                                       value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-x-lg"></i> Descartar
+                                </button>
+                            </form>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+    </div>
+<?php endif; ?>
+
+<?php if ($paymentStats['failed_count'] > 0): ?>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width: 44px; height: 44px;">
+                <i class="bi bi-x-circle fs-5"></i>
+            </div>
+            <div>
+                <div class="fw-semibold"><?= $e((string) $paymentStats['failed_count']) ?> PIX que não foram pagos</div>
+                <div class="small text-muted">
+                    Cobranças canceladas, recusadas ou que expiraram sem pagamento.
                 </div>
             </div>
-        <?php endif; ?>
+        </div>
     </div>
 <?php endif; ?>
 

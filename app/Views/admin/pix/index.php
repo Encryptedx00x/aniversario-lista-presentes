@@ -99,7 +99,7 @@ $mode = ($settings['mp_mode'] ?? 'test') === 'live' ? 'live' : 'test';
             <h2 class="h5 mb-1">Como aparece em <code>/pix</code></h2>
             <p class="text-muted small mb-4">
                 Esses campos só aparecem como referência visual na página pública.
-                Não influenciam a cobrança — quem cobra é o MercadoPago acima.
+                Não influenciam a cobrança. Quem cobra é o MercadoPago acima.
             </p>
 
             <div class="row g-3">
@@ -122,21 +122,21 @@ $mode = ($settings['mp_mode'] ?? 'test') === 'live' ? 'live' : 'test';
                     <label class="form-label" for="pix_bank">Banco</label>
                     <input type="text" class="form-control" id="pix_bank" name="pix_bank"
                            value="<?= $e($settings['pix_bank'] ?? '') ?>"
-                           placeholder="260 — Nu Pagamentos">
+                           placeholder="260 · Nu Pagamentos">
                 </div>
 
                 <div class="col-md-6">
                     <label class="form-label" for="pix_city">Cidade</label>
                     <input type="text" class="form-control" id="pix_city" name="pix_city"
                            value="<?= $e($settings['pix_city'] ?? '') ?>"
-                           placeholder="São Paulo — SP">
+                           placeholder="São Paulo / SP">
                 </div>
 
                 <div class="col-12">
                     <label class="form-label" for="pix_code">Código PIX estático (opcional)</label>
                     <textarea class="form-control font-monospace" id="pix_code" name="pix_code"
                               rows="3"
-                              placeholder="Pode deixar vazio — o MP já gera o código copia-e-cola dinâmico."><?= $e($settings['pix_code'] ?? '') ?></textarea>
+                              placeholder="Pode deixar vazio. O MP já gera o código copia-e-cola dinâmico."><?= $e($settings['pix_code'] ?? '') ?></textarea>
                 </div>
             </div>
         </div>

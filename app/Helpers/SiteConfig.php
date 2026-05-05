@@ -50,8 +50,8 @@ class SiteConfig {
             'event_location'      => 'São Paulo',
             'pix_name'            => 'Maria S. Andrade',
             'pix_key'             => 'maria.aniv@email.com',
-            'pix_bank'            => '260 — Nu Pagamentos',
-            'pix_city'            => 'São Paulo — SP',
+            'pix_bank'            => '260 · Nu Pagamentos',
+            'pix_city'            => 'São Paulo / SP',
             'pix_code'            => '00020126360014BR.GOV.BCB.PIX0114maria.aniv@email5204000053039865406150.005802BR5919MARIA S ANDRADE6009SAO PAULO62070503***6304B7C9',
         ];
 
