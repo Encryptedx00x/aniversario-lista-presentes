@@ -31,11 +31,13 @@ $selectedGift   = $selectedGift   ?? null;
 $alreadyOnList  = (bool) ($alreadyOnList ?? false);
 $csrfToken      = (string) ($csrfToken ?? '');
 $isLoggedIn     = (bool) ($isLoggedIn ?? false);
+$pixQty         = max(1, (int) ($pixQty ?? 1));
 
 $presets       = [50, 100, 150, 250, 500, 1000];
 $defaultAmount = 150;
 if ($selectedGift && (float) ($selectedGift['price'] ?? 0) > 0) {
-    $defaultAmount = (int) round((float) $selectedGift['price']);
+    // Multiplica pela quantidade quando vem de /pix?gift_id=X&qty=N
+    $defaultAmount = (int) round((float) $selectedGift['price'] * $pixQty);
 }
 ?>
 <main class="section--tight">

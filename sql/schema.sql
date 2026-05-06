@@ -44,12 +44,14 @@ CREATE TABLE IF NOT EXISTS gifts (
 -- One row per "Quero esse" (action_type=reserved) or "PIX confirmado"
 -- (action_type=pix) action by an authenticated guest.
 CREATE TABLE IF NOT EXISTS reservations (
-    id            INT UNSIGNED     AUTO_INCREMENT PRIMARY KEY,
-    gift_id       INT UNSIGNED     NOT NULL,
-    user_id       INT UNSIGNED     NOT NULL,
-    status        ENUM('active','cancelled') NOT NULL DEFAULT 'active',
-    action_type   ENUM('reserved','pix')     NOT NULL DEFAULT 'reserved',
-    created_at    TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
+    id                  INT UNSIGNED     AUTO_INCREMENT PRIMARY KEY,
+    gift_id             INT UNSIGNED     NOT NULL,
+    user_id             INT UNSIGNED     NOT NULL,
+    status              ENUM('active','cancelled') NOT NULL DEFAULT 'active',
+    action_type         ENUM('reserved','pix')     NOT NULL DEFAULT 'reserved',
+    quantity            INT UNSIGNED     NOT NULL DEFAULT 1,
+    purchase_confirmed  TINYINT(1)       NULL,
+    created_at          TIMESTAMP        DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_res_gift FOREIGN KEY (gift_id)
         REFERENCES gifts (id) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_res_user FOREIGN KEY (user_id)

@@ -36,9 +36,15 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
                     $isPix       = $actionType === 'pix';
 
                     $price       = (float) ($reservation['price'] ?? 0);
+                    $resQty      = max(1, (int) ($reservation['quantity'] ?? 1));
+                    $redirectUrl = (string) ($reservation['redirect_url'] ?? '');
+                    $purchaseRaw = $reservation['purchase_confirmed'] ?? null;
+                    $purchaseConfirmed = $purchaseRaw !== null ? (int) $purchaseRaw : null;
+                    $needsConfirm = $isReserved && !$isPix && $redirectUrl !== '' && $purchaseConfirmed === null;
                     $paidAmount  = isset($reservation['paid_amount']) && $reservation['paid_amount'] !== null
                         ? (float) $reservation['paid_amount']
                         : null;
+                    $totalPrice  = $price * $resQty;
 
                     // Categoriza a contribuição PIX vs preço sugerido do presente
                     // (parcial, completa, ou acima — toda ajuda conta).
@@ -54,8 +60,13 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
                     }
 
                     $thanksLow = mb_strtolower($thanksWord ?? 'Obrigado', 'UTF-8');
+                    $reservedLabel = $needsConfirm
+                        ? 'Reservado · ainda preciso saber se você comprou'
+                        : ($purchaseConfirmed === 1
+                            ? 'Reservado e comprado · ' . $thanksLow . '!'
+                            : 'Reservado');
                     $statusLabel = match ($status) {
-                        'reserved'  => 'Reservado · você tem 4 dias e 12h pra confirmar',
+                        'reserved'  => $reservedLabel,
                         'pix'       => match ($pixTier) {
                             'partial' => 'Contribuição parcial registrada · ' . $thanksLow . ' pelo apoio!',
                             'extra'   => 'Contribuição registrada com extra · que carinho, ' . $thanksLow . '!',
@@ -110,6 +121,9 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
                             <?php if (!empty($reservation['category'])): ?>
                                 · <?= $e($reservation['category']) ?>
                             <?php endif; ?>
+                            <?php if ($resQty > 1): ?>
+                                · <?= $e((string) $resQty) ?>× unidades
+                            <?php endif; ?>
                             · reservado em <?= $e($createdAt) ?>
                         </div>
                         <h3 class="reservation__title"><?= $e($name) ?></h3>
@@ -154,21 +168,55 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
                             <?php endif; ?>
                         <?php else: ?>
                             <span class="reservation__price">
-                                <?= $price > 0
-                                    ? 'R$ ' . $e($fmt($price))
-                                    : '—' ?>
+                                <?php if ($totalPrice > 0): ?>
+                                    R$ <?= $e($fmt($totalPrice)) ?>
+                                <?php else: ?>
+                                    —
+                                <?php endif; ?>
                             </span>
+                            <?php if ($resQty > 1 && $price > 0): ?>
+                                <span class="reservation__price-sub small text-muted">
+                                    <?= $e((string) $resQty) ?>× R$ <?= $e($fmt($price)) ?>
+                                </span>
+                            <?php endif; ?>
                         <?php endif; ?>
                         <div class="reservation__actions">
-                            <?php if ($isReserved): ?>
-                                <form method="POST" action="/my-gifts/cancel">
-                                    <input type="hidden" name="csrf_token"
-                                           value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
-                                    <input type="hidden" name="reservation_id"
-                                           value="<?= $e((string) ($reservation['id'] ?? '')) ?>">
-                                    <button type="submit" class="btn-ghost-sm">Cancelar reserva</button>
-                                </form>
-                                <a href="/pix" class="btn-solid-sm">Pagar com Pix →</a>
+                            <?php if ($isReserved && !$isPix): ?>
+                                <?php if ($redirectUrl !== ''): ?>
+                                    <a href="<?= $e($redirectUrl) ?>"
+                                       class="btn-solid-sm"
+                                       target="_blank" rel="noopener">
+                                        Abrir link da loja →
+                                    </a>
+                                <?php endif; ?>
+                                <?php if ($needsConfirm): ?>
+                                    <form method="POST"
+                                          action="/my-gifts/<?= $e((string) ($reservation['id'] ?? '')) ?>/confirm-purchase"
+                                          class="d-flex flex-wrap gap-2 m-0">
+                                        <input type="hidden" name="csrf_token"
+                                               value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
+                                        <button type="submit" name="confirmed" value="1" class="btn-solid-sm">
+                                            Já comprei
+                                        </button>
+                                        <button type="submit" name="confirmed" value="0" class="btn-ghost-sm">
+                                            Não comprei
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <?php if ($purchaseConfirmed !== 1): ?>
+                                        <form method="POST" action="/my-gifts/cancel" class="m-0">
+                                            <input type="hidden" name="csrf_token"
+                                                   value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
+                                            <input type="hidden" name="reservation_id"
+                                                   value="<?= $e((string) ($reservation['id'] ?? '')) ?>">
+                                            <button type="submit" class="btn-ghost-sm">Cancelar reserva</button>
+                                        </form>
+                                        <a href="/pix?gift_id=<?= $e((string) (int) ($reservation['gift_id'] ?? 0)) ?><?= $resQty > 1 ? '&qty=' . $e((string) $resQty) : '' ?>"
+                                           class="btn-solid-sm">Pagar com Pix →</a>
+                                    <?php else: ?>
+                                        <p class="small text-muted mb-0">Compra confirmada — obrigado pelo carinho.</p>
+                                    <?php endif; ?>
+                                <?php endif; ?>
                             <?php else: ?>
                                 <p class="small text-muted mb-0">Esta reserva não pode mais ser cancelada.</p>
                             <?php endif; ?>

@@ -64,6 +64,8 @@ class HomeController {
      */
     public function pix(array $params = []): void {
         $giftId        = filter_var($_GET['gift_id'] ?? null, FILTER_VALIDATE_INT);
+        $qtyRaw        = (int) filter_var($_GET['qty'] ?? 1, FILTER_VALIDATE_INT);
+        $qty           = $qtyRaw >= 1 ? min($qtyRaw, 99) : 1;
         $selectedGift  = null;
         $alreadyOnList = false;
 
@@ -82,6 +84,7 @@ class HomeController {
             'activeNav'     => 'pix',
             'selectedGift'  => $selectedGift,
             'alreadyOnList' => $alreadyOnList,
+            'pixQty'        => $qty,
             'csrfToken'     => CsrfMiddleware::token(),
             'isLoggedIn'    => isset($_SESSION['user_id']),
         ], SiteConfig::getPublicSettings()));

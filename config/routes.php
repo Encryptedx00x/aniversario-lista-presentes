@@ -26,6 +26,7 @@ return [
         '/pix/create'                     => ['MercadopagoController', 'createPix',    'guest'],
         '/webhooks/mercadopago'           => ['MercadopagoController', 'webhook',      'public_webhook'],
         '/my-gifts/cancel'                => ['ReservationController', 'cancel',       'guest'],
+        '/my-gifts/{id}/confirm-purchase' => ['ReservationController', 'confirmPurchase', 'guest'],
         '/admin/login'                    => ['AdminAuthController',   'loginPost'],
         '/admin/logout'                   => ['AdminAuthController',   'logout',       'auth'],
         '/admin/gifts/store'              => ['AdminGiftController',   'store',        'auth'],

@@ -462,6 +462,28 @@ input::placeholder, textarea::placeholder { color: #a8a8b0; }
 .gift-card__cta:hover { background: var(--purple); }
 .gift-card__cta:disabled { background: #d8d8d2; color: var(--mute); cursor: not-allowed; }
 
+.gift-card__actions {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.gift-card__qty-pick { display: inline-flex; align-items: center; }
+.gift-card__qty-input {
+  appearance: none; -webkit-appearance: none;
+  border: 1px solid var(--line-strong); background: #fff;
+  border-radius: 999px;
+  padding: 8px 24px 8px 12px;
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+                    linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+  background-position: calc(100% - 12px) 50%, calc(100% - 7px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.gift-card__qty-input:focus {
+  outline: none; border-color: var(--ink);
+}
+
 .empty-state {
   grid-column: 1 / -1;
   text-align: center; padding: 80px 20px;

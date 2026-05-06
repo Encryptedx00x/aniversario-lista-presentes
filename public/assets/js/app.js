@@ -136,6 +136,22 @@ const App = {
     // Choose-gift / reservation flow
     // ──────────────────────────────────────────────────────────────────────
     initChooseGift() {
+        // Quando o select de quantidade muda num multi-gift, atualiza o
+        // href do "Mandar pelo Pix" do mesmo card pra incluir &qty=N.
+        document.addEventListener('change', (e) => {
+            const qtyInput = e.target.closest('[data-gift-qty-input]');
+            if (!qtyInput) return;
+            const actions = qtyInput.closest('[data-gift-actions]');
+            if (!actions) return;
+            const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
+            const pixLink = actions.querySelector('.btn-pix-gift');
+            if (pixLink) {
+                const base = pixLink.dataset.pixBaseHref || pixLink.getAttribute('href') || '';
+                const cleanBase = base.split('&qty=')[0];
+                pixLink.setAttribute('href', cleanBase + (qty > 1 ? ('&qty=' + qty) : ''));
+            }
+        });
+
         document.addEventListener('click', (e) => {
             const reserveBtn = e.target.closest('.btn-choose-gift');
             const pixLink    = e.target.closest('.btn-pix-gift');
@@ -144,6 +160,11 @@ const App = {
 
             const giftId = (btn.getAttribute('data-gift-id') || '').trim();
             if (!giftId) return;
+
+            // Lê quantidade do select irmão dentro de [data-gift-actions].
+            const actions = btn.closest('[data-gift-actions]');
+            const qtyInput = actions?.querySelector('[data-gift-qty-input]');
+            const qty = qtyInput ? Math.max(1, parseInt(qtyInput.value, 10) || 1) : 1;
 
             const pageMeta = document.getElementById('page-meta');
             const loggedIn = pageMeta?.dataset?.loggedIn === '1'
@@ -159,6 +180,7 @@ const App = {
                     // Reserve flow — auto-click the same button after auth.
                     window._pendingNavigateUrl = null;
                     window._pendingGiftId      = giftId;
+                    window._pendingGiftQty     = qty;
                 }
                 this._openAuthModal();
                 return;
@@ -168,7 +190,7 @@ const App = {
             if (pixLink) return;
 
             e.preventDefault();
-            this._reserveGift(reserveBtn, giftId);
+            this._reserveGift(reserveBtn, giftId, qty);
         });
     },
 
@@ -210,30 +232,30 @@ const App = {
             });
     },
 
-    _reserveGift(btn, giftId) {
+    _reserveGift(btn, giftId, qty) {
         if (!giftId) return;
-
-        const csrfToken = this._getCurrentCsrfToken();
-        if (!csrfToken) {
-            this._showReserveToast('Não foi possível validar sua sessão. Recarregue a página.', true);
-            return;
-        }
+        const sendQty = Math.max(1, parseInt(qty, 10) || 1);
 
         btn.disabled = true;
 
-        const body = new URLSearchParams({
-            gift_id:    String(giftId),
-            csrf_token: csrfToken,
-        });
-
-        fetch('/reserve', {
-            method:  'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'Accept':       'application/json',
-            },
-            body: body.toString(),
-        })
+        // Token fresco — evita 403 quando o token da página foi consumido
+        // por algum POST anterior na sessão (CSRF é one-shot).
+        this._fetchFreshCsrfToken()
+            .then((freshToken) => {
+                const body = new URLSearchParams({
+                    gift_id:    String(giftId),
+                    qty:        String(sendQty),
+                    csrf_token: freshToken,
+                });
+                return fetch('/reserve', {
+                    method:  'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                        'Accept':       'application/json',
+                    },
+                    body: body.toString(),
+                });
+            })
             .then(async (r) => {
                 let data = null;
                 try { data = await r.json(); } catch (_) { /* keep null */ }
@@ -335,6 +357,12 @@ const App = {
         countdownEl.textContent = String(seconds);
         modal.classList.add('is-open');
 
+        const stop = () => {
+            clearInterval(modal._countdownTimer);
+            modal._countdownTimer = null;
+            modal.classList.remove('is-open');
+        };
+
         clearInterval(modal._countdownTimer);
         modal._countdownTimer = setInterval(() => {
             seconds -= 1;
@@ -344,6 +372,18 @@ const App = {
                 window.location.href = redirectUrl;
             }
         }, 1000);
+
+        // Botão "Cancelar redirecionamento": para o timer, fecha o modal,
+        // deixa o usuário continuar na página. A reserva já foi feita,
+        // o link continua disponível em /my-gifts depois.
+        const cancelBtn = modal.querySelector('[data-redirect-cancel]');
+        if (cancelBtn && !cancelBtn._wired) {
+            cancelBtn._wired = true;
+            cancelBtn.addEventListener('click', stop);
+        }
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) stop();
+        }, { once: true });
     },
 
     // ──────────────────────────────────────────────────────────────────────
@@ -378,26 +418,7 @@ const App = {
         if (formSignup) {
             formSignup.addEventListener('submit', (e) => {
                 e.preventDefault();
-                if (signupError) signupError.classList.add('is-hidden');
-
-                const fd = new FormData(formSignup);
-                fd.append('csrf_token', this._getCurrentCsrfToken());
-
-                fetch('/auth/guest-signup', { method: 'POST', body: fd })
-                    .then((r) => r.json())
-                    .then((data) => {
-                        if (data.success) this._onAuthSuccess();
-                        else if (signupError) {
-                            signupError.textContent = data.error;
-                            signupError.classList.remove('is-hidden');
-                        }
-                    })
-                    .catch(() => {
-                        if (signupError) {
-                            signupError.textContent = 'Erro inesperado. Tente novamente.';
-                            signupError.classList.remove('is-hidden');
-                        }
-                    });
+                this._submitAuthForm(formSignup, signupError, '/auth/guest-signup');
             });
         }
 
@@ -407,28 +428,57 @@ const App = {
         if (formLogin) {
             formLogin.addEventListener('submit', (e) => {
                 e.preventDefault();
-                if (loginError) loginError.classList.add('is-hidden');
-
-                const fd = new FormData(formLogin);
-                fd.append('csrf_token', this._getCurrentCsrfToken());
-
-                fetch('/auth/guest-login', { method: 'POST', body: fd })
-                    .then((r) => r.json())
-                    .then((data) => {
-                        if (data.success) this._onAuthSuccess();
-                        else if (loginError) {
-                            loginError.textContent = data.error;
-                            loginError.classList.remove('is-hidden');
-                        }
-                    })
-                    .catch(() => {
-                        if (loginError) {
-                            loginError.textContent = 'Erro inesperado. Tente novamente.';
-                            loginError.classList.remove('is-hidden');
-                        }
-                    });
+                this._submitAuthForm(formLogin, loginError, '/auth/guest-login');
             });
         }
+    },
+
+    _submitAuthForm(form, errEl, url) {
+        if (errEl) errEl.classList.add('is-hidden');
+
+        // Token fresco antes de POSTar — o CsrfMiddleware consome o token
+        // a cada POST, então o que está no DOM pode estar stale e gerar
+        // 403, que vinha aparecendo como "Erro inesperado".
+        this._fetchFreshCsrfToken()
+            .then((freshToken) => {
+                const fd = new FormData(form);
+                fd.set('csrf_token', freshToken);
+                return fetch(url, {
+                    method:  'POST',
+                    headers: { 'Accept': 'application/json' },
+                    body:    fd,
+                });
+            })
+            .then(async (r) => {
+                const text = await r.text();
+                let data = null;
+                try { data = JSON.parse(text); } catch (_) { /* not JSON */ }
+
+                if (!data) {
+                    // Servidor devolveu HTML (provável 403 ou 5xx). Surface
+                    // uma mensagem mais útil em vez de "erro inesperado".
+                    throw new Error(
+                        r.status === 403 ? 'Sessão expirou. Recarregue a página e tente de novo.'
+                      : r.status >= 500  ? 'O servidor teve um problema. Tente em alguns segundos.'
+                      :                    'Não foi possível conectar agora. Tente de novo.'
+                    );
+                }
+                return data;
+            })
+            .then((data) => {
+                if (data.success) this._onAuthSuccess();
+                else if (errEl) {
+                    errEl.textContent = data.error || 'Não foi possível concluir.';
+                    errEl.classList.remove('is-hidden');
+                }
+            })
+            .catch((err) => {
+                console.error('[auth] submit failed:', err);
+                if (errEl) {
+                    errEl.textContent = err.message || 'Erro inesperado. Tente novamente.';
+                    errEl.classList.remove('is-hidden');
+                }
+            });
     },
 
     _switchAuthTab(modal, target) {

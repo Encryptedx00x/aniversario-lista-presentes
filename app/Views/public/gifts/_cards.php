@@ -47,6 +47,8 @@ if (empty($gifts)): ?>
             $qty        = (int) $gift['available_qty'];
             $userAction = (string) ($gift['user_action_type'] ?? '');
             $isMine     = $userAction !== '';
+            $isMulti    = (string) ($gift['type'] ?? 'single') === 'multi' && $qty > 1;
+            $qtyMax     = max(1, min(10, $qty));
         ?>
         <article class="<?= $cardClass ?>"
                  style="animation-delay: <?= $e($delay) ?>; --card-accent: <?= $e($accent) ?>;">
@@ -104,7 +106,19 @@ if (empty($gifts)): ?>
                     <?php elseif ($isSoldOut): ?>
                         <button class="gift-card__cta" disabled>Indisponível</button>
                     <?php else: ?>
-                        <div class="d-flex gap-2">
+                        <div class="gift-card__actions" data-gift-actions data-gift-id="<?= $e($gift['id']) ?>">
+                            <?php if ($isMulti): ?>
+                                <label class="gift-card__qty-pick">
+                                    <span class="visually-hidden" style="position:absolute;left:-9999px;">Quantidade</span>
+                                    <select class="gift-card__qty-input"
+                                            data-gift-qty-input
+                                            aria-label="Quantidade">
+                                        <?php for ($q = 1; $q <= $qtyMax; $q++): ?>
+                                            <option value="<?= $q ?>"><?= $q ?>×</option>
+                                        <?php endfor; ?>
+                                    </select>
+                                </label>
+                            <?php endif; ?>
                             <button type="button"
                                     class="gift-card__cta btn-choose-gift"
                                     data-gift-id="<?= $e($gift['id']) ?>"
@@ -116,6 +130,7 @@ if (empty($gifts)): ?>
                             <a href="/pix?gift_id=<?= $e($gift['id']) ?>"
                                class="gift-card__cta btn-pix-gift"
                                data-gift-id="<?= $e($gift['id']) ?>"
+                               data-pix-base-href="/pix?gift_id=<?= $e($gift['id']) ?>"
                                data-logged-in="<?= isset($_SESSION['user_id']) ? '1' : '0' ?>">
                                 Mandar pelo Pix
                             </a>

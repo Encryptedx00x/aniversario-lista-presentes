@@ -13,6 +13,10 @@ class ReservationController {
 
     public function store(array $params = []): void {
         $giftId = filter_var($_POST['gift_id'] ?? null, FILTER_VALIDATE_INT);
+        $qty    = (int) filter_var($_POST['qty'] ?? 1, FILTER_VALIDATE_INT);
+        if ($qty < 1)  { $qty = 1; }
+        if ($qty > 99) { $qty = 99; }
+
         if (!$giftId || (int) $giftId <= 0) {
             $this->json([
                 'success' => false,
@@ -30,23 +34,53 @@ class ReservationController {
             ], 401);
         }
 
-        $result = (new ReservationModel)->reserve((int) $giftId, $userId);
+        $result = (new ReservationModel)->reserve((int) $giftId, $userId, $qty);
 
         if (!($result['success'] ?? false)) {
             $statusCode = ($result['is_exhausted'] ?? false) ? 409 : 422;
             $this->json([
                 'success' => false,
                 'is_exhausted' => (bool) ($result['is_exhausted'] ?? false),
+                'available_qty' => (int) ($result['available_qty'] ?? 0),
                 'error' => $result['error'] ?? 'Não foi possível concluir sua reserva agora. Tente novamente.',
             ], $statusCode);
         }
 
         $this->json([
             'success' => true,
+            'quantity' => (int) ($result['quantity'] ?? $qty),
             'available_qty' => (int) ($result['available_qty'] ?? 0),
             'is_exhausted' => (bool) ($result['is_exhausted'] ?? false),
             'redirect_url' => (string) ($result['redirect_url'] ?? ''),
         ]);
+    }
+
+    public function confirmPurchase(array $params = []): void {
+        $reservationId = (int) ($params['id'] ?? 0);
+        $confirmedRaw  = (string) ($_POST['confirmed'] ?? '');
+        $confirmed     = $confirmedRaw === '1' ? 1 : 0;
+
+        if ($reservationId <= 0) {
+            $this->respondCancelError('Reserva inválida.', 422);
+        }
+
+        $userId = (int) ($_SESSION['user_id'] ?? 0);
+        if ($userId <= 0) {
+            $this->respondCancelError('Faça login para registrar sua compra.', 401);
+        }
+
+        $result = (new ReservationModel)->setPurchaseConfirmed($reservationId, $userId, $confirmed);
+
+        if (!($result['success'] ?? false)) {
+            $this->respondCancelError($result['error'] ?? 'Não foi possível registrar agora. Tente novamente.', 422);
+        }
+
+        $msg = $confirmed === 1
+            ? 'Beleza, anotei aqui! Obrigado por comprar.'
+            : 'Reserva liberada — outra pessoa pode pegar agora.';
+        Flash::set('success', $msg);
+        header('Location: /my-gifts');
+        exit;
     }
 
     public function myGifts(array $params = []): void {

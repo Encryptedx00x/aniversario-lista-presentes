@@ -78,9 +78,17 @@ $brandName = $brandName ?? 'Maria, 30.';
 
 <div class="auth-modal-backdrop" id="reserveRedirectModal" role="dialog" aria-modal="true" aria-labelledby="reserveRedirectTitle">
     <div class="auth-modal auth-modal--compact">
-        <h2 id="reserveRedirectTitle">Presente reservado com sucesso</h2>
-        <p>Você será redirecionado em <strong id="reserve-redirect-countdown">10</strong>s.</p>
-        <p class="small text-muted mb-2">Se não acontecer automaticamente, use o link abaixo.</p>
-        <a href="#" id="reserve-redirect-link" target="_blank" rel="noopener">Abrir link do presente</a>
+        <h2 id="reserveRedirectTitle">Reserva feita!</h2>
+        <p>Vou te levar pro link do presente em <strong id="reserve-redirect-countdown">10</strong>s, tudo bem?</p>
+        <p class="small text-muted mb-2">
+            Depois que comprar (ou se desistir), volta na <strong>Minha Lista</strong>
+            e me confirma. Sem isso eu não consigo saber se a compra rolou.
+        </p>
+        <a href="#" id="reserve-redirect-link" target="_blank" rel="noopener" class="d-inline-block mb-2">Abrir link agora</a>
+        <div>
+            <button type="button" id="reserve-redirect-cancel" class="btn-ghost-sm" data-redirect-cancel>
+                Cancelar redirecionamento
+            </button>
+        </div>
     </div>
 </div>

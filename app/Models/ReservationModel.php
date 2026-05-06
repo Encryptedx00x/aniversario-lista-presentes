@@ -6,15 +6,20 @@ namespace App\Models;
 class ReservationModel extends BaseModel {
 
     /**
-     * Atomic reservation with pessimistic lock.
+     * Atomic reservation with pessimistic lock. Aceita quantidade — usada
+     * em presentes type='multi' para o convidado pegar mais de uma vaga
+     * num único clique. Estoque é decrementado por $qty atomicamente.
      * Returns a normalized payload consumed by ReservationController::store().
      */
-    public function reserve(int $giftId, int $userId): array {
+    public function reserve(int $giftId, int $userId, int $qty = 1): array {
+        if ($qty < 1)  { $qty = 1; }
+        if ($qty > 99) { $qty = 99; }
+
         try {
             $this->db->beginTransaction();
 
             $gift = $this->query(
-                'SELECT id, quantity, available_qty, reserved, redirect_url
+                'SELECT id, type, quantity, available_qty, reserved, redirect_url
                  FROM gifts
                  WHERE id = :gift_id AND is_active = 1
                  FOR UPDATE',
@@ -30,7 +35,14 @@ class ReservationModel extends BaseModel {
                 ];
             }
 
-            if ((int) $gift['available_qty'] <= 0) {
+            $availableNow = (int) $gift['available_qty'];
+
+            // Single-type só aceita qty=1, mesmo que o cliente tente abusar.
+            if (($gift['type'] ?? 'single') !== 'multi') {
+                $qty = 1;
+            }
+
+            if ($availableNow <= 0) {
                 $this->db->rollBack();
                 return [
                     'success' => false,
@@ -39,23 +51,34 @@ class ReservationModel extends BaseModel {
                 ];
             }
 
+            if ($availableNow < $qty) {
+                $this->db->rollBack();
+                return [
+                    'success' => false,
+                    'is_exhausted' => false,
+                    'available_qty' => $availableNow,
+                    'error' => 'Só restam ' . $availableNow . ' ' . ($availableNow === 1 ? 'unidade' : 'unidades') . ' desse presente.',
+                ];
+            }
+
             $this->query(
                 'UPDATE gifts
-                 SET available_qty = available_qty - 1,
-                     reserved = reserved + 1,
-                     updated_at = NOW()
-                 WHERE id = :gift_id AND available_qty > 0',
-                [':gift_id' => $giftId]
+                 SET available_qty = available_qty - :qty,
+                     reserved      = reserved + :qty,
+                     updated_at    = NOW()
+                 WHERE id = :gift_id AND available_qty >= :qty',
+                [':gift_id' => $giftId, ':qty' => $qty]
             );
 
             $this->query(
-                'INSERT INTO reservations (gift_id, user_id, status, action_type)
-                 VALUES (:gift_id, :user_id, :status, :action_type)',
+                'INSERT INTO reservations (gift_id, user_id, status, action_type, quantity)
+                 VALUES (:gift_id, :user_id, :status, :action_type, :qty)',
                 [
-                    ':gift_id' => $giftId,
-                    ':user_id' => $userId,
-                    ':status'  => 'active',
+                    ':gift_id'     => $giftId,
+                    ':user_id'     => $userId,
+                    ':status'      => 'active',
                     ':action_type' => 'reserved',
+                    ':qty'         => $qty,
                 ]
             );
 
@@ -69,10 +92,11 @@ class ReservationModel extends BaseModel {
             $this->db->commit();
 
             return [
-                'success' => true,
+                'success'       => true,
+                'quantity'      => $qty,
                 'available_qty' => $availableQty,
-                'is_exhausted' => ($availableQty === 0),
-                'redirect_url' => (string) ($gift['redirect_url'] ?? ''),
+                'is_exhausted'  => ($availableQty === 0),
+                'redirect_url'  => (string) ($gift['redirect_url'] ?? ''),
             ];
         } catch (\Throwable $e) {
             if ($this->db->inTransaction()) {
@@ -90,6 +114,75 @@ class ReservationModel extends BaseModel {
     }
 
     /**
+     * Marks a reservation as purchase-confirmed (= 1) or not-purchased (= 0).
+     * Quando $confirmed === 0, libera o estoque de volta (igual cancel).
+     * Quando 1, só registra a confirmação — estoque continua reservado e
+     * o admin sabe que aquela compra externa rolou.
+     */
+    public function setPurchaseConfirmed(int $reservationId, int $userId, int $confirmed): array {
+        $confirmed = $confirmed === 1 ? 1 : 0;
+        try {
+            $this->db->beginTransaction();
+
+            $reservation = $this->query(
+                'SELECT id, gift_id, quantity, status, action_type
+                 FROM reservations
+                 WHERE id = :rid AND user_id = :uid
+                 FOR UPDATE',
+                [':rid' => $reservationId, ':uid' => $userId]
+            )->fetch();
+
+            if (!$reservation) {
+                $this->db->rollBack();
+                return ['success' => false, 'error' => 'Reserva não encontrada.'];
+            }
+            if ($reservation['status'] !== 'active') {
+                $this->db->rollBack();
+                return ['success' => false, 'error' => 'Essa reserva não está mais ativa.'];
+            }
+            if (($reservation['action_type'] ?? '') !== 'reserved') {
+                $this->db->rollBack();
+                return ['success' => false, 'error' => 'Esse fluxo só vale para presentes reservados.'];
+            }
+
+            // "Não comprei" libera estoque e cancela a reserva.
+            if ($confirmed === 0) {
+                $qty = max(1, (int) ($reservation['quantity'] ?? 1));
+                $this->query(
+                    'UPDATE reservations
+                     SET status = "cancelled", purchase_confirmed = 0
+                     WHERE id = :rid',
+                    [':rid' => $reservationId]
+                );
+                $this->query(
+                    'UPDATE gifts
+                     SET available_qty = LEAST(quantity, available_qty + :qty),
+                         reserved      = GREATEST(reserved - :qty, 0),
+                         updated_at    = NOW()
+                     WHERE id = :gid',
+                    [':qty' => $qty, ':gid' => (int) $reservation['gift_id']]
+                );
+            } else {
+                $this->query(
+                    'UPDATE reservations
+                     SET purchase_confirmed = 1
+                     WHERE id = :rid',
+                    [':rid' => $reservationId]
+                );
+            }
+
+            $this->db->commit();
+            return ['success' => true, 'confirmed' => $confirmed];
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            error_log('[ReservationModel::setPurchaseConfirmed] ' . $e->getMessage());
+            return ['success' => false, 'error' => 'Não foi possível registrar isso agora. Tente novamente.'];
+        }
+    }
+
+    /**
      * Returns active reservations for the current guest (newest first).
      */
     public function getActiveByUser(int $userId): array {
@@ -99,6 +192,8 @@ class ReservationModel extends BaseModel {
                 r.gift_id,
                 r.status,
                 r.action_type,
+                r.quantity,
+                r.purchase_confirmed,
                 r.created_at,
                 g.name AS gift_name,
                 g.category,
@@ -107,6 +202,7 @@ class ReservationModel extends BaseModel {
                 g.image_path,
                 g.available_qty,
                 g.slug,
+                g.redirect_url,
                 p.amount AS paid_amount
              FROM reservations r
              INNER JOIN gifts    g ON g.id = r.gift_id
@@ -210,7 +306,7 @@ class ReservationModel extends BaseModel {
             $this->db->beginTransaction();
 
             $reservation = $this->query(
-                'SELECT id, gift_id, status, action_type
+                'SELECT id, gift_id, quantity, status, action_type
                  FROM reservations
                  WHERE id = :reservation_id AND user_id = :user_id
                  FOR UPDATE',
@@ -243,6 +339,8 @@ class ReservationModel extends BaseModel {
                 ];
             }
 
+            $qty = max(1, (int) ($reservation['quantity'] ?? 1));
+
             $this->query(
                 'UPDATE reservations
                  SET status = :status
@@ -256,11 +354,11 @@ class ReservationModel extends BaseModel {
 
             $this->query(
                 'UPDATE gifts
-                 SET available_qty = LEAST(quantity, available_qty + 1),
-                     reserved = GREATEST(reserved - 1, 0),
-                     updated_at = NOW()
+                 SET available_qty = LEAST(quantity, available_qty + :qty),
+                     reserved      = GREATEST(reserved - :qty, 0),
+                     updated_at    = NOW()
                  WHERE id = :gift_id',
-                [':gift_id' => (int) $reservation['gift_id']]
+                [':qty' => $qty, ':gift_id' => (int) $reservation['gift_id']]
             );
 
             $updatedGift = $this->query(

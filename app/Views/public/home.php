@@ -126,9 +126,9 @@ $activeNav       = 'home';
             ?>
             <?php for ($i = 0; $i < 4; $i++): ?>
                 <span class="marquee__item marquee__item--accent">✺ <?= $e((string) $eventAge) ?> anos</span>
-                <span class="marquee__item">vamos comemorar</span>
+                <span class="marquee__item">um ano novo, novas histórias</span>
                 <span class="marquee__item">★ <?= $e($marqueeDate) ?></span>
-                <span class="marquee__item marquee__item--accent">sua presença é o melhor presente</span>
+                <span class="marquee__item marquee__item--accent">gratidão por mais uma volta</span>
                 <span class="marquee__item">✺ <?= $e(mb_strtolower($thanksWord ?? 'Obrigado', 'UTF-8')) ?> por estar aqui</span>
                 <span class="marquee__item"><?= $e($brandName) ?> &middot; <?= $e((string) $eventYear) ?></span>
             <?php endfor; ?>
@@ -204,10 +204,18 @@ if ($includeAuthModal):
 </div>
 <div class="auth-modal-backdrop" id="reserveRedirectModal" role="dialog" aria-modal="true" aria-labelledby="reserveRedirectTitle">
     <div class="auth-modal auth-modal--compact">
-        <h2 id="reserveRedirectTitle">Presente reservado com sucesso</h2>
-        <p>Você será redirecionado em <strong id="reserve-redirect-countdown">10</strong>s.</p>
-        <p class="small text-muted mb-2">Se não acontecer automaticamente, use o link abaixo.</p>
-        <a href="#" id="reserve-redirect-link" target="_blank" rel="noopener">Abrir link do presente</a>
+        <h2 id="reserveRedirectTitle">Reserva feita!</h2>
+        <p>Vou te levar pro link do presente em <strong id="reserve-redirect-countdown">10</strong>s, tudo bem?</p>
+        <p class="small text-muted mb-2">
+            Depois que comprar (ou se desistir), volta na <strong>Minha Lista</strong>
+            e me confirma. Sem isso eu não consigo saber se a compra rolou.
+        </p>
+        <a href="#" id="reserve-redirect-link" target="_blank" rel="noopener" class="d-inline-block mb-2">Abrir link agora</a>
+        <div>
+            <button type="button" id="reserve-redirect-cancel" class="btn-ghost-sm" data-redirect-cancel>
+                Cancelar redirecionamento
+            </button>
+        </div>
     </div>
 </div>
 <?php endif; ?>
