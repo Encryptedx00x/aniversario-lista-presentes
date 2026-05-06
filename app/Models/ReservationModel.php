@@ -65,13 +65,21 @@ class ReservationModel extends BaseModel {
                 ];
             }
 
+            // PDO sem emulação não aceita reusar o mesmo :param em
+            // múltiplas posições (erro HY093 "Invalid parameter number"),
+            // então usamos três placeholders distintos pro mesmo valor.
             $this->query(
                 'UPDATE gifts
-                 SET available_qty = available_qty - :qty,
-                     reserved      = reserved + :qty,
+                 SET available_qty = available_qty - :qty_dec,
+                     reserved      = reserved + :qty_inc,
                      updated_at    = NOW()
-                 WHERE id = :gift_id AND available_qty >= :qty',
-                [':gift_id' => $giftId, ':qty' => $qty]
+                 WHERE id = :gift_id AND available_qty >= :qty_check',
+                [
+                    ':gift_id'   => $giftId,
+                    ':qty_dec'   => $qty,
+                    ':qty_inc'   => $qty,
+                    ':qty_check' => $qty,
+                ]
             );
 
             // INSERT com `quantity`; se a coluna ainda não foi criada
@@ -192,11 +200,15 @@ class ReservationModel extends BaseModel {
                 );
                 $this->query(
                     'UPDATE gifts
-                     SET available_qty = LEAST(quantity, available_qty + :qty),
-                         reserved      = GREATEST(reserved - :qty, 0),
+                     SET available_qty = LEAST(quantity, available_qty + :qty_inc),
+                         reserved      = GREATEST(reserved - :qty_dec, 0),
                          updated_at    = NOW()
                      WHERE id = :gid',
-                    [':qty' => $qty, ':gid' => (int) $reservation['gift_id']]
+                    [
+                        ':qty_inc' => $qty,
+                        ':qty_dec' => $qty,
+                        ':gid'     => (int) $reservation['gift_id'],
+                    ]
                 );
             } else {
                 $this->query(
@@ -388,11 +400,15 @@ class ReservationModel extends BaseModel {
 
             $this->query(
                 'UPDATE gifts
-                 SET available_qty = LEAST(quantity, available_qty + :qty),
-                     reserved      = GREATEST(reserved - :qty, 0),
+                 SET available_qty = LEAST(quantity, available_qty + :qty_inc),
+                     reserved      = GREATEST(reserved - :qty_dec, 0),
                      updated_at    = NOW()
                  WHERE id = :gift_id',
-                [':qty' => $qty, ':gift_id' => (int) $reservation['gift_id']]
+                [
+                    ':qty_inc' => $qty,
+                    ':qty_dec' => $qty,
+                    ':gift_id' => (int) $reservation['gift_id'],
+                ]
             );
 
             $updatedGift = $this->query(
