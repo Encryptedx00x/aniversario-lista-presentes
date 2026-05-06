@@ -292,7 +292,7 @@ const App = {
         if (card) {
             const qtyEl = card.querySelector('.gift-card__qty, .gift-card__qty--out');
             if (qtyEl && Number.isFinite(availableQty)) {
-                qtyEl.textContent = availableQty + ' ' + (availableQty === 1 ? 'vaga' : 'vagas');
+                qtyEl.textContent = availableQty + ' ' + (availableQty === 1 ? 'disponível' : 'disponíveis');
             }
             const qtyText = card.querySelector('p.small.text-muted.mt-auto.mb-0');
             if (qtyText && Number.isFinite(availableQty)) {
@@ -310,8 +310,19 @@ const App = {
         }
 
         this._markCardAsSelected(card, 'Selecionado');
-        this._showReserveToast('Reserva concluída! Veja em "Minhas reservas".', false);
-        this._showRedirectCountdown(data?.redirect_url || btn?.dataset?.redirectUrl || '');
+
+        const redirectUrl = data?.redirect_url || btn?.dataset?.redirectUrl || '';
+        if (redirectUrl) {
+            // Presente com link da loja: modal com aviso + countdown 10s.
+            this._showReserveToast('Reserva concluída! Veja em "Minha Lista".', false);
+            this._showRedirectCountdown(redirectUrl);
+        } else {
+            // Sem link da loja: a pessoa precisa pagar via PIX. Mostra toast
+            // e leva pra Minha Lista depois de ~2.2s pra ela ver os botões
+            // (Pagar com PIX, Cancelar) sem precisar navegar manualmente.
+            this._showReserveToast('Reserva feita! Vou te levar pra Minha Lista pra você seguir.', false);
+            setTimeout(() => { window.location.href = '/my-gifts'; }, 2200);
+        }
     },
 
     _onReserveError(btn, data) {

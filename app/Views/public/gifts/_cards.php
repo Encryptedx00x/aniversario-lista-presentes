@@ -48,7 +48,6 @@ if (empty($gifts)): ?>
             $userAction = (string) ($gift['user_action_type'] ?? '');
             $isMine     = $userAction !== '';
             $isMulti    = (string) ($gift['type'] ?? 'single') === 'multi' && $qty > 1;
-            $qtyMax     = max(1, min(10, $qty));
         ?>
         <article class="<?= $cardClass ?>"
                  style="animation-delay: <?= $e($delay) ?>; --card-accent: <?= $e($accent) ?>;">
@@ -83,7 +82,7 @@ if (empty($gifts)): ?>
                           style="<?= $isSoldOut ? '' : 'color: ' . $e($accent) . ';' ?>">
                         <?= $isSoldOut
                             ? 'indisponível'
-                            : ($e($qty) . ' ' . ($qty === 1 ? 'vaga' : 'vagas')) ?>
+                            : ($e($qty) . ' ' . ($qty === 1 ? 'disponível' : 'disponíveis')) ?>
                     </span>
                 </div>
 
@@ -110,13 +109,15 @@ if (empty($gifts)): ?>
                             <?php if ($isMulti): ?>
                                 <label class="gift-card__qty-pick">
                                     <span class="visually-hidden" style="position:absolute;left:-9999px;">Quantidade</span>
-                                    <select class="gift-card__qty-input"
-                                            data-gift-qty-input
-                                            aria-label="Quantidade">
-                                        <?php for ($q = 1; $q <= $qtyMax; $q++): ?>
-                                            <option value="<?= $q ?>"><?= $q ?>×</option>
-                                        <?php endfor; ?>
-                                    </select>
+                                    <input type="number"
+                                           class="gift-card__qty-input"
+                                           data-gift-qty-input
+                                           min="1"
+                                           max="<?= $e((string) $qty) ?>"
+                                           value="1"
+                                           step="1"
+                                           inputmode="numeric"
+                                           aria-label="Quantidade">
                                 </label>
                             <?php endif; ?>
                             <button type="button"
