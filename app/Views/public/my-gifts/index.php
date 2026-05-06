@@ -38,9 +38,13 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
                     $price       = (float) ($reservation['price'] ?? 0);
                     $resQty      = max(1, (int) ($reservation['quantity'] ?? 1));
                     $redirectUrl = (string) ($reservation['redirect_url'] ?? '');
-                    $purchaseRaw = $reservation['purchase_confirmed'] ?? null;
+                    // Só ativa o fluxo "Já comprei / Não comprei" se a coluna
+                    // purchase_confirmed existir no row (= migration aplicada).
+                    $hasConfirmCol     = array_key_exists('purchase_confirmed', $reservation);
+                    $purchaseRaw       = $reservation['purchase_confirmed'] ?? null;
                     $purchaseConfirmed = $purchaseRaw !== null ? (int) $purchaseRaw : null;
-                    $needsConfirm = $isReserved && !$isPix && $redirectUrl !== '' && $purchaseConfirmed === null;
+                    $needsConfirm      = $hasConfirmCol && $isReserved && !$isPix
+                                         && $redirectUrl !== '' && $purchaseConfirmed === null;
                     $paidAmount  = isset($reservation['paid_amount']) && $reservation['paid_amount'] !== null
                         ? (float) $reservation['paid_amount']
                         : null;

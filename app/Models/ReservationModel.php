@@ -70,17 +70,42 @@ class ReservationModel extends BaseModel {
                 [':gift_id' => $giftId, ':qty' => $qty]
             );
 
-            $this->query(
-                'INSERT INTO reservations (gift_id, user_id, status, action_type, quantity)
-                 VALUES (:gift_id, :user_id, :status, :action_type, :qty)',
-                [
-                    ':gift_id'     => $giftId,
-                    ':user_id'     => $userId,
-                    ':status'      => 'active',
-                    ':action_type' => 'reserved',
-                    ':qty'         => $qty,
-                ]
-            );
+            // INSERT com `quantity`; se a coluna ainda não foi criada
+            // (migration phase 6 não rodou no banco), cai pra um INSERT
+            // legado sem ela. Quem ficar nessa rota perde só o tracking
+            // de quantidade — restante do fluxo continua funcionando.
+            try {
+                $this->query(
+                    'INSERT INTO reservations (gift_id, user_id, status, action_type, quantity)
+                     VALUES (:gift_id, :user_id, :status, :action_type, :qty)',
+                    [
+                        ':gift_id'     => $giftId,
+                        ':user_id'     => $userId,
+                        ':status'      => 'active',
+                        ':action_type' => 'reserved',
+                        ':qty'         => $qty,
+                    ]
+                );
+            } catch (\PDOException $e) {
+                // 1054 = ER_BAD_FIELD_ERROR (Unknown column 'quantity').
+                // SQLSTATE 42S22 cobre o mesmo cenário em outros drivers.
+                $isMissingColumn = $e->getCode() === '42S22'
+                    || str_contains($e->getMessage(), "Unknown column 'quantity'");
+                if (!$isMissingColumn) {
+                    throw $e;
+                }
+                error_log('[ReservationModel::reserve] coluna quantity ausente — rode sql/migrate_phase6.sql. Caindo para INSERT legado.');
+                $this->query(
+                    'INSERT INTO reservations (gift_id, user_id, status, action_type)
+                     VALUES (:gift_id, :user_id, :status, :action_type)',
+                    [
+                        ':gift_id'     => $giftId,
+                        ':user_id'     => $userId,
+                        ':status'      => 'active',
+                        ':action_type' => 'reserved',
+                    ]
+                );
+            }
 
             $updatedGift = $this->query(
                 'SELECT available_qty FROM gifts WHERE id = :gift_id',
@@ -186,15 +211,13 @@ class ReservationModel extends BaseModel {
      * Returns active reservations for the current guest (newest first).
      */
     public function getActiveByUser(int $userId): array {
+        // Uso `r.*` em vez de listar `r.quantity, r.purchase_confirmed`
+        // pra não quebrar caso a migration phase 6 ainda não tenha rodado
+        // — colunas ausentes simplesmente não vêm no row, e o consumidor
+        // (my-gifts view) já tem fallback `?? null` / `?? 1`.
         return $this->query(
             'SELECT
-                r.id,
-                r.gift_id,
-                r.status,
-                r.action_type,
-                r.quantity,
-                r.purchase_confirmed,
-                r.created_at,
+                r.*,
                 g.name AS gift_name,
                 g.category,
                 g.description,

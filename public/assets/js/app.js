@@ -136,20 +136,39 @@ const App = {
     // Choose-gift / reservation flow
     // ──────────────────────────────────────────────────────────────────────
     initChooseGift() {
-        // Quando o select de quantidade muda num multi-gift, atualiza o
-        // href do "Mandar pelo Pix" do mesmo card pra incluir &qty=N.
-        document.addEventListener('change', (e) => {
-            const qtyInput = e.target.closest('[data-gift-qty-input]');
-            if (!qtyInput) return;
+        // Clamp em tempo real: digitar acima do max ou abaixo do min cai
+        // dentro do range. Vale tanto pro `input` event (digitação) quanto
+        // pra `change` event (spinners / blur).
+        const clampQty = (qtyInput) => {
+            const min = parseInt(qtyInput.getAttribute('min') || '1', 10) || 1;
+            const max = parseInt(qtyInput.getAttribute('max') || '99', 10) || 99;
+            let v = parseInt(qtyInput.value, 10);
+            if (!Number.isFinite(v)) v = min;
+            if (v < min) v = min;
+            if (v > max) v = max;
+            if (String(v) !== qtyInput.value) qtyInput.value = String(v);
+            return v;
+        };
+        const syncPixHref = (qtyInput) => {
             const actions = qtyInput.closest('[data-gift-actions]');
             if (!actions) return;
-            const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
+            const qty = clampQty(qtyInput);
             const pixLink = actions.querySelector('.btn-pix-gift');
             if (pixLink) {
                 const base = pixLink.dataset.pixBaseHref || pixLink.getAttribute('href') || '';
                 const cleanBase = base.split('&qty=')[0];
                 pixLink.setAttribute('href', cleanBase + (qty > 1 ? ('&qty=' + qty) : ''));
             }
+        };
+        document.addEventListener('input', (e) => {
+            const qtyInput = e.target.closest('[data-gift-qty-input]');
+            if (!qtyInput) return;
+            syncPixHref(qtyInput);
+        });
+        document.addEventListener('change', (e) => {
+            const qtyInput = e.target.closest('[data-gift-qty-input]');
+            if (!qtyInput) return;
+            syncPixHref(qtyInput);
         });
 
         document.addEventListener('click', (e) => {
@@ -161,10 +180,11 @@ const App = {
             const giftId = (btn.getAttribute('data-gift-id') || '').trim();
             if (!giftId) return;
 
-            // Lê quantidade do select irmão dentro de [data-gift-actions].
+            // Lê quantidade do input irmão dentro de [data-gift-actions],
+            // já passando pelo clamp pra garantir que está dentro do max.
             const actions = btn.closest('[data-gift-actions]');
             const qtyInput = actions?.querySelector('[data-gift-qty-input]');
-            const qty = qtyInput ? Math.max(1, parseInt(qtyInput.value, 10) || 1) : 1;
+            const qty = qtyInput ? clampQty(qtyInput) : 1;
 
             const pageMeta = document.getElementById('page-meta');
             const loggedIn = pageMeta?.dataset?.loggedIn === '1'

@@ -472,15 +472,20 @@ input::placeholder, textarea::placeholder { color: #a8a8b0; }
   border-radius: 999px;
   padding: 8px 12px;
   font-size: 13px; font-weight: 600; color: var(--ink);
-  width: 76px; text-align: center;
-  /* Mantém os spinners nativos (setinhas) — usuário pode clicar ou digitar. */
+  width: 92px; text-align: center;
+  /* Reseta a regra global que esconde os spinners (ver início do arquivo)
+     pra esse input específico — usuário precisa das setinhas pra +/-. */
+  -moz-appearance: number-input;
+       appearance: auto;
+}
+.gift-card__qty-input::-webkit-outer-spin-button,
+.gift-card__qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: inner-spin-button !important;
+  appearance: auto !important;
+  opacity: 1; margin-left: 4px;
 }
 .gift-card__qty-input:focus {
   outline: none; border-color: var(--ink);
-}
-/* Em telas estreitas, mostra os spinners maiores pra ficar tocável. */
-@media (max-width: 480px) {
-  .gift-card__qty-input { width: 92px; padding: 10px 14px; }
 }
 
 .empty-state {
