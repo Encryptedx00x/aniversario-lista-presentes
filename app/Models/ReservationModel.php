@@ -18,20 +18,24 @@ class ReservationModel extends BaseModel {
         try {
             $this->db->beginTransaction();
 
+            // SELECT g.* em vez de listar colunas explícitas — evita
+            // "Unknown column" se o schema do banco estiver atrás de
+            // alguma migration (type, redirect_url etc).
             $gift = $this->query(
-                'SELECT id, type, quantity, available_qty, reserved, redirect_url
-                 FROM gifts
-                 WHERE id = :gift_id AND is_active = 1
+                'SELECT g.* FROM gifts g
+                 WHERE g.id = :gift_id AND g.is_active = 1
                  FOR UPDATE',
                 [':gift_id' => $giftId]
             )->fetch();
 
             if (!$gift) {
                 $this->db->rollBack();
+                error_log('[ReservationModel::reserve] gift not found or inactive: id=' . $giftId);
                 return [
                     'success' => false,
                     'is_exhausted' => false,
                     'error' => 'Presente não encontrado.',
+                    'debug_path' => 'gift_not_found',
                 ];
             }
 
@@ -128,12 +132,19 @@ class ReservationModel extends BaseModel {
                 $this->db->rollBack();
             }
 
-            error_log('[ReservationModel::reserve] ' . $e->getMessage());
+            $code = $e->getCode();
+            error_log(sprintf(
+                "[ReservationModel::reserve] FAILED gift=%d user=%d qty=%d code=%s msg=%s",
+                $giftId, $userId, $qty, (string) $code, $e->getMessage()
+            ));
 
             return [
-                'success' => false,
+                'success'    => false,
                 'is_exhausted' => false,
-                'error' => 'Não foi possível concluir sua reserva agora. Tente novamente.',
+                'error'      => 'Não foi possível concluir sua reserva agora. Tente novamente.',
+                'debug_path' => 'exception',
+                'debug_code' => (string) $code,
+                'debug_msg'  => $e->getMessage(),
             ];
         }
     }

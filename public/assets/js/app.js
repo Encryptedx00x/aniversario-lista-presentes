@@ -359,6 +359,17 @@ const App = {
             delete btn.dataset.loggedIn;
         }
 
+        // Loga no console o caminho que falhou pra facilitar debug em
+        // produção. Não polui o toast — só vai pro DevTools.
+        if (data?.debug_path) {
+            console.warn('[reserve] failed:', {
+                path:    data.debug_path,
+                code:    data.debug_code  || null,
+                message: data.debug_msg   || data.error || null,
+                full:    data,
+            });
+        }
+
         this._showReserveToast(message, true);
     },
 

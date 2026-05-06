@@ -12,16 +12,26 @@ use App\Models\ReservationModel;
 class ReservationController {
 
     public function store(array $params = []): void {
-        $giftId = filter_var($_POST['gift_id'] ?? null, FILTER_VALIDATE_INT);
-        $qty    = (int) filter_var($_POST['qty'] ?? 1, FILTER_VALIDATE_INT);
+        $giftIdRaw = $_POST['gift_id'] ?? null;
+        $giftId    = filter_var($giftIdRaw, FILTER_VALIDATE_INT);
+        $qty       = (int) filter_var($_POST['qty'] ?? 1, FILTER_VALIDATE_INT);
         if ($qty < 1)  { $qty = 1; }
         if ($qty > 99) { $qty = 99; }
+
+        error_log(sprintf(
+            "[reserve] POST gift_id_raw=%s parsed=%s qty=%d session_user=%s",
+            var_export($giftIdRaw, true),
+            var_export($giftId, true),
+            $qty,
+            var_export($_SESSION['user_id'] ?? null, true)
+        ));
 
         if (!$giftId || (int) $giftId <= 0) {
             $this->json([
                 'success' => false,
                 'is_exhausted' => false,
                 'error' => 'Presente inválido.',
+                'debug_path' => 'invalid_gift_id',
             ], 422);
         }
 
@@ -31,6 +41,7 @@ class ReservationController {
                 'success' => false,
                 'is_exhausted' => false,
                 'error' => 'Faça login para reservar um presente.',
+                'debug_path' => 'no_session',
             ], 401);
         }
 
@@ -39,10 +50,13 @@ class ReservationController {
         if (!($result['success'] ?? false)) {
             $statusCode = ($result['is_exhausted'] ?? false) ? 409 : 422;
             $this->json([
-                'success' => false,
+                'success'      => false,
                 'is_exhausted' => (bool) ($result['is_exhausted'] ?? false),
-                'available_qty' => (int) ($result['available_qty'] ?? 0),
-                'error' => $result['error'] ?? 'Não foi possível concluir sua reserva agora. Tente novamente.',
+                'available_qty'=> (int) ($result['available_qty'] ?? 0),
+                'error'        => $result['error'] ?? 'Não foi possível concluir sua reserva agora. Tente novamente.',
+                'debug_path'   => $result['debug_path'] ?? 'unknown',
+                'debug_code'   => $result['debug_code'] ?? null,
+                'debug_msg'    => $result['debug_msg']  ?? null,
             ], $statusCode);
         }
 
