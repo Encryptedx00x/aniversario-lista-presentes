@@ -409,17 +409,38 @@ class MercadopagoController {
         try {
             $db->beginTransaction();
 
-            // Insert a reservation row mirroring the contributePix shape so
-            // /my-gifts and /admin/reservations pick it up automatically.
-            $stmt = $db->prepare(
-                "INSERT INTO reservations (gift_id, user_id, status, action_type)
-                 VALUES (:gift_id, :user_id, 'active', 'pix')"
+            // Se o usuário já tinha uma reserva ativa pra esse gift (clicou
+            // "Quero esse" antes), o PIX que acabou de cair é a confirmação
+            // dessa compra. Em vez de duplicar, marca a reserva existente
+            // como purchase_confirmed=1 e linka o payment nela. Caso
+            // contrário, cria uma reserva nova com action_type='pix'.
+            $existing = $db->prepare(
+                "SELECT id FROM reservations
+                 WHERE user_id = :user_id AND gift_id = :gift_id AND status = 'active'
+                 ORDER BY created_at ASC
+                 LIMIT 1
+                 FOR UPDATE"
             );
-            $stmt->execute([
-                ':gift_id' => $giftId,
-                ':user_id' => $userId,
-            ]);
-            $reservationId = (int) $db->lastInsertId();
+            $existing->execute([':user_id' => $userId, ':gift_id' => $giftId]);
+            $row = $existing->fetch();
+
+            if ($row) {
+                $reservationId = (int) $row['id'];
+                $upd = $db->prepare(
+                    "UPDATE reservations SET purchase_confirmed = 1 WHERE id = :id"
+                );
+                $upd->execute([':id' => $reservationId]);
+            } else {
+                $stmt = $db->prepare(
+                    "INSERT INTO reservations (gift_id, user_id, status, action_type, purchase_confirmed)
+                     VALUES (:gift_id, :user_id, 'active', 'pix', 1)"
+                );
+                $stmt->execute([
+                    ':gift_id' => $giftId,
+                    ':user_id' => $userId,
+                ]);
+                $reservationId = (int) $db->lastInsertId();
+            }
 
             $paymentModel->markApprovedWithReservation($paymentId, $reservationId, $rawJson);
 

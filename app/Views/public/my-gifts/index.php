@@ -50,13 +50,14 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
                         : null;
                     $totalPrice  = $price * $resQty;
 
-                    // Categoriza a contribuição PIX vs preço sugerido do presente
+                    // Categoriza a contribuição PIX vs preço sugerido total
                     // (parcial, completa, ou acima — toda ajuda conta).
+                    // Compara contra totalPrice (price × qty), não preço unitário.
                     $pixTier = null;
-                    if ($isPix && $paidAmount !== null && $price > 0) {
-                        if ($paidAmount + 0.005 < $price) {
+                    if ($paidAmount !== null && $totalPrice > 0) {
+                        if ($paidAmount + 0.005 < $totalPrice) {
                             $pixTier = 'partial';
-                        } elseif ($paidAmount > $price + 0.005) {
+                        } elseif ($paidAmount > $totalPrice + 0.005) {
                             $pixTier = 'extra';
                         } else {
                             $pixTier = 'full';
@@ -64,11 +65,22 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
                     }
 
                     $thanksLow = mb_strtolower($thanksWord ?? 'Obrigado', 'UTF-8');
-                    $reservedLabel = $needsConfirm
-                        ? 'Reservado · ainda preciso saber se você comprou'
-                        : ($purchaseConfirmed === 1
-                            ? 'Reservado e comprado · ' . $thanksLow . '!'
-                            : 'Reservado');
+                    if ($needsConfirm) {
+                        $reservedLabel = 'Reservado · ainda preciso saber se você comprou';
+                    } elseif ($paidAmount !== null) {
+                        // Reserva com PIX confirmado em cima — mostra o tier
+                        // pra dar o tom certo (parcial/cheio/extra).
+                        $reservedLabel = match ($pixTier) {
+                            'partial' => 'Pago parcialmente via PIX · ' . $thanksLow . ' pelo apoio!',
+                            'extra'   => 'Pago com extra via PIX · que carinho, ' . $thanksLow . '!',
+                            'full'    => 'Pago via PIX · ' . $thanksLow . '!',
+                            default   => 'Pago via PIX',
+                        };
+                    } elseif ($purchaseConfirmed === 1) {
+                        $reservedLabel = 'Reservado e comprado · ' . $thanksLow . '!';
+                    } else {
+                        $reservedLabel = 'Reservado';
+                    }
                     $statusLabel = match ($status) {
                         'reserved'  => $reservedLabel,
                         'pix'       => match ($pixTier) {
@@ -142,14 +154,14 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
                     </div>
 
                     <div class="reservation__side">
-                        <?php if ($isPix && $paidAmount !== null): ?>
+                        <?php if ($paidAmount !== null): ?>
                             <span class="reservation__price"
                                   title="Valor enviado via PIX">
                                 R$ <?= $e($fmt($paidAmount)) ?>
                             </span>
-                            <?php if ($price > 0): ?>
+                            <?php if ($totalPrice > 0): ?>
                                 <?php
-                                    $rawPct  = ($paidAmount / $price) * 100;
+                                    $rawPct  = ($paidAmount / $totalPrice) * 100;
                                     $fillPct = max(0, min(100, $rawPct));
                                 ?>
                                 <div class="pix-progress pix-progress--<?= $e($pixTier ?? 'full') ?>"
@@ -163,9 +175,9 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
                                 <?php if ($pixTier === 'partial' || $pixTier === 'extra'): ?>
                                     <span class="reservation__price-sub small text-muted">
                                         <?php if ($pixTier === 'partial'): ?>
-                                            <?= $e((string) round($rawPct)) ?>% de R$ <?= $e($fmt($price)) ?> sugerido
+                                            <?= $e((string) round($rawPct)) ?>% de R$ <?= $e($fmt($totalPrice)) ?> sugerido
                                         <?php else: ?>
-                                            +R$ <?= $e($fmt($paidAmount - $price)) ?> acima do sugerido
+                                            +R$ <?= $e($fmt($paidAmount - $totalPrice)) ?> acima do sugerido
                                         <?php endif; ?>
                                     </span>
                                 <?php endif; ?>

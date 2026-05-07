@@ -73,8 +73,12 @@ class HomeController {
             $userId = (int) ($_SESSION['user_id'] ?? 0);
             $row    = (new GiftModel)->findActiveForUser((int) $giftId, $userId);
             if ($row) {
-                $selectedGift  = $row;
-                $alreadyOnList = ((string) ($row['user_action_type'] ?? '')) !== '';
+                $selectedGift = $row;
+                // "Já está na sua lista" só bloqueia o PIX quando o usuário
+                // já mandou PIX antes pra esse mesmo gift. Se ele só reservou
+                // (action_type='reserved'), o PIX é justamente o caminho de
+                // confirmar a compra — deixa passar.
+                $alreadyOnList = ((string) ($row['user_action_type'] ?? '')) === 'pix';
             }
         }
 
