@@ -150,6 +150,20 @@ class PaymentModel extends BaseModel {
     }
 
     /**
+     * Hard delete de payment. Apaga independentemente do status. A
+     * reservation vinculada (se houver) fica intacta — a FK em
+     * payments.reservation_id é unidirecional. Use com cuidado: registro
+     * de pagamento real apagado some do dashboard / soma de arrecadados.
+     */
+    public function adminDelete(int $id): bool {
+        $stmt = $this->query(
+            'DELETE FROM payments WHERE id = :id',
+            [':id' => $id]
+        );
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
      * Aggregated counters / totals for the admin dashboard.
      * approved_total is in BRL (decimal amount).
      */

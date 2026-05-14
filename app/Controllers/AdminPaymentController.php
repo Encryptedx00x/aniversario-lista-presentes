@@ -44,4 +44,27 @@ class AdminPaymentController {
         header('Location: /admin/dashboard');
         exit;
     }
+
+    public function delete(array $params = []): void {
+        $id = (int) ($params['id'] ?? 0);
+        if ($id <= 0) {
+            Flash::set('error', 'Pagamento inválido.');
+            header('Location: /admin/reservations');
+            exit;
+        }
+
+        $ok = (new PaymentModel)->adminDelete($id);
+        Flash::set(
+            $ok ? 'success' : 'error',
+            $ok ? 'Pagamento apagado.' : 'Não foi possível apagar esse pagamento.'
+        );
+
+        $back = '/admin/reservations';
+        $qs   = [];
+        if (!empty($_POST['action_type'])) { $qs['action_type'] = (string) $_POST['action_type']; }
+        if (!empty($_POST['status']))      { $qs['status']      = (string) $_POST['status']; }
+        if ($qs) { $back .= '?' . http_build_query($qs); }
+        header('Location: ' . $back);
+        exit;
+    }
 }

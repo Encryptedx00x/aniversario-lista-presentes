@@ -159,18 +159,34 @@ $badgeForStatus = function (string $s): string {
                                 <?php endif; ?>
                             </td>
                             <td class="text-end pe-3 text-nowrap">
-                                <form method="POST"
-                                      action="/admin/reservations/<?= $e((string) (int) $r['id']) ?>/delete"
-                                      class="d-inline m-0"
-                                      onsubmit="return confirm('Apagar permanentemente esse registro? <?= ($r['status'] === 'active' && $r['action_type'] === 'reserved') ? 'O estoque será devolvido.' : 'Essa ação não pode ser desfeita.' ?>');">
-                                    <input type="hidden" name="csrf_token"
-                                           value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
-                                    <input type="hidden" name="action_type" value="<?= $e($action) ?>">
-                                    <input type="hidden" name="status"      value="<?= $e($status) ?>">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        Apagar
-                                    </button>
-                                </form>
+                                <div class="d-flex gap-1 justify-content-end flex-wrap">
+                                    <form method="POST"
+                                          action="/admin/reservations/<?= $e((string) (int) $r['id']) ?>/delete"
+                                          class="m-0"
+                                          onsubmit="return confirm('Apagar essa reserva? <?= ($r['status'] === 'active' && $r['action_type'] === 'reserved') ? 'O estoque será devolvido.' : 'Essa ação não pode ser desfeita.' ?>');">
+                                        <input type="hidden" name="csrf_token"
+                                               value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="hidden" name="action_type" value="<?= $e($action) ?>">
+                                        <input type="hidden" name="status"      value="<?= $e($status) ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Apaga a reserva">
+                                            Apagar reserva
+                                        </button>
+                                    </form>
+                                    <?php if (!empty($r['payment_id'])): ?>
+                                        <form method="POST"
+                                              action="/admin/payments/<?= $e((string) (int) $r['payment_id']) ?>/delete"
+                                              class="m-0"
+                                              onsubmit="return confirm('Apagar permanentemente esse pagamento? O valor sai dos totais arrecadados.');">
+                                            <input type="hidden" name="csrf_token"
+                                                   value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
+                                            <input type="hidden" name="action_type" value="<?= $e($action) ?>">
+                                            <input type="hidden" name="status"      value="<?= $e($status) ?>">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Apaga o registro de pagamento PIX">
+                                                Apagar PIX
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>

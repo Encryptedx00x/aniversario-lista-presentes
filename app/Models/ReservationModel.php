@@ -351,6 +351,7 @@ class ReservationModel extends BaseModel {
                     g.name  AS gift_name,
                     g.price AS gift_price,
                     g.category AS gift_category,
+                    p.id     AS payment_id,
                     p.amount AS paid_amount
                 FROM reservations r
                 INNER JOIN users    u ON u.id = r.user_id

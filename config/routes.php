@@ -35,6 +35,7 @@ return [
         '/admin/gifts/{id}/toggle-active' => ['AdminGiftController',   'toggleActive', 'auth'],
         '/admin/pix'                      => ['AdminPixController',    'save',         'auth'],
         '/admin/payments/{id}/dismiss'    => ['AdminPaymentController','dismiss',     'auth'],
+        '/admin/payments/{id}/delete'     => ['AdminPaymentController','delete',      'auth'],
         '/admin/reservations/{id}/delete' => ['AdminReservationController', 'delete', 'auth'],
         '/admin/settings'                 => ['AdminSettingsController','save',        'auth'],
         '/auth/guest-signup'              => ['GuestAuthController',   'signupPost'],
