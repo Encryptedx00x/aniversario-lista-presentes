@@ -444,6 +444,19 @@ input::placeholder, textarea::placeholder { color: #a8a8b0; }
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden;
 }
+.gift-card__desc.is-expanded {
+  -webkit-line-clamp: unset;
+  display: block;
+  overflow: visible;
+}
+.gift-card__desc-toggle {
+  background: none; border: none; padding: 0; margin: 6px 0 0;
+  font: inherit; font-size: 12px; font-weight: 600;
+  color: var(--card-accent, var(--purple, #6B3FCC));
+  cursor: pointer; text-decoration: underline;
+  text-decoration-thickness: 1px; text-underline-offset: 3px;
+}
+.gift-card__desc-toggle:hover { color: var(--ink); }
 .gift-card__foot {
   display: flex; justify-content: space-between; align-items: center;
   margin-top: 18px; padding-top: 16px;

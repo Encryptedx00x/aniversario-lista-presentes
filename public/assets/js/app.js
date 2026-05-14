@@ -16,8 +16,41 @@ const App = {
             'initCountdown',
             'initCoverParallax',
             'initPix',
+            'initGiftCardExpanders',
         ].forEach((fn) => {
             try { this[fn](); } catch (err) { console.error('[App] ' + fn + ' failed:', err); }
+        });
+    },
+
+    // ──────────────────────────────────────────────────────────────────────
+    // Gift card "ler mais" — adiciona toggle só quando a descrição estoura
+    // o line-clamp. Roda no load inicial e re-roda após o AJAX do filtro.
+    // ──────────────────────────────────────────────────────────────────────
+    initGiftCardExpanders() {
+        this._wireGiftCardExpanders();
+    },
+
+    _wireGiftCardExpanders(scope) {
+        const root = scope || document;
+        root.querySelectorAll('.gift-card__desc').forEach((p) => {
+            if (p.dataset._descWired === '1') return;
+            // scrollHeight inclui o conteúdo escondido pelo line-clamp;
+            // clientHeight é o visível. Se igual, não está truncado.
+            // Pequena tolerância pra evitar falso positivo por sub-pixel.
+            if (p.scrollHeight <= p.clientHeight + 1) return;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'gift-card__desc-toggle';
+            btn.textContent = 'ler mais';
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const expanded = p.classList.toggle('is-expanded');
+                btn.textContent = expanded ? 'ler menos' : 'ler mais';
+            });
+            p.insertAdjacentElement('afterend', btn);
+            p.dataset._descWired = '1';
         });
     },
 
@@ -94,6 +127,10 @@ const App = {
                     if (countLabel) {
                         const n = container.querySelectorAll('.gift-card').length;
                         countLabel.textContent = `${n} ${n === 1 ? 'item' : 'itens'}`;
+                    }
+                    // Re-aplica o toggle "ler mais" nos novos cards.
+                    if (typeof App._wireGiftCardExpanders === 'function') {
+                        App._wireGiftCardExpanders(container);
                     }
                 })
                 .catch((err) => {
