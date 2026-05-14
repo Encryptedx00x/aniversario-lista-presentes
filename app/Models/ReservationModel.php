@@ -158,6 +158,68 @@ class ReservationModel extends BaseModel {
     }
 
     /**
+     * Admin-side hard delete. Libera estoque se a reserva estava ativa
+     * e era do tipo 'reserved' (PIX não decrementa estoque). Pagamentos
+     * vinculados ficam por audit — o FK em payments.reservation_id é
+     * ON DELETE SET NULL, então o registro de PIX no banco continua.
+     */
+    public function adminDelete(int $reservationId): array {
+        try {
+            $this->db->beginTransaction();
+
+            $res = $this->query(
+                'SELECT id, gift_id, quantity, status, action_type
+                 FROM reservations
+                 WHERE id = :rid
+                 FOR UPDATE',
+                [':rid' => $reservationId]
+            )->fetch();
+
+            if (!$res) {
+                $this->db->rollBack();
+                return ['success' => false, 'error' => 'Reserva não encontrada.'];
+            }
+
+            $shouldRelease = $res['status'] === 'active'
+                && ($res['action_type'] ?? '') === 'reserved';
+            $qty = max(1, (int) ($res['quantity'] ?? 1));
+
+            if ($shouldRelease) {
+                $this->query(
+                    'UPDATE gifts
+                     SET available_qty = LEAST(quantity, available_qty + :qty_inc),
+                         reserved      = GREATEST(reserved - :qty_dec, 0),
+                         updated_at    = NOW()
+                     WHERE id = :gid',
+                    [
+                        ':qty_inc' => $qty,
+                        ':qty_dec' => $qty,
+                        ':gid'     => (int) $res['gift_id'],
+                    ]
+                );
+            }
+
+            $this->query(
+                'DELETE FROM reservations WHERE id = :rid',
+                [':rid' => $reservationId]
+            );
+
+            $this->db->commit();
+            return [
+                'success'         => true,
+                'stock_released'  => $shouldRelease,
+                'released_qty'    => $shouldRelease ? $qty : 0,
+            ];
+        } catch (\Throwable $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            error_log('[ReservationModel::adminDelete] ' . $e->getMessage());
+            return ['success' => false, 'error' => 'Não foi possível apagar a reserva agora.'];
+        }
+    }
+
+    /**
      * Marks a reservation as purchase-confirmed (= 1) or not-purchased (= 0).
      * Quando $confirmed === 0, libera o estoque de volta (igual cancel).
      * Quando 1, só registra a confirmação — estoque continua reservado e

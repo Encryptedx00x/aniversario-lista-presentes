@@ -89,13 +89,14 @@ $badgeForStatus = function (string $s): string {
                     <th>Presente</th>
                     <th>Tipo</th>
                     <th>Status</th>
-                    <th class="text-end pe-3">Valor</th>
+                    <th class="text-end">Valor</th>
+                    <th class="text-end pe-3">Ações</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($reservations)): ?>
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
+                        <td colspan="7" class="text-center text-muted py-4">
                             Nenhum registro com esses filtros.
                         </td>
                     </tr>
@@ -143,7 +144,7 @@ $badgeForStatus = function (string $s): string {
                             </td>
                             <td><?= $badgeForAction((string) $r['action_type']) ?></td>
                             <td><?= $badgeForStatus((string) $r['status']) ?></td>
-                            <td class="text-end pe-3 text-nowrap">
+                            <td class="text-end text-nowrap">
                                 <?php if ($isPix && $paidAmount !== null): ?>
                                     <div class="fw-semibold">
                                         R$ <?= $e($fmt($paidAmount)) ?><?= $tierBadge ?>
@@ -156,6 +157,20 @@ $badgeForStatus = function (string $s): string {
                                         ? 'R$ ' . $e($fmt($price))
                                         : '—' ?>
                                 <?php endif; ?>
+                            </td>
+                            <td class="text-end pe-3 text-nowrap">
+                                <form method="POST"
+                                      action="/admin/reservations/<?= $e((string) (int) $r['id']) ?>/delete"
+                                      class="d-inline m-0"
+                                      onsubmit="return confirm('Apagar permanentemente esse registro? <?= ($r['status'] === 'active' && $r['action_type'] === 'reserved') ? 'O estoque será devolvido.' : 'Essa ação não pode ser desfeita.' ?>');">
+                                    <input type="hidden" name="csrf_token"
+                                           value="<?= htmlspecialchars(\App\Middleware\CsrfMiddleware::token(), ENT_QUOTES, 'UTF-8') ?>">
+                                    <input type="hidden" name="action_type" value="<?= $e($action) ?>">
+                                    <input type="hidden" name="status"      value="<?= $e($status) ?>">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Apagar
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>

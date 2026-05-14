@@ -3,24 +3,34 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Helpers\SiteConfig;
 use App\Helpers\View;
 
 class ErrorController {
     public function notFound(array $params = []): void {
         http_response_code(404);
         // D-08: full Bootstrap layout, D-10: specific buttons
-        View::render('public/404', ['title' => '404 · Página não encontrada', 'layout' => 'main']);
+        View::render('public/404', array_merge(
+            ['title' => '404 · Página não encontrada', 'layout' => 'main'],
+            SiteConfig::getPublicSettings()
+        ));
     }
 
     public function forbidden(array $params = []): void {
         http_response_code(403);
         // D-08: full Bootstrap layout, D-09: specific message and Voltar button
-        View::render('public/403', ['title' => '403 · Acesso negado', 'layout' => 'main']);
+        View::render('public/403', array_merge(
+            ['title' => '403 · Acesso negado', 'layout' => 'main'],
+            SiteConfig::getPublicSettings()
+        ));
     }
 
     public function serverError(array $params = []): void {
         http_response_code(500);
         // D-08: full Bootstrap layout — no stack trace, no exception details
-        View::render('public/500', ['title' => '500 · Erro interno', 'layout' => 'main']);
+        View::render('public/500', array_merge(
+            ['title' => '500 · Erro interno', 'layout' => 'main'],
+            SiteConfig::getPublicSettings()
+        ));
     }
 }
