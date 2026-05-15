@@ -428,8 +428,10 @@ class ReservationModel extends BaseModel {
         }
 
         $where = $conditions ? ('WHERE ' . implode(' AND ', $conditions)) : '';
+        // r.* puxa purchase_confirmed se a coluna existir (resiliente a
+        // bancos sem a migration phase 6).
         $sql = "SELECT
-                    r.id, r.gift_id, r.user_id, r.status, r.action_type, r.created_at,
+                    r.*,
                     u.name  AS user_name,
                     u.email AS user_email,
                     u.phone AS user_phone,
@@ -455,8 +457,10 @@ class ReservationModel extends BaseModel {
      */
     public function recentActivity(int $limit = 6): array {
         $limit = max(1, min(50, $limit));
+        // r.* pra trazer purchase_confirmed quando a coluna existir
+        // (resiliente a banco sem migration phase 6).
         return $this->query(
-            "SELECT r.id, r.action_type, r.created_at, r.status,
+            "SELECT r.*,
                     u.name  AS user_name,
                     g.name  AS gift_name,
                     g.price AS gift_price,

@@ -7,9 +7,18 @@
 $action = (string) ($filters['action_type'] ?? 'all');
 $status = (string) ($filters['status']      ?? 'active');
 
-$badgeForAction = function (string $a): string {
-    return $a === 'pix'
-        ? '<span class="badge text-bg-info">PIX</span>'
+// Aceita o row inteiro pra distinguir 'reservado pendente' de 'reservado
+// e comprado' (purchase_confirmed=1) — esse último vira badge verde
+// "Comprado" pra Dyogo saber que a compra externa já foi confirmada
+// pelo convidado em /my-gifts.
+$badgeForAction = function (array $r): string {
+    $action    = (string) ($r['action_type'] ?? '');
+    $confirmed = isset($r['purchase_confirmed']) && (int) $r['purchase_confirmed'] === 1;
+    if ($action === 'pix') {
+        return '<span class="badge text-bg-info">PIX</span>';
+    }
+    return $confirmed
+        ? '<span class="badge text-bg-success" title="Convidado confirmou a compra em Minha Lista">Comprado</span>'
         : '<span class="badge text-bg-primary">Reservado</span>';
 };
 $badgeForStatus = function (string $s): string {
@@ -142,7 +151,7 @@ $badgeForStatus = function (string $s): string {
                                     <div class="small text-muted"><?= $e($r['gift_category']) ?></div>
                                 <?php endif; ?>
                             </td>
-                            <td><?= $badgeForAction((string) $r['action_type']) ?></td>
+                            <td><?= $badgeForAction($r) ?></td>
                             <td><?= $badgeForStatus((string) $r['status']) ?></td>
                             <td class="text-end text-nowrap">
                                 <?php if ($isPix && $paidAmount !== null): ?>

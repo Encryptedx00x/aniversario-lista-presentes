@@ -213,6 +213,7 @@ $timeAgo = static function (?string $datetime): string {
                             ? date('d/m H:i', strtotime((string) $r['created_at']))
                             : '—';
                         $isPix = ((string) $r['action_type']) === 'pix';
+                        $isBought = isset($r['purchase_confirmed']) && (int) $r['purchase_confirmed'] === 1;
                         $paid  = isset($r['paid_amount']) && $r['paid_amount'] !== null
                             ? (float) $r['paid_amount']
                             : null;
@@ -225,6 +226,8 @@ $timeAgo = static function (?string $datetime): string {
                             <td>
                                 <?php if ($isPix): ?>
                                     <span class="badge text-bg-info">PIX</span>
+                                <?php elseif ($isBought): ?>
+                                    <span class="badge text-bg-success" title="Convidado confirmou a compra">Comprado</span>
                                 <?php else: ?>
                                     <span class="badge text-bg-primary">Reservado</span>
                                 <?php endif; ?>
