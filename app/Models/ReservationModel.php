@@ -479,9 +479,27 @@ class ReservationModel extends BaseModel {
      * Aggregated summary used by the admin dashboard / reservas page header.
      */
     public function adminSummary(): array {
+        // Detecta se a coluna purchase_confirmed existe (migration phase 6).
+        // Sem ela, "bought" sempre é 0 e active_reserved continua somando
+        // tudo — mantém compat com banco legado.
+        $hasPc = false;
+        try {
+            $check = $this->query("SHOW COLUMNS FROM reservations LIKE 'purchase_confirmed'")->fetch();
+            $hasPc = $check !== false;
+        } catch (\Throwable $e) { /* trata como ausente */ }
+
+        $boughtExpr  = $hasPc
+            ? "SUM(CASE WHEN action_type = 'reserved' AND status = 'active' AND purchase_confirmed = 1 THEN 1 ELSE 0 END)"
+            : "0";
+        $pendingExpr = $hasPc
+            ? "SUM(CASE WHEN action_type = 'reserved' AND status = 'active' AND (purchase_confirmed IS NULL OR purchase_confirmed = 0) THEN 1 ELSE 0 END)"
+            : "SUM(CASE WHEN action_type = 'reserved' AND status = 'active' THEN 1 ELSE 0 END)";
+
         $row = $this->query(
             "SELECT
                 SUM(CASE WHEN action_type = 'reserved' AND status = 'active' THEN 1 ELSE 0 END) AS active_reserved,
+                {$pendingExpr}                                                                  AS active_pending,
+                {$boughtExpr}                                                                   AS bought_count,
                 SUM(CASE WHEN action_type = 'pix'      AND status = 'active' THEN 1 ELSE 0 END) AS active_pix,
                 SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END)                          AS cancelled_total,
                 COUNT(*)                                                                        AS total
@@ -490,6 +508,8 @@ class ReservationModel extends BaseModel {
 
         return [
             'active_reserved' => (int) ($row['active_reserved'] ?? 0),
+            'active_pending'  => (int) ($row['active_pending']  ?? 0),
+            'bought_count'    => (int) ($row['bought_count']    ?? 0),
             'active_pix'      => (int) ($row['active_pix']      ?? 0),
             'cancelled_total' => (int) ($row['cancelled_total'] ?? 0),
             'total'           => (int) ($row['total']           ?? 0),

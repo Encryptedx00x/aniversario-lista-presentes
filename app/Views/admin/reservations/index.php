@@ -38,8 +38,18 @@ $badgeForStatus = function (string $s): string {
     <div class="col-6 col-md-3">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-                <div class="text-muted small text-uppercase">Reservas ativas</div>
-                <div class="fs-3 fw-semibold"><?= $e($summary['active_reserved'] ?? 0) ?></div>
+                <div class="text-muted small text-uppercase">Reservas pendentes</div>
+                <div class="fs-3 fw-semibold"><?= $e($summary['active_pending'] ?? 0) ?></div>
+                <div class="small text-muted">aguardando confirmação</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Comprados</div>
+                <div class="fs-3 fw-semibold"><?= $e($summary['bought_count'] ?? 0) ?></div>
+                <div class="small text-muted">confirmaram em Minha Lista</div>
             </div>
         </div>
     </div>
@@ -56,14 +66,7 @@ $badgeForStatus = function (string $s): string {
             <div class="card-body">
                 <div class="text-muted small text-uppercase">Canceladas</div>
                 <div class="fs-3 fw-semibold"><?= $e($summary['cancelled_total'] ?? 0) ?></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="text-muted small text-uppercase">Total</div>
-                <div class="fs-3 fw-semibold"><?= $e($summary['total'] ?? 0) ?></div>
+                <div class="small text-muted"><?= $e($summary['total'] ?? 0) ?> total</div>
             </div>
         </div>
     </div>

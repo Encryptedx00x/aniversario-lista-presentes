@@ -102,13 +102,16 @@
                     </td>
 
                     <td>
+                        <?php if (!empty($gift['bought_by'])): ?>
+                            <div class="small"><span class="badge bg-success-subtle text-success-emphasis">Comprado</span> <?= $e($gift['bought_by']) ?></div>
+                        <?php endif; ?>
                         <?php if (!empty($gift['reserved_by'])): ?>
-                            <div class="small"><span class="badge bg-primary-subtle text-primary">Reservado</span> <?= $e($gift['reserved_by']) ?></div>
+                            <div class="small<?= !empty($gift['bought_by']) ? ' mt-1' : '' ?>"><span class="badge bg-primary-subtle text-primary">Reservado</span> <?= $e($gift['reserved_by']) ?></div>
                         <?php endif; ?>
                         <?php if (!empty($gift['pix_by'])): ?>
                             <div class="small mt-1"><span class="badge bg-info-subtle text-info-emphasis">PIX</span> <?= $e($gift['pix_by']) ?></div>
                         <?php endif; ?>
-                        <?php if (empty($gift['reserved_by']) && empty($gift['pix_by'])): ?>
+                        <?php if (empty($gift['reserved_by']) && empty($gift['pix_by']) && empty($gift['bought_by'])): ?>
                             <span class="text-muted small">Disponível</span>
                         <?php endif; ?>
                     </td>
@@ -119,6 +122,8 @@
                             <span class="badge bg-secondary">Inativo</span>
                         <?php elseif (!empty($gift['pix_count'])): ?>
                             <span class="badge bg-info">Pix</span>
+                        <?php elseif (!empty($gift['bought_count'])): ?>
+                            <span class="badge bg-success" title="Convidado confirmou a compra externa em Minha Lista">Comprado</span>
                         <?php elseif (!empty($gift['reserved_count'])): ?>
                             <span class="badge bg-warning text-dark">Reservado</span>
                         <?php else: ?>

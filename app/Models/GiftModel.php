@@ -122,26 +122,49 @@ class GiftModel extends BaseModel {
         }
         // 'all' — no status condition
 
+        // Detecta purchase_confirmed pra separar reservas pendentes das
+        // já confirmadas como compradas. Sem a coluna (banco legado),
+        // tudo continua caindo em "reserved" como antes.
+        $hasPc = false;
+        try {
+            $check = $this->query("SHOW COLUMNS FROM reservations LIKE 'purchase_confirmed'")->fetch();
+            $hasPc = $check !== false;
+        } catch (\Throwable $e) { /* trata como ausente */ }
+
+        $reservedPendingCond = $hasPc
+            ? "r.action_type = 'reserved' AND r.status = 'active' AND (r.purchase_confirmed IS NULL OR r.purchase_confirmed = 0)"
+            : "r.action_type = 'reserved' AND r.status = 'active'";
+        $boughtCond = $hasPc
+            ? "r.action_type = 'reserved' AND r.status = 'active' AND r.purchase_confirmed = 1"
+            : "1 = 0";
+
         $where = $conditions ? ('WHERE ' . implode(' AND ', $conditions)) : '';
         $sql = "SELECT
                     g.*,
                     tr.reserved_by,
+                    tr.bought_by,
                     tr.pix_by,
                     tr.reserved_count,
+                    tr.bought_count,
                     tr.pix_count
                 FROM gifts g
                 LEFT JOIN (
                     SELECT
                         r.gift_id,
                         GROUP_CONCAT(DISTINCT CASE
-                            WHEN r.action_type = 'reserved' AND r.status = 'active'
+                            WHEN {$reservedPendingCond}
                             THEN CONCAT(u.name, ' <', u.email, '>')
                             ELSE NULL END SEPARATOR ' | ') AS reserved_by,
+                        GROUP_CONCAT(DISTINCT CASE
+                            WHEN {$boughtCond}
+                            THEN CONCAT(u.name, ' <', u.email, '>')
+                            ELSE NULL END SEPARATOR ' | ') AS bought_by,
                         GROUP_CONCAT(DISTINCT CASE
                             WHEN r.action_type = 'pix' AND r.status = 'active'
                             THEN CONCAT(u.name, ' <', u.email, '>')
                             ELSE NULL END SEPARATOR ' | ') AS pix_by,
-                        SUM(CASE WHEN r.action_type = 'reserved' AND r.status = 'active' THEN 1 ELSE 0 END) AS reserved_count,
+                        SUM(CASE WHEN {$reservedPendingCond} THEN 1 ELSE 0 END) AS reserved_count,
+                        SUM(CASE WHEN {$boughtCond}           THEN 1 ELSE 0 END) AS bought_count,
                         SUM(CASE WHEN r.action_type = 'pix' AND r.status = 'active' THEN 1 ELSE 0 END) AS pix_count
                     FROM reservations r
                     INNER JOIN users u ON u.id = r.user_id

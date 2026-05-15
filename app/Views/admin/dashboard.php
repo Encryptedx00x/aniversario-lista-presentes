@@ -1,12 +1,12 @@
 <?php
 /** @var array  $giftStats     keys: total, active, available, sold_out, available_units */
-/** @var array  $reservSummary keys: active_reserved, active_pix, cancelled_total, total */
+/** @var array  $reservSummary keys: active_reserved, active_pending, bought_count, active_pix, cancelled_total, total */
 /** @var array  $paymentStats  keys: total, approved_count, approved_total, pending_count, failed_count */
 /** @var array  $recent        list of recent active reservations w/ user/gift/paid_amount */
 /** @var \Closure $e */
 
 $giftStats     = $giftStats     ?? ['total' => 0, 'active' => 0, 'available' => 0, 'sold_out' => 0, 'available_units' => 0];
-$reservSummary = $reservSummary ?? ['active_reserved' => 0, 'active_pix' => 0, 'cancelled_total' => 0, 'total' => 0];
+$reservSummary = $reservSummary ?? ['active_reserved' => 0, 'active_pending' => 0, 'bought_count' => 0, 'active_pix' => 0, 'cancelled_total' => 0, 'total' => 0];
 $paymentStats  = $paymentStats  ?? ['approved_count' => 0, 'approved_total' => 0.0, 'pending_count' => 0, 'failed_count' => 0];
 $recent        = $recent        ?? [];
 
@@ -24,7 +24,7 @@ $money = static fn (float $v): string => 'R$ ' . number_format($v, 2, ',', '.');
 
 <!-- ── Counters ──────────────────────────────────────────────────── -->
 <div class="row g-3 mb-4">
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-6 col-md-4 col-xl">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-2">
@@ -42,7 +42,7 @@ $money = static fn (float $v): string => 'R$ ' . number_format($v, 2, ',', '.');
         </div>
     </div>
 
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-6 col-md-4 col-xl">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-2">
@@ -57,16 +57,16 @@ $money = static fn (float $v): string => 'R$ ' . number_format($v, 2, ',', '.');
         </div>
     </div>
 
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-6 col-md-4 col-xl">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span class="text-muted small text-uppercase">Reservas</span>
+                    <span class="text-muted small text-uppercase">Reservas pendentes</span>
                     <i class="bi bi-bookmark-star text-warning"></i>
                 </div>
-                <div class="fs-2 fw-semibold"><?= $e((string) $reservSummary['active_reserved']) ?></div>
+                <div class="fs-2 fw-semibold"><?= $e((string) $reservSummary['active_pending']) ?></div>
                 <div class="small text-muted">
-                    ativas
+                    aguardando confirmação
                     <?php if ($reservSummary['cancelled_total'] > 0): ?>
                         · <?= $e((string) $reservSummary['cancelled_total']) ?> canceladas
                     <?php endif; ?>
@@ -75,7 +75,26 @@ $money = static fn (float $v): string => 'R$ ' . number_format($v, 2, ',', '.');
         </div>
     </div>
 
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-6 col-md-4 col-xl">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small text-uppercase">Comprados</span>
+                    <i class="bi bi-bag-check text-success"></i>
+                </div>
+                <div class="fs-2 fw-semibold"><?= $e((string) $reservSummary['bought_count']) ?></div>
+                <div class="small text-muted">
+                    <?php if ($reservSummary['bought_count'] === 0): ?>
+                        ninguém confirmou ainda
+                    <?php else: ?>
+                        compras confirmadas em Minha Lista
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-md-4 col-xl">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-2">
