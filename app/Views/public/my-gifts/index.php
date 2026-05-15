@@ -64,9 +64,23 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
                         }
                     }
 
+                    // Quantos minutos faltam até a reserva expirar (apagar
+                    // automática se ninguém confirmar via 'Já comprei').
+                    $minutesLeft = null;
+                    if ($isReserved && !$isPix && $purchaseConfirmed !== 1) {
+                        $ts = strtotime((string) ($reservation['created_at'] ?? ''));
+                        if ($ts) {
+                            $elapsed = max(0, (time() - $ts) / 60);
+                            $minutesLeft = max(0, (int) ceil(30 - $elapsed));
+                        }
+                    }
+                    $expiryNote = $minutesLeft !== null && $minutesLeft > 0
+                        ? ' (expira em ' . $minutesLeft . ' min se você não confirmar)'
+                        : ($minutesLeft === 0 ? ' (reserva expira a qualquer momento)' : '');
+
                     $thanksLow = mb_strtolower($thanksWord ?? 'Obrigado', 'UTF-8');
                     if ($needsConfirm) {
-                        $reservedLabel = 'Reservado · ainda preciso saber se você comprou';
+                        $reservedLabel = 'Reservado · me confirme se já comprou' . $expiryNote;
                     } elseif ($paidAmount !== null) {
                         // Reserva com PIX confirmado em cima — mostra o tier
                         // pra dar o tom certo (parcial/cheio/extra).
@@ -79,7 +93,7 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
                     } elseif ($purchaseConfirmed === 1) {
                         $reservedLabel = 'Reservado e comprado · ' . $thanksLow . '!';
                     } else {
-                        $reservedLabel = 'Reservado';
+                        $reservedLabel = 'Reservado' . $expiryNote;
                     }
                     $statusLabel = match ($status) {
                         'reserved'  => $reservedLabel,

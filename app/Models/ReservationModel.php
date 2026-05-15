@@ -5,6 +5,91 @@ namespace App\Models;
 
 class ReservationModel extends BaseModel {
 
+    /** Quantos minutos a reserva fica segurada antes de expirar sozinha. */
+    public const RESERVATION_TIMEOUT_MIN = 30;
+
+    private static bool $expireRan = false;
+
+    /**
+     * Lazy expiry — chamado uma vez por request a partir do front controller.
+     * Identifica reservas ativas (action_type='reserved') com mais de
+     * RESERVATION_TIMEOUT_MIN minutos sem purchase_confirmed=1, marca-as
+     * como 'cancelled' e devolve o estoque ao gift. Falhas só logam — não
+     * derrubam a request, já que isso é uma manutenção em background.
+     */
+    public static function expireStaleOnce(): void {
+        if (self::$expireRan) return;
+        self::$expireRan = true;
+
+        $self = new self;
+        $db   = $self->getDb();
+        $minutes = self::RESERVATION_TIMEOUT_MIN;
+
+        try {
+            $db->beginTransaction();
+
+            // Coluna purchase_confirmed pode não existir se o admin ainda não
+            // rodou a migration phase 6. Detecta antes pra montar a WHERE certa.
+            $hasCol = false;
+            try {
+                $row = $self->query(
+                    "SHOW COLUMNS FROM reservations LIKE 'purchase_confirmed'"
+                )->fetch();
+                $hasCol = (bool) $row;
+            } catch (\Throwable $_) {
+                $hasCol = false;
+            }
+
+            $confirmedCheck = $hasCol
+                ? "AND (purchase_confirmed IS NULL OR purchase_confirmed = 0)"
+                : '';
+
+            $stale = $self->query(
+                "SELECT id, gift_id,
+                        COALESCE(quantity, 1) AS quantity
+                 FROM reservations
+                 WHERE status = 'active'
+                   AND action_type = 'reserved'
+                   {$confirmedCheck}
+                   AND created_at < DATE_SUB(NOW(), INTERVAL {$minutes} MINUTE)
+                 FOR UPDATE"
+            )->fetchAll();
+
+            if (!$stale) {
+                $db->commit();
+                return;
+            }
+
+            foreach ($stale as $r) {
+                $qty = max(1, (int) ($r['quantity'] ?? 1));
+                $self->query(
+                    "UPDATE reservations SET status = 'cancelled' WHERE id = :id",
+                    [':id' => (int) $r['id']]
+                );
+                $self->query(
+                    'UPDATE gifts
+                     SET available_qty = LEAST(quantity, available_qty + :qty_inc),
+                         reserved      = GREATEST(reserved - :qty_dec, 0),
+                         updated_at    = NOW()
+                     WHERE id = :gid',
+                    [
+                        ':qty_inc' => $qty,
+                        ':qty_dec' => $qty,
+                        ':gid'     => (int) $r['gift_id'],
+                    ]
+                );
+            }
+            error_log('[ReservationModel::expireStaleOnce] expirou ' . count($stale) . ' reserva(s)');
+
+            $db->commit();
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            error_log('[ReservationModel::expireStaleOnce] ' . $e->getMessage());
+        }
+    }
+
     /**
      * Atomic reservation with pessimistic lock. Aceita quantidade — usada
      * em presentes type='multi' para o convidado pegar mais de uma vaga

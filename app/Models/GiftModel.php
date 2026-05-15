@@ -9,10 +9,19 @@ class GiftModel extends BaseModel {
      * Returns all active gifts ordered by availability then sort_order.
      */
     public function getAllActive(int $userId = 0): array {
-        $sql = 'SELECT g.*, us.action_type AS user_action_type
+        // Trazemos também user_reserved_at (timestamp da reserva ativa
+        // do usuário) e user_purchase_confirmed para o card mostrar o
+        // link da loja / countdown de expiração depois de reservar.
+        $sql = 'SELECT g.*,
+                       us.action_type        AS user_action_type,
+                       us.reserved_at        AS user_reserved_at,
+                       us.purchase_confirmed AS user_purchase_confirmed
                 FROM gifts g
                 LEFT JOIN (
-                    SELECT gift_id, MAX(action_type) AS action_type
+                    SELECT gift_id,
+                           MAX(action_type) AS action_type,
+                           MAX(created_at)  AS reserved_at,
+                           MAX(' . self::purchaseConfirmedExpr() . ') AS purchase_confirmed
                     FROM reservations
                     WHERE user_id = :user_id AND status = :status
                     GROUP BY gift_id
@@ -23,6 +32,25 @@ class GiftModel extends BaseModel {
             ':user_id' => $userId,
             ':status' => 'active',
         ])->fetchAll();
+    }
+
+    /**
+     * Retorna a expressão SQL correta pra purchase_confirmed: nome da
+     * coluna se existir, NULL literal se não (banco ainda sem migration
+     * phase 6). Detectado uma vez por request via static cache.
+     */
+    private static function purchaseConfirmedExpr(): string {
+        static $cached = null;
+        if ($cached !== null) return $cached;
+        try {
+            $row = (new self)->query(
+                "SHOW COLUMNS FROM reservations LIKE 'purchase_confirmed'"
+            )->fetch();
+            $cached = $row ? 'purchase_confirmed' : 'NULL';
+        } catch (\Throwable $_) {
+            $cached = 'NULL';
+        }
+        return $cached;
     }
 
     /**
@@ -51,10 +79,17 @@ class GiftModel extends BaseModel {
         }
 
         $where = implode(' AND ', $conditions);
-        $sql = "SELECT g.*, us.action_type AS user_action_type
+        $pcExpr = self::purchaseConfirmedExpr();
+        $sql = "SELECT g.*,
+                       us.action_type        AS user_action_type,
+                       us.reserved_at        AS user_reserved_at,
+                       us.purchase_confirmed AS user_purchase_confirmed
                 FROM gifts g
                 LEFT JOIN (
-                    SELECT gift_id, MAX(action_type) AS action_type
+                    SELECT gift_id,
+                           MAX(action_type) AS action_type,
+                           MAX(created_at)  AS reserved_at,
+                           MAX({$pcExpr})   AS purchase_confirmed
                     FROM reservations
                     WHERE user_id = :user_id AND status = :status
                     GROUP BY gift_id

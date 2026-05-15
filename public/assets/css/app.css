@@ -475,6 +475,20 @@ input::placeholder, textarea::placeholder { color: #a8a8b0; }
 .gift-card__cta:hover { background: var(--purple); }
 .gift-card__cta:disabled { background: #d8d8d2; color: var(--mute); cursor: not-allowed; }
 
+/* Card "meu" — usuário reservou, mostra link da loja + countdown */
+.gift-card__mine {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+  text-align: right;
+}
+.gift-card__cta--mine {
+  background: var(--blue-soft, #dfe6f7); color: var(--ink); text-decoration: none;
+}
+.gift-card__cta--mine:hover { background: #cdd9f1; }
+.gift-card__mine-meta {
+  font-size: 11px; color: var(--mute, #888);
+  letter-spacing: 0.02em;
+}
+
 .gift-card__actions {
   display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
   justify-content: flex-end;

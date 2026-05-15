@@ -48,6 +48,21 @@ if (empty($gifts)): ?>
             $userAction = (string) ($gift['user_action_type'] ?? '');
             $isMine     = $userAction !== '';
             $isMulti    = (string) ($gift['type'] ?? 'single') === 'multi' && $qty > 1;
+
+            $userRedirectUrl  = (string) ($gift['redirect_url'] ?? '');
+            $userPurchaseRaw  = $gift['user_purchase_confirmed'] ?? null;
+            $userBought       = $userPurchaseRaw !== null && (int) $userPurchaseRaw === 1;
+            // Minutos restantes pra reserva expirar (vazio se sem reserva)
+            $userMinutesLeft  = null;
+            $reservedAt       = $gift['user_reserved_at'] ?? null;
+            if ($isMine && $userAction === 'reserved' && !$userBought && $reservedAt) {
+                $ts = strtotime((string) $reservedAt);
+                if ($ts) {
+                    $elapsed = max(0, (time() - $ts) / 60);
+                    $remaining = (int) ceil(30 - $elapsed);
+                    $userMinutesLeft = max(0, $remaining);
+                }
+            }
         ?>
         <article class="<?= $cardClass ?>"
                  style="animation-delay: <?= $e($delay) ?>; --card-accent: <?= $e($accent) ?>;">
@@ -99,9 +114,33 @@ if (empty($gifts)): ?>
                             : '—' ?>
                     </span>
                     <?php if ($isMine): ?>
-                        <button class="gift-card__cta" disabled>
-                            <?= $userAction === 'pix' ? 'Contribuído via PIX' : 'Selecionado' ?>
-                        </button>
+                        <?php if ($userAction === 'pix'): ?>
+                            <button class="gift-card__cta" disabled>Contribuído via PIX</button>
+                        <?php elseif ($userBought): ?>
+                            <button class="gift-card__cta" disabled>Comprado · obrigado!</button>
+                        <?php elseif ($userRedirectUrl !== ''): ?>
+                            <div class="gift-card__mine">
+                                <a href="<?= $e($userRedirectUrl) ?>"
+                                   class="gift-card__cta gift-card__cta--mine"
+                                   target="_blank" rel="noopener">
+                                    Abrir link da loja →
+                                </a>
+                                <?php if ($userMinutesLeft !== null): ?>
+                                    <span class="gift-card__mine-meta">
+                                        <?= $userMinutesLeft > 0
+                                            ? 'reservado · expira em ' . $e((string) $userMinutesLeft) . ' min'
+                                            : 'reserva expira a qualquer momento' ?>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="gift-card__mine">
+                                <button class="gift-card__cta" disabled>Reservado por você</button>
+                                <?php if ($userMinutesLeft !== null): ?>
+                                    <span class="gift-card__mine-meta">expira em <?= $e((string) $userMinutesLeft) ?> min</span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                     <?php elseif ($isSoldOut): ?>
                         <button class="gift-card__cta" disabled>Indisponível</button>
                     <?php else: ?>
