@@ -37,7 +37,7 @@ $paletteAccents = ['#6B3FCC', '#1B3A8B'];
 
                     $price       = (float) ($reservation['price'] ?? 0);
                     $resQty      = max(1, (int) ($reservation['quantity'] ?? 1));
-                    $redirectUrl = (string) ($reservation['redirect_url'] ?? '');
+                    $redirectUrl = trim((string) ($reservation['redirect_url'] ?? ''));
                     // Só ativa o fluxo "Já comprei / Não comprei" se a coluna
                     // purchase_confirmed existir no row (= migration aplicada).
                     $hasConfirmCol     = array_key_exists('purchase_confirmed', $reservation);

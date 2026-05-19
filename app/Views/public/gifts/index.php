@@ -84,7 +84,7 @@ $brandName = $brandName ?? 'Maria, 30.';
             Depois que comprar (ou se desistir), volta na <strong>Minha Lista</strong>
             e me confirma. Sem isso eu não consigo saber se a compra rolou.
         </p>
-        <a href="#" id="reserve-redirect-link" target="_blank" rel="noopener" class="d-inline-block mb-2">Abrir link agora</a>
+        <a href="#" id="reserve-redirect-link" target="_blank" rel="noopener" class="d-inline-block mb-2" hidden>Abrir link agora</a>
         <div>
             <button type="button" id="reserve-redirect-cancel" class="btn-ghost-sm" data-redirect-cancel>
                 Cancelar redirecionamento

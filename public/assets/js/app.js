@@ -432,6 +432,7 @@ const App = {
         if (!modal || !countdownEl || !linkEl) return;
 
         linkEl.href = redirectUrl;
+        linkEl.hidden = false;
         let seconds = 10;
         countdownEl.textContent = String(seconds);
         modal.classList.add('is-open');

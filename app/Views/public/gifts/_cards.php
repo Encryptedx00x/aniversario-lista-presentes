@@ -49,7 +49,7 @@ if (empty($gifts)): ?>
             $isMine     = $userAction !== '';
             $isMulti    = (string) ($gift['type'] ?? 'single') === 'multi' && $qty > 1;
 
-            $userRedirectUrl  = (string) ($gift['redirect_url'] ?? '');
+            $userRedirectUrl  = trim((string) ($gift['redirect_url'] ?? ''));
             $userPurchaseRaw  = $gift['user_purchase_confirmed'] ?? null;
             $userBought       = $userPurchaseRaw !== null && (int) $userPurchaseRaw === 1;
             // Minutos restantes pra reserva expirar (vazio se sem reserva)
@@ -159,14 +159,16 @@ if (empty($gifts)): ?>
                                            aria-label="Quantidade">
                                 </label>
                             <?php endif; ?>
-                            <button type="button"
-                                    class="gift-card__cta btn-choose-gift"
-                                    data-gift-id="<?= $e($gift['id']) ?>"
-                                    data-logged-in="<?= isset($_SESSION['user_id']) ? '1' : '0' ?>"
-                                    data-redirect-url="<?= $e($gift['redirect_url'] ?? '') ?>"
-                                    style="--cta-hover: <?= $e($accent) ?>;">
-                                Quero esse <span aria-hidden="true">→</span>
-                            </button>
+                            <?php if ($userRedirectUrl !== ''): ?>
+                                <button type="button"
+                                        class="gift-card__cta btn-choose-gift"
+                                        data-gift-id="<?= $e($gift['id']) ?>"
+                                        data-logged-in="<?= isset($_SESSION['user_id']) ? '1' : '0' ?>"
+                                        data-redirect-url="<?= $e($userRedirectUrl) ?>"
+                                        style="--cta-hover: <?= $e($accent) ?>;">
+                                    Quero esse <span aria-hidden="true">→</span>
+                                </button>
+                            <?php endif; ?>
                             <a href="/pix?gift_id=<?= $e($gift['id']) ?>"
                                class="gift-card__cta btn-pix-gift"
                                data-gift-id="<?= $e($gift['id']) ?>"

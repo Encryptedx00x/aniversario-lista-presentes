@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 define('APP_NAME', 'Lista de Presentes');
 define('APP_URL',  getenv('APP_URL') ?: 'http://localhost:8000');
+define('APP_TIMEZONE', getenv('APP_TIMEZONE') ?: 'America/Sao_Paulo');
+
+date_default_timezone_set(APP_TIMEZONE);
 
 $env = getenv('APP_ENV') ?: 'production';
 
